@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Crawer_JobList_104": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "DockerfileRunArguments": "--network job_seeker_network -v D:\\docker\\crawer104:/app/data"
+    }
+  }
+}
