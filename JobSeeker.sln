@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crawer_JobList_104", "Crawe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{76B7FAB4-A0C6-4CD0-AB86-0AA5E0594AE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawer_JobInfo_104", "Crawer_JobInfo_104\Crawer_JobInfo_104.csproj", "{10242924-C7FA-4A07-A306-03693EA42EC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{21E7480A-19CC-4BB8-820B-0B45C71A1349}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{76B7FAB4-A0C6-4CD0-AB86-0AA5E0594AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76B7FAB4-A0C6-4CD0-AB86-0AA5E0594AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76B7FAB4-A0C6-4CD0-AB86-0AA5E0594AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10242924-C7FA-4A07-A306-03693EA42EC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10242924-C7FA-4A07-A306-03693EA42EC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10242924-C7FA-4A07-A306-03693EA42EC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10242924-C7FA-4A07-A306-03693EA42EC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21E7480A-19CC-4BB8-820B-0B45C71A1349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21E7480A-19CC-4BB8-820B-0B45C71A1349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21E7480A-19CC-4BB8-820B-0B45C71A1349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21E7480A-19CC-4BB8-820B-0B45C71A1349}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

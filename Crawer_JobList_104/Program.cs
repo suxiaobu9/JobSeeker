@@ -3,39 +3,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Model;
 using RabbitMQ.Client;
 using Serilog;
-using Serilog.Events;
+using Service;
 using System.Text;
 using System.Text.Json;
 
-IConfiguration config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
-    .AddEnvironmentVariables()
-    .Build();
-
 string currentTag = "Crawer_JobList";
+IConfiguration config = ConfigService.Configuration;
+var factory = ConfigService.RabbitMqFactoryCreater();
+
 string seqLogServerAddress = config.GetSection("SeqLogServerAddress").Value;
-(string Host, string Name, string Password) rabbitMqConfig = (config.GetSection("RabbitMq:Host").Value, config.GetSection("RabbitMq:Name").Value, config.GetSection("RabbitMq:Password").Value);
-
-var factory = new ConnectionFactory
-{
-    HostName = rabbitMqConfig.Host,
-    UserName = rabbitMqConfig.Name,
-    Password = rabbitMqConfig.Password
-};
-
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-    .Enrich.FromLogContext()
-    .WriteTo.Seq(seqLogServerAddress)
-    .WriteTo.Console()
-    .CreateLogger();
+Log.Logger = ConfigService.SeqLogCreater(seqLogServerAddress);
 
 Log.Information($"{{tag}} start.", currentTag);
 
 var services = new ServiceCollection();
 services.AddSingleton<HttpClient>();
-
 using var serviceProvider = services.BuildServiceProvider();
 using var httpClient = serviceProvider.GetRequiredService<HttpClient>();
 
@@ -64,6 +46,10 @@ while (true)
             for (var i = 1; i <= jobList.Data.TotalPage; i++)
             {
                 var fileName = await SaveJobListToFileSystem(keyword, jobArea, i);
+
+                if (string.IsNullOrWhiteSpace(fileName))
+                    continue;
+
                 SendMessageToRabbitMq(channel, fileName);
             }
         }
@@ -108,11 +94,14 @@ async Task<_104JobListModel?> GetJobListInfo(string keyword, string jobArea, int
 /// <summary>
 /// 將檔資料存到檔案系統
 /// </summary>
-async Task<string> SaveJobListToFileSystem(string keyword, string jobArea, int pageNo)
+async Task<string?> SaveJobListToFileSystem(string keyword, string jobArea, int pageNo)
 {
     var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}-{keyword}-{jobArea}-{pageNo}.json";
 
     var jobList = await GetJobListInfo(keyword, jobArea, pageNo);
+
+    if (jobList == null)
+        return null;
 
     var filePath = Path.Combine(_104Parameters.JobListDir, fileName);
 
@@ -126,7 +115,7 @@ async Task<string> SaveJobListToFileSystem(string keyword, string jobArea, int p
 /// <summary>
 /// 傳送訊息到 Rabbit MQ
 /// </summary>
-void SendMessageToRabbitMq(IModel channel,string fileName)
+void SendMessageToRabbitMq(IModel channel, string fileName)
 {
     var body = Encoding.UTF8.GetBytes(fileName);
     channel.BasicPublish(exchange: "", routingKey: _104Parameters.QueueName, basicProperties: null, body: body);
