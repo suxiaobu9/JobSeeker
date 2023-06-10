@@ -1,24 +1,33 @@
-﻿using Microsoft.AspNetCore.Components.RenderTree;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Model;
+using RabbitMQ.Client;
 using Serilog;
 using Serilog.Events;
-using System;
+using System.Text;
 using System.Text.Json;
-
-string currentTag = "Crawer";
 
 IConfiguration config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .AddEnvironmentVariables()
     .Build();
 
+string currentTag = "Crawer_JobList";
+string seqLogServerAddress = config.GetSection("SeqLogServerAddress").Value;
+(string Host, string Name, string Password) rabbitMqConfig = (config.GetSection("RabbitMq:Host").Value, config.GetSection("RabbitMq:Name").Value, config.GetSection("RabbitMq:Password").Value);
+
+var factory = new ConnectionFactory
+{
+    HostName = rabbitMqConfig.Host,
+    UserName = rabbitMqConfig.Name,
+    Password = rabbitMqConfig.Password
+};
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .Enrich.FromLogContext()
-    .WriteTo.Seq(config.GetSection("seqLogServerAddress").Value)
+    .WriteTo.Seq(seqLogServerAddress)
     .WriteTo.Console()
     .CreateLogger();
 
@@ -35,30 +44,37 @@ httpClient.DefaultRequestHeaders.Add("Referer", _104Parameters.Referer);
 if (!Directory.Exists(_104Parameters.JobListDir))
     Directory.CreateDirectory(_104Parameters.JobListDir);
 
-foreach ((string jobArea, string keyword) in _104Parameters.AreaAndKeywords)
+while (true)
 {
-    try
+    using var connection = factory.CreateConnection();
+    using var channel = connection.CreateModel();
+    channel.QueueDeclare(queue: _104Parameters.QueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+
+    foreach ((string jobArea, string keyword) in _104Parameters.AreaAndKeywords)
     {
-        var jobList = await GetJobListInfo(keyword, jobArea, 1);
-
-        if (jobList == null)
-            continue;
-
-        for (var i = 1; i <= jobList.Data.TotalPage; i++)
+        try
         {
-            await SaveJobListToFileSystem(keyword, jobArea, i);
+            Log.Information($"{{tag}}. Get initial job list.", currentTag);
+
+            var jobList = await GetJobListInfo(keyword, jobArea, 1);
+
+            if (jobList == null)
+                continue;
+
+            for (var i = 1; i <= jobList.Data.TotalPage; i++)
+            {
+                var fileName = await SaveJobListToFileSystem(keyword, jobArea, i);
+                SendMessageToRabbitMq(channel, fileName);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, $"{{tag}} get job list get exception.", currentTag);
+            continue;
         }
     }
-    catch (Exception ex)
-    {
-        Log.Error(ex, $"{{tag}} get job list get exception.", currentTag);
-        continue;
-    }
+    await Task.Delay(TimeSpan.FromHours(1));
 }
-
-Log.Information($"{{tag}} end.", currentTag);
-
-Log.CloseAndFlush();
 
 /// <summary>
 /// 從 104 上將職缺列表抓下來
@@ -100,7 +116,20 @@ async Task<string> SaveJobListToFileSystem(string keyword, string jobArea, int p
 
     var filePath = Path.Combine(_104Parameters.JobListDir, fileName);
 
+    Log.Information($"{{tag}}. Write file. {{fileName}}", currentTag, fileName);
+
     await File.AppendAllTextAsync(filePath, JsonSerializer.Serialize(jobList));
 
     return fileName;
+}
+
+/// <summary>
+/// 傳送訊息到 Rabbit MQ
+/// </summary>
+void SendMessageToRabbitMq(IModel channel,string fileName)
+{
+    var body = Encoding.UTF8.GetBytes(fileName);
+    channel.BasicPublish(exchange: "", routingKey: _104Parameters.QueueName, basicProperties: null, body: body);
+
+    Log.Information($"{{tag}}. Send message to rabbit mq. {{fileName}}", currentTag, fileName);
 }

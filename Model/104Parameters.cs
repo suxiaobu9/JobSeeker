@@ -54,4 +54,5 @@ public static class _104Parameters
     public static readonly string DataDir = "./data";
     public static readonly string JobListDir = Path.Combine(DataDir, "JobList");
     public static readonly string JobInfoDir = Path.Combine(DataDir, "JobInfos");
+    public static readonly string QueueName = "104Crawer";
 }
