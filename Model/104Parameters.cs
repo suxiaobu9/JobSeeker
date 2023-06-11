@@ -44,15 +44,18 @@ public static class _104Parameters
     public static (string Area, string Keyword)[] AreaAndKeywords => JobAreas.SelectMany(x => Keywords.Select(y => (x, y))).ToArray();
 
     public static readonly string Referer = @"https://www.104.com.tw";
-    public static string Get104JobUrl(string keyword, string jobArea, int page)
+    public static string Get104JobListUrl(string keyword, string jobArea, int page)
     {
         keyword = HttpUtility.UrlEncode(keyword);
 
         return $@"{Referer}/jobs/search/list?ro=1&kwop=7&keyword={keyword}&area={jobArea}&order=15&asc=0&page={page}&mode=l&jobsource=2018indexpoc&searchTempExclude=2&langFlag=0&langStatus=0&recommendJob=1&hotJob=1";
     }
 
+    public static string Get104JobInfoUrl(string jobId) => $@"{Referer}/job/ajax/content/{jobId}";
+
     public static readonly string DataDir = "./data";
     public static readonly string JobListDir = Path.Combine(DataDir, "JobList");
     public static readonly string JobInfoDir = Path.Combine(DataDir, "JobInfos");
-    public static readonly string QueueName = "104Crawer";
+    public static readonly string _104JobListQueueName = "104JobList";
+    public static readonly string _104JobInfoQueueName = "104JobInfo";
 }

@@ -14,7 +14,7 @@ public class _104JobListModel
     public int Status { get; set; }
     
     [JsonPropertyName("data")]
-    public Data Data { get; set; }
+    public JobListData Data { get; set; }
 
     [JsonPropertyName("statusMsg")]
     public string StatusMsg { get; set; }
@@ -23,7 +23,7 @@ public class _104JobListModel
     public string ErrorMsg { get; set; }
 }
 
-public class Data
+public class JobListData
 {
 
     [JsonPropertyName("list")]

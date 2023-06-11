@@ -30,7 +30,7 @@ while (true)
 {
     using var connection = factory.CreateConnection();
     using var channel = connection.CreateModel();
-    channel.QueueDeclare(queue: _104Parameters.QueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+    channel.QueueDeclare(queue: _104Parameters._104JobListQueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
 
     foreach ((string jobArea, string keyword) in _104Parameters.AreaAndKeywords)
     {
@@ -67,7 +67,7 @@ while (true)
 /// </summary>
 async Task<_104JobListModel?> GetJobListInfo(string keyword, string jobArea, int pageNo)
 {
-    var url = string.Format(_104Parameters.Get104JobUrl(keyword, jobArea, pageNo));
+    var url = string.Format(_104Parameters.Get104JobListUrl(keyword, jobArea, pageNo));
 
     Log.Information($"{{tag}}. {nameof(url)}: {{url}}.", currentTag, url);
     var response = await httpClient.GetAsync(url);
@@ -118,7 +118,7 @@ async Task<string?> SaveJobListToFileSystem(string keyword, string jobArea, int 
 void SendMessageToRabbitMq(IModel channel, string fileName)
 {
     var body = Encoding.UTF8.GetBytes(fileName);
-    channel.BasicPublish(exchange: "", routingKey: _104Parameters.QueueName, basicProperties: null, body: body);
+    channel.BasicPublish(exchange: "", routingKey: _104Parameters._104JobListQueueName, basicProperties: null, body: body);
 
-    Log.Information($"{{tag}}. Send message to rabbit mq. {{fileName}}", currentTag, fileName);
+    Log.Information($"{{tag}}. Send job list message to rabbit mq. {{fileName}}", currentTag, fileName);
 }
