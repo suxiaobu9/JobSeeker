@@ -37,7 +37,6 @@ AnalyzeJobList(connection);
 while (true)
     await Task.Delay(TimeSpan.FromDays(1));
 
-Log.Information($"{{tag}} end.", currentTag);
 
 /// <summary>
 /// 解析職缺清單
