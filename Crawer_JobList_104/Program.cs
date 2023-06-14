@@ -108,6 +108,8 @@ async Task<string?> SaveJobListToFileSystem(string keyword, string jobArea, int 
 
     await File.AppendAllTextAsync(filePath, JsonSerializer.Serialize(jobList));
 
+    await Task.Delay(TimeSpan.FromSeconds(1));
+
     return fileName;
 }
 

@@ -32,8 +32,7 @@ using var connection = factory.CreateConnection();
 AnalyzeJobList(connection);
 
 while (true)
-    await Task.Delay(TimeSpan.FromDays(1));
-
+    await Task.Delay(TimeSpan.FromHours(1));
 
 /// <summary>
 /// 解析職缺清單
@@ -127,6 +126,7 @@ async Task<List<string>?> AnalyzeMqMessage(BasicDeliverEventArgs args)
             File.WriteAllText(jobInfoFileName, JsonSerializer.Serialize(jobInfo));
 
             result.Add(jobInfoFileName);
+            await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
         File.Delete(jobListFileName);
