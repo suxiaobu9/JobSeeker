@@ -8,10 +8,9 @@ using System.Text;
 using System.Text.Json;
 
 string currentTag = "Crawer_JobList";
-IConfiguration config = ConfigService.Configuration;
 var factory = ConfigService.RabbitMqFactoryCreater();
 
-string seqLogServerAddress = config.GetSection("SeqLogServerAddress").Value;
+string seqLogServerAddress = ConfigService.Configuration.GetSection("SeqLogServerAddress").Value;
 Log.Logger = ConfigService.SeqLogCreater(seqLogServerAddress);
 
 Log.Information($"{{tag}} start.", currentTag);

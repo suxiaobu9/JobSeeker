@@ -16,12 +16,21 @@ public static class ConfigService
                     .WriteTo.Console()
                     .CreateLogger();
 
-    private static readonly IConfigurationRoot configurationRoot = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build();
+    private static IConfigurationRoot ConfigurationRoot()
+    {
 
-    public static IConfiguration Configuration = configurationRoot;
+        var config = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json")
+                        .AddEnvironmentVariables()
+                        .Build();
+
+        return new ConfigurationBuilder()
+                    .AddNacosV2Configuration(config.GetSection("NacosConfig"))
+                    .Build();
+
+    }
+
+    public static readonly IConfiguration Configuration = ConfigurationRoot();
 
     public static ConnectionFactory RabbitMqFactoryCreater()
     {
