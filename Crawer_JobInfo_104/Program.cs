@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Model;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -9,7 +7,7 @@ using Service;
 using System.Text;
 using System.Text.Json;
 
-string currentTag = "Crawer_JobInfo";
+string currentTag = "Crawer_JobInfo_104";
 
 string seqLogServerAddress = ConfigService.Configuration.GetSection("SeqLogServerAddress").Value;
 Log.Logger = ConfigService.SeqLogCreater(seqLogServerAddress);
