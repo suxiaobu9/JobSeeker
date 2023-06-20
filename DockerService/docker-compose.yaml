@@ -24,6 +24,11 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 10s
+      retries: 10
     volumes:
       - C:\docker\rabbitmq:/var/lib/rabbitmq
 
@@ -38,6 +43,11 @@ services:
       - 5432:5432
     volumes:
       - C:\docker\postgresql:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.4
@@ -52,6 +62,11 @@ services:
     ports:
       - "8848:8848"
       - "9848:9848"
+    healthcheck:
+      test: curl 172.20.0.5:8848/nacos && curl 172.20.0.2:5341/health
+      interval: 5s
+      timeout: 10s
+      retries: 10
     depends_on:
       mysql:
         condition: service_healthy
@@ -73,7 +88,7 @@ services:
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -81,6 +96,27 @@ services:
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.6
+
+  crawer-104:
+    build:
+      context: ..
+      dockerfile: .\Crawer_104\Dockerfile
+    image: crawer-104-worker-service
+    volumes:
+      - C:\docker\crawer104:/app/data"
+    restart: unless-stopped
+    networks:
+      job_seeker_network:
+        ipv4_address: 172.20.0.7
+    depends_on:
+      # seq:
+      #   condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
 
 networks:
   job_seeker_network:
