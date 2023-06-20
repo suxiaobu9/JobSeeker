@@ -2,7 +2,7 @@
 
 public interface IMqService
 {
-    public delegate void MessageReceivedProcesser(string message);
+    public delegate Task MessageReceivedProcesserAsync(string message);
 
     /// <summary>
     /// 送訊息到 Mq 中
@@ -24,8 +24,6 @@ public interface IMqService
     /// </summary>
     /// <param name="queueName"></param>
     /// <param name="message"></param>
-    public void ProcessMessageFromMq(string queueName, MessageReceivedProcesser processer);
-
-
+    public void ProcessMessageFromMq(string queueName, MessageReceivedProcesserAsync processer, ushort? prefetchCount = null);
 
 }

@@ -55,9 +55,6 @@ public static class _104Parameters
 
     public static string Get104CompanyUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
 
-    public static readonly string DataDir = "./data";
-    public static readonly string JobListDir = Path.Combine(DataDir, "JobList");
-    public static readonly string JobInfoDir = Path.Combine(DataDir, "JobInfos");
     public static readonly string _104JobListQueueName = "104JobList";
     public static readonly string _104JobInfoQueueName = "104JobInfo";
 }

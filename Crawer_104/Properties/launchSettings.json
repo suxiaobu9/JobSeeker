@@ -1,7 +1,11 @@
 {
   "profiles": {
-    "Crawer_JobInfo_104": {
-      "commandName": "Project"
+    "Crawer_104": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
     },
     "Docker": {
       "commandName": "Docker",

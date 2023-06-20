@@ -5,16 +5,16 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Crawer_JobInfo_104/Crawer_JobInfo_104.csproj", "Crawer_JobInfo_104/"]
-RUN dotnet restore "Crawer_JobInfo_104/Crawer_JobInfo_104.csproj"
+COPY ["Crawer_104/Crawer_104.csproj", "Crawer_104/"]
+RUN dotnet restore "Crawer_104/Crawer_104.csproj"
 COPY . .
-WORKDIR "/src/Crawer_JobInfo_104"
-RUN dotnet build "Crawer_JobInfo_104.csproj" -c Release -o /app/build
+WORKDIR "/src/Crawer_104"
+RUN dotnet build "Crawer_104.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Crawer_JobInfo_104.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Crawer_104.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Crawer_JobInfo_104.dll"]
+ENTRYPOINT ["dotnet", "Crawer_104.dll"]

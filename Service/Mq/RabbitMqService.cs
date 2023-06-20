@@ -36,7 +36,8 @@ public class RabbitMqService : IMqService
         {
             HostName = host,
             UserName = name,
-            Password = password
+            Password = password,
+            DispatchConsumersAsync = true,
         }.CreateConnection();
     }
 
@@ -46,27 +47,37 @@ public class RabbitMqService : IMqService
     /// <param name="queueName"></param>
     /// <param name="processer"></param>
     /// <exception cref="NotImplementedException"></exception>
-    public void ProcessMessageFromMq(string queueName, MessageReceivedProcesser processer)
+    public void ProcessMessageFromMq(string queueName, MessageReceivedProcesserAsync processer, ushort? prefetchCount = null)
     {
-        logger.LogInformation($"{nameof(RabbitMQ)} {nameof(ProcessMessageFromMq)} start.");
+        var currentMethod = "RabbitMqService.ProcessMessageFromMq";
+        logger.LogInformation($"{{currentMethod}} start.", currentMethod);
 
         var channel = Connection.Value.CreateModel();
-        channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
-        var consumer = new EventingBasicConsumer(channel);
+        var autoAck = true;
 
-        logger.LogInformation($"{nameof(RabbitMQ)} {nameof(ProcessMessageFromMq)} listen to mq.");
+        if (prefetchCount != null)
+        {
+            channel.BasicQos(0, prefetchCount.Value, true);
+            autoAck = false;
+        }
 
-        consumer.Received += (sender, args) =>
+        channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        var consumer = new AsyncEventingBasicConsumer(channel);
+
+        logger.LogInformation($"{{currentMethod}} listen to mq.", currentMethod);
+
+        consumer.Received += async (sender, args) =>
         {
             var body = args.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            logger.LogInformation($"{nameof(RabbitMQ)} {nameof(ProcessMessageFromMq)} receive message.{{message}}", message);
-            processer(message);
+            logger.LogInformation($"{{currentMethod}} receive message.", currentMethod);
+            await processer(message);
+
+            if (!autoAck)
+                channel.BasicAck(args.DeliveryTag, false);
         };
 
-        channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
-
-        throw new NotImplementedException();
+        channel.BasicConsume(queue: queueName, autoAck: autoAck, consumer: consumer);
     }
 
     /// <summary>
@@ -76,20 +87,20 @@ public class RabbitMqService : IMqService
     /// <param name="message"></param>
     public void SendMessageToMq(string queueName, string message)
     {
+        var currentMethod = "RabbitMqService.SendMessageToMq";
         try
         {
             var body = Encoding.UTF8.GetBytes(message);
-            var channel = Connection.Value.CreateModel();
-            channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+            using var channel = Connection.Value.CreateModel();
+            channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
             channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: null, body: body);
 
-            logger.LogInformation($"{nameof(RabbitMQ)} {nameof(SendMessageToMq)} send message finish.{{message}}", message);
+            logger.LogInformation($"{{currentMethod}} send message finish.", currentMethod);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(RabbitMQ)} {nameof(SendMessageToMq)} send message error.{{message}}", message);
-            throw;
+            logger.LogError(ex, $"{{currentMethod}} send message error.{{message}}", currentMethod, message);
         }
 
     }
