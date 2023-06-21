@@ -46,11 +46,11 @@ public class JobListWorker : BackgroundService
 
         foreach ((string jobArea, string keyword) in _104Parameters.AreaAndKeywords)
         {
-            try
-            {
-                var totalPage = 1;
+            var totalPage = 1;
 
-                for (var i = 1; i <= totalPage; i++)
+            for (var i = 1; i <= totalPage; i++)
+            {
+                try
                 {
                     var getJobListUrl = string.Format(_104Parameters.Get104JobListUrl(keyword, jobArea, i));
 
@@ -80,11 +80,11 @@ public class JobListWorker : BackgroundService
 
                     mqService.SendMessageToMq(_104Parameters._104JobListQueueName, jobList);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"{{currentMethod}} get job list get exception.", currentMethod);
-                continue;
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, $"{{currentMethod}} get job list get exception.{{jobArea}} {{keyword}} {{i}}", currentMethod, jobArea, keyword, i);
+                    continue;
+                }
             }
         }
     }

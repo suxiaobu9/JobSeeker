@@ -54,7 +54,7 @@ public class JobInfoWorker : BackgroundService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{{currentMethod}} get exception.", currentMethod);
+            logger.LogError(ex, $"{{currentMethod}} get exception.{{jobListData}}", currentMethod, jobListData);
         }
 
     }
