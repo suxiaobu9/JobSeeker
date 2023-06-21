@@ -45,4 +45,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         config.AddNacosV2Configuration(nacosConfig);
     }).Build();
 
+using (var scope = host.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<postgresContext>();
+    context.Database.Migrate();
+}
+
 await host.RunAsync();
