@@ -1,26 +1,26 @@
-version: "3"
-name: job-seeker
+version: "3.5"
+name: job-seeker-dev
 services:
-  seq:
+  seq-dev:
     image: datalust/seq:2023.2
-    container_name: seq
+    container_name: seq-dev
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
     ports:
       - 5341:80
     volumes:
-      - C:\docker\prd\seq:/data
+      - C:\docker\dev\seq:/data
     networks:
-      job_seeker_network:
+      job_seeker_network_dev:
         ipv4_address: 172.20.0.2
 
-  rabbitmq:
+  rabbitmq-dev:
     image: rabbitmq:3.12-management
-    container_name: rabbitmq
+    container_name: rabbitmq-dev
     restart: unless-stopped
     networks:
-      job_seeker_network:
+      job_seeker_network_dev:
         ipv4_address: 172.20.0.3
     ports:
       - 5672:5672
@@ -31,11 +31,11 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - C:\docker\prd\rabbitmq:/var/lib/rabbitmq
+      - C:\docker\dev\rabbitmq:/var/lib/rabbitmq
 
-  postgres:
+  postgres-dev:
     image: postgres:15.3
-    container_name: postgres
+    container_name: postgres-dev
     restart: unless-stopped
     environment:
       - POSTGRES_USER=jobseeker
@@ -43,23 +43,23 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - C:\docker\prd\postgresql:/var/lib/postgresql/data
+      - C:\docker\dev\postgresql:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
       interval: 5s
       timeout: 10s
       retries: 10
     networks:
-      job_seeker_network:
+      job_seeker_network_dev:
         ipv4_address: 172.20.0.4
 
-  nacos:
+  nacos-dev:
     image: nacos/nacos-server:v2.2.3
-    container_name: nacos-standalone-mysql
+    container_name: nacos-standalone-mysql-dev
     env_file:
       - ./env/nacos-standlone-mysql.env
     volumes:
-      - C:\docker\prd\nacos\standalone-logs/:/home/nacos/logs
+      - C:\docker\dev\nacos\standalone-logs/:/home/nacos/logs
     ports:
       - "8848:8848"
       - "9848:9848"
@@ -69,15 +69,15 @@ services:
       timeout: 10s
       retries: 10
     depends_on:
-      mysql:
+      mysql-dev:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      job_seeker_network:
+      job_seeker_network_dev:
         ipv4_address: 172.20.0.5
 
-  mysql:
-    container_name: mysql
+  mysql-dev:
+    container_name: mysql-dev
     build:
       context: .
       dockerfile: ./image/mysql/8/Dockerfile
@@ -85,7 +85,7 @@ services:
     env_file:
       - ./env/mysql.env
     volumes:
-      - C:\docker\prd\mysql:/var/lib/mysql
+      - C:\docker\dev\mysql:/var/lib/mysql
     ports:
       - "3306:3306"
     healthcheck:
@@ -95,30 +95,11 @@ services:
       retries: 10
     restart: unless-stopped
     networks:
-      job_seeker_network:
+      job_seeker_network_dev:
         ipv4_address: 172.20.0.6
 
-  crawer-104:
-    build:
-      context: ..
-      dockerfile: .\Crawer_104\Dockerfile
-    image: crawer-104-worker-service
-    volumes:
-      - C:\docker\prd\crawer104:/app/data"
-    restart: unless-stopped
-    networks:
-      job_seeker_network:
-        ipv4_address: 172.20.0.7
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      nacos:
-        condition: service_healthy
-
 networks:
-  job_seeker_network:
+  job_seeker_network_dev:
     ipam:
       config:
         - subnet: 172.20.0.0/16
