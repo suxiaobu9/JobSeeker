@@ -1,4 +1,5 @@
 ﻿using Model;
+using Service.Db;
 using Service.Http;
 using Service.Mq;
 
@@ -9,14 +10,17 @@ public class JobListWorker : BackgroundService
     private readonly ILogger<JobListWorker> logger;
     private readonly IHttpService get104JobService;
     private readonly IMqService mqService;
+    private readonly IDbService dbService;
 
     public JobListWorker(ILogger<JobListWorker> logger,
         IHttpService get104JobService,
-        IMqService mqService)
+        IMqService mqService,
+        IDbService dbService)
     {
         this.logger = logger;
         this.get104JobService = get104JobService;
         this.mqService = mqService;
+        this.dbService = dbService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,6 +39,9 @@ public class JobListWorker : BackgroundService
     private async Task GetJobListAndSendMessageToMq()
     {
         var currentMethod = "JobListWorker.GetJobListAndSendMessageToMq";
+
+        await dbService.SetAllUndeleteJobToDelete();
+
         foreach ((string jobArea, string keyword) in _104Parameters.AreaAndKeywords)
         {
             try

@@ -147,9 +147,6 @@ public class Db104JobService : IDbService
                 .On(x => x.Id)
                 .RunAsync();
 
-            await db.SaveChangesAsync();
-
-            return;
         }
         else
         {
@@ -158,15 +155,38 @@ public class Db104JobService : IDbService
                                  job.OtherRequirement != newJobInfo.OtherRequirement ||
                                  job.WorkContent != newJobInfo.WorkContent;
 
-            if (!needUpdate)
-                return;
+            if (needUpdate)
+            {
+                job.JobPlace = newJobInfo.JobPlace;
+                job.Salary = newJobInfo.Salary;
+                job.OtherRequirement = newJobInfo.OtherRequirement;
+                job.WorkContent = newJobInfo.WorkContent;
+                job.HaveRead = false;
+            }
 
-            job.JobPlace = newJobInfo.JobPlace;
-            job.Salary = newJobInfo.Salary;
-            job.OtherRequirement = newJobInfo.OtherRequirement;
-            job.WorkContent = newJobInfo.WorkContent;
-
-            await db.SaveChangesAsync();
+            job.IsDeleted = false;
+            job.UpdateUtcAt = newJobInfo.UpdateUtcAt;
         }
+
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// 將未刪除的職缺設為刪除
+    /// </summary>
+    /// <returns></returns>
+    public async Task SetAllUndeleteJobToDelete()
+    {
+        var undeleteJobs = await db.Jobs.Where(x => !x.IsDeleted).ToArrayAsync();
+
+        var now = DateTimeOffset.Now;
+
+        foreach (var job in undeleteJobs)
+        {
+            job.IsDeleted = true;
+            job.UpdateUtcAt = now.UtcDateTime;
+        }
+
+        await db.SaveChangesAsync();
     }
 }
