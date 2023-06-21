@@ -51,6 +51,10 @@ namespace Model.JobSeekerDb
         /// 排序
         /// </summary>
         public int Sort { get; set; }
+        /// <summary>
+        /// 忽略不看
+        /// </summary>
+        public bool Ignore { get; set; }
 
         public virtual Company Company { get; set; } = null!;
     }

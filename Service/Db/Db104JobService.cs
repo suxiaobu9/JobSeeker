@@ -52,6 +52,7 @@ public class Db104JobService : IDbService
             Url = companyInfo.Data.CustLink,
             CreateUtcAt = now.UtcDateTime,
             UpdateUtcAt = now.UtcDateTime,
+            Ignore = false,
             Sort = 0,
         };
 
@@ -115,6 +116,7 @@ public class Db104JobService : IDbService
             IsDeleted = false,
             OtherRequirement = jobInfo.Data.Condition.Other,
             WorkContent = jobInfo.Data.JobDetail.JobDescription,
+            Ignore = false,
         };
     }
 

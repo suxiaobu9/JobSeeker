@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Model.JobSeekerDb;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Model.Migrations
 {
     [DbContext(typeof(postgresContext))]
-    partial class postgresContextModelSnapshot : ModelSnapshot
+    [Migration("20230621164124_UpdateJobSeeker")]
+    partial class UpdateJobSeeker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,9 +36,11 @@ namespace Model.Migrations
                         .HasColumnName("create_utc_at")
                         .HasComment("建立時間");
 
-                    b.Property<bool>("Ignore")
+                    b.Property<bool?>("Ignore")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasColumnName("ignore")
+                        .HasDefaultValueSql("false")
                         .HasComment("忽略不看");
 
                     b.Property<string>("Name")
@@ -93,9 +97,11 @@ namespace Model.Migrations
                         .HasColumnName("have_read")
                         .HasComment("已讀");
 
-                    b.Property<bool>("Ignore")
+                    b.Property<bool?>("Ignore")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasColumnName("ignore")
+                        .HasDefaultValueSql("false")
                         .HasComment("忽略不看");
 
                     b.Property<bool>("IsDeleted")

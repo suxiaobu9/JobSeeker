@@ -23,9 +23,9 @@
   ```ps1
   cd Model
   # 新增 建立 migration 文件
-  dotnet ef migrations add InitialCreate --context Model.JobSeekerDb.postgresContextExpansion
+  dotnet ef migrations add InitialCreate --context Model.JobSeekerDb.postgresContext
   # 新增 更新 migration 文件
-  dotnet ef migrations add UpdateJobSeeker --context Model.JobSeekerDb.postgresContextExpansion
+  dotnet ef migrations add <name> --context Model.JobSeekerDb.postgresContext
   ```
 
 ## 環境設定

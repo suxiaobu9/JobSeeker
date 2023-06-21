@@ -36,6 +36,10 @@ namespace Model.JobSeekerDb
                     .HasColumnName("create_utc_at")
                     .HasComment("建立時間");
 
+                entity.Property(e => e.Ignore)
+                    .HasColumnName("ignore")
+                    .HasComment("忽略不看");
+
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
                     .HasColumnName("name")
@@ -58,6 +62,8 @@ namespace Model.JobSeekerDb
             {
                 entity.ToTable("job", "jobseeker");
 
+                entity.HasIndex(e => e.CompanyId, "IX_job_company_id");
+
                 entity.HasIndex(e => e.Id, "job_id_idx")
                     .IsUnique();
 
@@ -76,6 +82,10 @@ namespace Model.JobSeekerDb
                 entity.Property(e => e.HaveRead)
                     .HasColumnName("have_read")
                     .HasComment("已讀");
+
+                entity.Property(e => e.Ignore)
+                    .HasColumnName("ignore")
+                    .HasComment("忽略不看");
 
                 entity.Property(e => e.IsDeleted)
                     .HasColumnName("is_deleted")
