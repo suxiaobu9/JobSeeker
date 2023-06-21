@@ -68,13 +68,20 @@ public class RabbitMqService : IMqService
 
         consumer.Received += async (sender, args) =>
         {
-            var body = args.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            logger.LogInformation($"{{currentMethod}} receive message.", currentMethod);
-            await processer(message);
+            try
+            {
+                var body = args.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                logger.LogInformation($"{{currentMethod}} receive message.", currentMethod);
+                await processer(message);
 
-            if (!autoAck)
-                channel.BasicAck(args.DeliveryTag, false);
+                if (!autoAck)
+                    channel.BasicAck(args.DeliveryTag, false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"{{currentMethod}} process message error.{{message}}", currentMethod, args.Body);
+            }
         };
 
         channel.BasicConsume(queue: queueName, autoAck: autoAck, consumer: consumer);

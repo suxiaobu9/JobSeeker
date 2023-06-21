@@ -33,6 +33,8 @@ public class JobListWorker : BackgroundService
             await GetJobListAndSendMessageToMq();
 
             await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+
+            logger.LogInformation($"{{currentMethod}} end at: {{time}}", currentMethod, DateTimeOffset.Now);
         }
     }
 

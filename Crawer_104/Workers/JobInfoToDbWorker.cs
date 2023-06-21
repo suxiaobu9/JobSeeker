@@ -38,38 +38,46 @@ public class JobInfoToDbWorker : BackgroundService
     private async Task GetJobInfoAndSaveToDb(string jobInfoData)
     {
         var currentMethod = "JobInfoToDbWorker.GetJobInfoAndSaveToDb";
-        var jobInfo = dbService.TransJobInfoToDbEntity(jobInfoData);
-
-        if (jobInfo == null)
+        try
         {
-            logger.LogWarning($"{{currentMethod}} get job info from job list get null.", currentMethod);
-            return;
-        }
+            var jobInfo = dbService.TransJobInfoToDbEntity(jobInfoData);
 
-        var companyNo = jobInfo.CompanyId;
-
-        if (!await dbService.CompanyExists(companyNo))
-        {
-            var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
-
-            if (companyInfo == null)
+            if (jobInfo == null)
             {
-                logger.LogWarning($"{{currentMethod}} get company info get null.", currentMethod);
+                logger.LogWarning($"{{currentMethod}} get job info from job list get null.", currentMethod);
                 return;
             }
 
-            var companyEntity = dbService.TransCompanyInfoToDbEntity(companyInfo);
+            var companyNo = jobInfo.CompanyId;
 
-            if (companyEntity == null)
+            if (!await dbService.CompanyExists(companyNo))
             {
-                logger.LogWarning($"{{currentMethod}} get company entity get null", currentMethod);
-                return;
+                var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
+
+                if (companyInfo == null)
+                {
+                    logger.LogWarning($"{{currentMethod}} get company info get null.", currentMethod);
+                    return;
+                }
+
+                var companyEntity = dbService.TransCompanyInfoToDbEntity(companyInfo);
+
+                if (companyEntity == null)
+                {
+                    logger.LogWarning($"{{currentMethod}} get company entity get null", currentMethod);
+                    return;
+                }
+
+                await dbService.UpsertCompany(companyEntity);
             }
 
-            await dbService.UpsertCompany(companyEntity);
+            await dbService.UpsertJob(jobInfo);
+
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"{{currentMethod}} get exception.", currentMethod);
 
-        await dbService.UpsertJob(jobInfo);
-
+        }
     }
 }
