@@ -114,7 +114,7 @@ public class Http104JobService : IHttpService
 
         if (companyInfo == null)
         {
-            logger.LogWarning($"{{currentMethod}} deserialize company info fail.{{companyInfo}}", currentMethod, content);
+            logger.LogWarning($"{{currentMethod}} deserialize company info fail.{{content}}", currentMethod, content);
             return null;
         }
 

@@ -69,19 +69,13 @@ public class Db104JobService : IDbService
         var currentMethod = "Db104JobService.TransJobInfoToDbEntity";
         var jobInfo = JsonSerializer.Deserialize<_104JobInfoModel>(jobInfoJson);
 
-        if (jobInfo == null)
+        if (jobInfo == null || jobInfo.Data == null ||
+            jobInfo.Data.Header == null || jobInfo.Data.JobDetail == null ||
+            jobInfo.Data.Condition == null)
         {
             logger.LogWarning($"{{currentMethod}} deserialize job info fail.{{jobInfoJson}}", currentMethod, jobInfoJson);
             return null;
         }
-
-        var analysisUrl = new StringBuilder("https:")
-            .Append(jobInfo.Data.Header.AnalysisUrl
-                            .TrimStart("http".ToCharArray())
-                            .TrimStart("https".ToCharArray())
-                            .TrimStart(":".ToCharArray())
-                            .TrimStart("//".ToCharArray()))
-            .ToString();
 
         var jobId = jobInfo.Data.Header.AnalysisUrl.Split('/').LastOrDefault();
 

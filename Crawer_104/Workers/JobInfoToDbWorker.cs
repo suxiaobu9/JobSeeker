@@ -44,7 +44,7 @@ public class JobInfoToDbWorker : BackgroundService
 
             if (jobInfo == null)
             {
-                logger.LogWarning($"{{currentMethod}} get job info from job list get null.", currentMethod);
+                logger.LogWarning($"{{currentMethod}} get job info from job list get null.{{jobInfoData}}", currentMethod, jobInfoData);
                 return;
             }
 
@@ -56,7 +56,7 @@ public class JobInfoToDbWorker : BackgroundService
 
                 if (companyInfo == null)
                 {
-                    logger.LogWarning($"{{currentMethod}} get company info get null.", currentMethod);
+                    logger.LogWarning($"{{currentMethod}} get company info get null.{{companyNo}}", currentMethod, companyNo);
                     return;
                 }
 
@@ -64,7 +64,7 @@ public class JobInfoToDbWorker : BackgroundService
 
                 if (companyEntity == null)
                 {
-                    logger.LogWarning($"{{currentMethod}} get company entity get null", currentMethod);
+                    logger.LogWarning($"{{currentMethod}} get company entity get null.{{companyInfo}}", currentMethod, companyInfo);
                     return;
                 }
 
