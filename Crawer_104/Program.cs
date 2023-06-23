@@ -39,17 +39,17 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<JobInfoWorker>();
         services.AddHostedService<JobInfoToDbWorker>();
 
+        if (!hostContext.HostingEnvironment.IsDevelopment())
+        {
+            using var scope = services.BuildServiceProvider().CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
+            context.Database.Migrate();
+        }
+
     }).ConfigureAppConfiguration(config =>
     {
         var nacosConfig = config.Build().GetSection("NacosConfig");
         config.AddNacosV2Configuration(nacosConfig);
     }).Build();
-
-using (var scope = host.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<postgresContext>();
-    context.Database.Migrate();
-}
 
 await host.RunAsync();
