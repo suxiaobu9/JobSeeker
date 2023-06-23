@@ -10,7 +10,7 @@ services:
     ports:
       - 5341:80
     volumes:
-      - C:\docker\dev\seq:/data
+      - ./docker/dev/seq:/data
     networks:
       job_seeker_network_dev:
         ipv4_address: 172.20.0.2
@@ -31,7 +31,7 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - C:\docker\dev\rabbitmq:/var/lib/rabbitmq
+      - ./docker/dev/rabbitmq:/var/lib/rabbitmq
 
   postgres-dev:
     image: postgres:15.3
@@ -43,7 +43,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - C:\docker\dev\postgresql:/var/lib/postgresql/data
+      - ./docker/dev/postgresql:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
       interval: 5s
@@ -59,7 +59,7 @@ services:
     env_file:
       - ./env/nacos-standlone-mysql.env
     volumes:
-      - C:\docker\dev\nacos\standalone-logs/:/home/nacos/logs
+      - ./docker/dev/nacos/standalone-logs/:/home/nacos/logs
     ports:
       - "8848:8848"
       - "9848:9848"
@@ -85,7 +85,7 @@ services:
     env_file:
       - ./env/mysql.env
     volumes:
-      - C:\docker\dev\mysql:/var/lib/mysql
+      - ./docker/dev/mysql:/var/lib/mysql
     ports:
       - "3306:3306"
     healthcheck:
