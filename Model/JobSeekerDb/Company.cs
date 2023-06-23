@@ -35,6 +35,10 @@ namespace Model.JobSeekerDb
         /// 忽略不看
         /// </summary>
         public bool Ignore { get; set; }
+        /// <summary>
+        /// 忽略理由
+        /// </summary>
+        public string? IgnoreReason { get; set; }
 
         public virtual ICollection<Job> Jobs { get; set; }
     }

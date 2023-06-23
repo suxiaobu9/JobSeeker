@@ -55,6 +55,10 @@ namespace Model.JobSeekerDb
         /// 忽略不看
         /// </summary>
         public bool Ignore { get; set; }
+        /// <summary>
+        /// 忽略不看
+        /// </summary>
+        public string? IgnoreReason { get; set; }
 
         public virtual Company Company { get; set; } = null!;
     }

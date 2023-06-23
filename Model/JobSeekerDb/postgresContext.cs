@@ -40,6 +40,10 @@ namespace Model.JobSeekerDb
                     .HasColumnName("ignore")
                     .HasComment("忽略不看");
 
+                entity.Property(e => e.IgnoreReason)
+                    .HasColumnName("ignore_reason")
+                    .HasComment("忽略理由");
+
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
                     .HasColumnName("name")
@@ -85,6 +89,10 @@ namespace Model.JobSeekerDb
 
                 entity.Property(e => e.Ignore)
                     .HasColumnName("ignore")
+                    .HasComment("忽略不看");
+
+                entity.Property(e => e.IgnoreReason)
+                    .HasColumnName("ignore_reason")
                     .HasComment("忽略不看");
 
                 entity.Property(e => e.IsDeleted)
