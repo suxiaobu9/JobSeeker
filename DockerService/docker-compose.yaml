@@ -1,4 +1,4 @@
-version: "3"
+version: "3.5"
 name: job-seeker
 services:
   seq:
@@ -101,7 +101,7 @@ services:
   crawer-104:
     build:
       context: ..
-      dockerfile: .\Crawer_104\Dockerfile
+      dockerfile: ./Crawer_104/Dockerfile
     image: crawer-104-worker-service:v1.0.4
     volumes:
       - ./docker/prd/crawer104:/app/data"
