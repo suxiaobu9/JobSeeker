@@ -82,16 +82,61 @@
 - 利用指令新增
 
   ```bash
-  curl -X POST 'http://127.0.0.1:8848/nacos/v1/auth/login' -d 'username=nacos&password=nacos'
+  token=$(curl -X POST 'http://127.0.0.1:8848/nacos/v1/auth/login' -d 'username=nacos&password=nacos' | grep -o '"accessToken":"[^"]*' | awk -F ':"' '{print $2}')
 
-  curl -X POST 'http://127.0.0.1:8848/nacos/v1/console/namespaces' -d 'customNamespaceId=608369bd-2a9e-4a62-bdc2-b023c0d720a4&namespaceName=JobSeeker&namespaceDesc=JobSeeker&accessToken='
+  curl -X POST 'http://127.0.0.1:8848/nacos/v1/console/namespaces' -d "customNamespaceId=608369bd-2a9e-4a62-bdc2-b023c0d720a4&namespaceName=JobSeeker&namespaceDesc=JobSeeker&accessToken=$token"
 
-  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d 'dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={"SeqLogServerAddress":"http://172.20.0.2:5341/"}&accessToken='
-  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d 'dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={"RabbitMq":{"Host":"172.20.0.3","Name":"guest","Password":"guest"}}&accessToken='
-  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d 'dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={"ConnectionStrings":{"NpgsqlConnection":"Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker"}}&accessToken='
+  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"SeqLogServerAddress\":\"http://172.20.0.2:5341/\"}&accessToken=$token"
+  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"RabbitMq\":{\"Host\":\"172.20.0.3\",\"Name\":\"guest\",\"Password\":\"guest\"}}&accessToken=$token"
+  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"ConnectionStrings\":{\"NpgsqlConnection\":\"Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker\"}}&accessToken=$token"
 
-  curl -X GET 'http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken='
-  curl -X GET 'http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken='
-  curl -X GET 'http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken='
+  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+
+  ```
+
+  ```ps1
+  $nacosResponse = Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/auth/login' -Body @{
+    username = 'nacos'
+    password = 'nacos'
+  }
+
+  $token = $nacosResponse.accessToken
+
+  Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/console/namespaces' -Body @{
+    customNamespaceId = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
+    namespaceName = 'JobSeeker'
+    namespaceDesc = 'JobSeeker'
+    accessToken = $token
+  }
+
+  Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
+      dataId = 'seq'
+      group = 'DEFAULT_GROUP'
+      tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
+      content = '{"SeqLogServerAddress":"http://172.20.0.2:5341/"}'
+      accessToken = $token
+  }
+
+  Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
+      dataId = 'rabbit-mq'
+      group = 'DEFAULT_GROUP'
+      tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
+      content = '{"RabbitMq":{"Host":"172.20.0.3","Name":"guest","Password":"guest"}}'
+      accessToken = $token
+  }
+
+  Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
+      dataId = 'postgresql'
+      group = 'DEFAULT_GROUP'
+      tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
+      content = '{"ConnectionStrings":{"NpgsqlConnection":"Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker"}}'
+      accessToken = $token
+  }
+
+  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
 
   ```
