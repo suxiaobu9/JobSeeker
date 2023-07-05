@@ -10,7 +10,7 @@ services:
     ports:
       - 5341:80
     volumes:
-      - ./docker/prd/seq:/data
+      - ./data/seq:/data
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.2
@@ -31,7 +31,7 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - ./docker/prd/rabbitmq:/var/lib/rabbitmq
+      - ./data/rabbitmq:/var/lib/rabbitmq
 
   postgres:
     image: postgres:15.3
@@ -43,7 +43,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./docker/prd/postgresql:/var/lib/postgresql/data
+      - ./data/postgresql:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
       interval: 5s
@@ -59,7 +59,7 @@ services:
     env_file:
       - ./env/nacos-standlone-mysql.env
     volumes:
-      - ./docker/prd/nacos/standalone-logs/:/home/nacos/logs
+      - ./data/nacos/standalone-logs/:/home/nacos/logs
     ports:
       - "8848:8848"
       - "9848:9848"
@@ -85,7 +85,7 @@ services:
     env_file:
       - ./env/mysql.env
     volumes:
-      - ./docker/prd/mysql:/var/lib/mysql
+      - ./data/mysql:/var/lib/mysql
     ports:
       - "3306:3306"
     healthcheck:
@@ -104,7 +104,7 @@ services:
       dockerfile: ./Crawer_104/Dockerfile
     image: crawer-104-worker-service:v1.0.4
     volumes:
-      - ./docker/prd/crawer104:/app/data"
+      - ./data/crawer104:/app/data"
     restart: unless-stopped
     networks:
       job_seeker_network:
