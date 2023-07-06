@@ -1,7 +1,7 @@
 version: "3.5"
 name: job-seeker
 services:
-  seq:
+  seq-jobseeker:
     image: datalust/seq:2023.2
     container_name: seq
     restart: unless-stopped
