@@ -9,7 +9,7 @@
     },
     "Docker": {
       "commandName": "Docker",
-      "DockerfileRunArguments": "--network job-seeker-dev_job_seeker_network_dev -v C:\\docker\\dev\\crawer104:/app/data"
+      "DockerfileRunArguments": "--network job-seeker_job_seeker_network"
     }
   }
 }
