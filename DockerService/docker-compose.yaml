@@ -1,4 +1,4 @@
-version: "3.5"
+version: "4.0"
 name: job-seeker
 services:
   seq:
@@ -109,6 +109,24 @@ services:
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.7
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+  jobseeker-web:
+    build:
+      context: ..
+      dockerfile: ./Web/Dockerfile
+    image: jobseeker-web:v1.0.0
+    restart: unless-stopped  
+    networks:
+      job_seeker_network:
+        ipv4_address: 172.20.0.8
+    ports:
+      - "80:80"
     depends_on:
       rabbitmq:
         condition: service_healthy

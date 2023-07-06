@@ -99,7 +99,7 @@ public class Http104JobService : IHttpService
     public async Task<string?> GetCompanyInfo(string companyNo)
     {
         var currentMethod = "Http104JobService.GetCompanyInfo";
-        var url = _104Parameters.Get104CompanyUrl(companyNo);
+        var url = _104Parameters.Get104CompanyPageUrl(companyNo);
 
         var response = await httpClient.GetAsync(url);
         var content = await response.Content.ReadAsStringAsync();

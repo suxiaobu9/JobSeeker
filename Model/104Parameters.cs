@@ -52,8 +52,10 @@ public static class _104Parameters
     }
 
     public static string Get104JobInfoUrl(string jobId) => $@"{Referer}/job/ajax/content/{jobId}";
+    public static string Get104JobPageUrl(string jobId) => $@"{Referer}/job/{jobId}";
 
-    public static string Get104CompanyUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
+    public static string Get104CompanyInfoUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
+    public static string Get104CompanyPageUrl(string companyId) => $@"{Referer}/company/{companyId}";
 
     public static readonly string _104JobListQueueName = "104JobList";
     public static readonly string _104JobInfoQueueName = "104JobInfo";

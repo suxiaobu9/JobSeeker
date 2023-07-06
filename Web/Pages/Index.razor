@@ -1,0 +1,162 @@
+﻿@using Service.Web
+@using Model.Web
+@using Model
+@page "/"
+@inject IJobSeekerService jobSeekerService
+
+<PageTitle>職缺</PageTitle>
+
+@*<SurveyPrompt Title="How is Blazor working for you?" />*@
+
+<div class="row">
+    @if (CompanyInfos != null && CompanyInfos.Companies != null)
+    {
+        foreach (var company in CompanyInfos.Companies)
+        {
+            <div class="col-3 p-1">
+                <div class="border border-1 p-2 d-flex flex-column align-items-center" style="min-height:100px">
+                    <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyInfoUrl">@company.Name</a>
+                    <div class="mt-1">
+                        <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(async()=>await GetJobs(company))>職缺</button>
+                    </div>
+                    @if (company.NeedToRead)
+                    {
+                        <div class="mt-1">
+                            <button class="btn btn-outline-light text-black" @onclick=@(async()=>await ReadedAllJobs(company))>已讀</button>
+                        </div>
+                    }
+                    @if (!company.IsIgnore)
+                    {
+                        <div class="mt-5">
+                            <button class="btn btn-sm btn-danger" @onclick=@(async()=>await IgnoreCompany(company))>Ignore</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="jobsModal" tabindex="-1" aria-labelledby="jobsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">
+                    職缺
+                </h1>
+
+                <button type="button" class="m-1 btn btn-outline-light text-black" data-bs-dismiss="modal" @onclick=@(async()=>await ReadedAllJobs(ModalCompany))>已讀</button>
+                <a href="@JobModalCompanyUrl" target="_blank" class="m-1 btn btn-outline-primary">公司</a>
+                <button type="button" class="m-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(async()=>await IgnoreCompany(ModalCompany))>Ignore</button>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (Jobs != null)
+                {
+                    foreach (var job in Jobs)
+                    {
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a href="@job.JobUrl" target="_blank" class="btn btn-outline-primary">@job.Name</a>
+                                @if (!job.HaveRead)
+                                {
+                                    <button class="btn btn-outline-light text-black" @onclick=@(async()=>await ReadedJob(job))>已讀</button>
+                                }
+                            </div>
+                            <div>
+                                @if (!job.Ignore)
+                                {
+                                    <button class="btn btn-danger btn-sm" @onclick=@(async()=>await IgnoreJob(job))>Ignore</button>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            @job.JobPlace @job.Salary
+                        </div>
+                        <pre>@job.WorkContent</pre>
+                        <pre>@job.OtherRequirement</pre>
+
+                    }
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-light text-black" data-bs-dismiss="modal" @onclick=@(async()=>await ReadedAllJobs(ModalCompany))>已讀</button>
+                <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">公司</a>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick=@(async()=>await IgnoreCompany(ModalCompany))>Ignore</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private JobSeekerHomePageModel? CompanyInfos;
+    private string JobModalCompanyUrl = "";
+    private JobModel[]? Jobs;
+    private CompanyModel? ModalCompany;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CompanyInfos = await jobSeekerService.GetCompanies(false);
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task GetJobs(CompanyModel? company)
+    {
+        Jobs = null;
+        if (company == null)
+            return;
+        ModalCompany = company;
+        JobModalCompanyUrl = "";
+        if (company.Id == null)
+            return;
+
+        JobModalCompanyUrl = _104Parameters.Get104CompanyPageUrl(company.Id);
+        Jobs = await jobSeekerService.GetJobs(company.Id, false);
+    }
+
+    private async Task ReadedAllJobs(CompanyModel? company)
+    {
+        if (company == null || string.IsNullOrWhiteSpace(company.Id))
+            return;
+
+        company.NeedToRead = false;
+
+        await jobSeekerService.ReadedAllJobs(company.Id);
+    }
+
+    private async Task IgnoreCompany(CompanyModel? company)
+    {
+        if (company == null || string.IsNullOrWhiteSpace(company.Id))
+            return;
+
+        company.IsIgnore = true;
+
+        await jobSeekerService.IgnoreCompany(company.Id);
+
+    }
+
+    private async Task ReadedJob(JobModel? job)
+    {
+        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
+            return;
+
+        job.HaveRead = true;
+
+        await jobSeekerService.ReadedJob(job.JobId);
+    }
+
+    private async Task IgnoreJob(JobModel? job)
+    {
+        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
+            return;
+
+        job.Ignore = true;
+
+        await jobSeekerService.IgnoreJob(job.JobId);
+    }
+
+}
