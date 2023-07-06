@@ -55,7 +55,8 @@ public class JobSeeker104Service : IJobSeekerService
         var result = await db.Jobs.Where(x => x.CompanyId == companyId)
             .Where(x => includeIgnore || x.Ignore == false)
             .Where(x => x.IsDeleted == false)
-            .OrderByDescending(x => !x.HaveRead && !x.Ignore)
+            .OrderBy(x => x.HaveRead)
+            .ThenBy(x => x.Ignore)
             .Select(x => new JobModel
             {
                 JobId = x.Id,

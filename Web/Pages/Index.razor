@@ -149,7 +149,20 @@
         if (CompanyInfos == null || CompanyInfos.Companies == null)
             return;
 
-        CompanyInfos.Companies = CompanyInfos.Companies.OrderBy(x => !x.IsIgnore && !x.NeedToRead).ToArray();
+        CompanyInfos.Companies = CompanyInfos.Companies
+                                    .OrderBy(x => x.IsIgnore)
+                                    .ThenByDescending(x => x.NeedToRead)
+                                    .ToArray();
+    }
+
+    private void SortJobs()
+    {
+        if (Jobs == null)
+            return;
+
+        Jobs = Jobs.OrderBy(x => x.Ignore)
+                    .ThenBy(x => x.HaveRead)
+                    .ToArray();
     }
 
     private async Task ReadedJob(JobModel? job)
@@ -158,7 +171,7 @@
             return;
 
         job.HaveRead = true;
-
+        SortJobs();
         await jobSeekerService.ReadedJob(job.JobId);
     }
 
@@ -168,7 +181,7 @@
             return;
 
         job.Ignore = true;
-
+        SortJobs();
         await jobSeekerService.IgnoreJob(job.JobId);
     }
 
