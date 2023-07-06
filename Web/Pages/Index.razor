@@ -125,6 +125,8 @@
 
         company.NeedToRead = false;
 
+        SortCompany();
+
         await jobSeekerService.ReadedAllJobs(company.Id);
     }
 
@@ -135,8 +137,19 @@
 
         company.IsIgnore = true;
 
+        SortCompany();
+
         await jobSeekerService.IgnoreCompany(company.Id);
 
+
+    }
+
+    private void SortCompany()
+    {
+        if (CompanyInfos == null || CompanyInfos.Companies == null)
+            return;
+
+        CompanyInfos.Companies = CompanyInfos.Companies.OrderBy(x => !x.IsIgnore && !x.NeedToRead).ToArray();
     }
 
     private async Task ReadedJob(JobModel? job)
