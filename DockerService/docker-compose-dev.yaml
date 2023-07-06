@@ -3,7 +3,7 @@ name: job-seeker
 services:
   seq-jobseeker:
     image: datalust/seq:2023.2
-    container_name: seq
+    container_name: seq-jobseeker
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
