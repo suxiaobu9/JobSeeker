@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.JobSeekerDb;
-using System.Text;
 using System.Text.Json;
 
 namespace Service.Db;
@@ -24,7 +23,7 @@ public class Db104JobService : IDbService
         return db.Companies.AnyAsync(x => x.Id == companyNo);
     }
 
-    public Company? TransCompanyInfoToDbEntity(string companyInfoData)
+    public Company? TransCompanyInfoToDbEntity(string companyNo, string companyInfoData)
     {
         var currentMethod = "Db104JobService.TransCompanyInfoToDbEntity";
         var companyInfo = JsonSerializer.Deserialize<_104CompanyInfoModel>(companyInfoData);
@@ -37,7 +36,6 @@ public class Db104JobService : IDbService
 
         var now = DateTimeOffset.Now;
 
-        var companyNo = new Uri(companyInfo.Data.CustLink).Segments.LastOrDefault();
 
         if (string.IsNullOrWhiteSpace(companyNo))
         {
