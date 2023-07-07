@@ -6,7 +6,7 @@ public class CompanyModel
 
     public string? Name { get; set; }
 
-    public string? CompanyInfoUrl { get; set; }
+    public string? CompanyPageUrl { get; set; }
 
     public bool IsIgnore { get; set; }
 

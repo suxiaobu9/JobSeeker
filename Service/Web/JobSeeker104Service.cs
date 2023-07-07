@@ -35,7 +35,7 @@ public class JobSeeker104Service : IJobSeekerService
                 Id = x.Id,
                 Name = x.Name,
                 IsIgnore = x.Ignore,
-                CompanyInfoUrl = _104Parameters.Get104CompanyPageUrl(x.Id),
+                CompanyPageUrl = x.Url,
                 NeedToRead = x.Jobs.Any(x => !x.IsDeleted && !x.HaveRead)
             }).ToArrayAsync();
 
@@ -61,7 +61,7 @@ public class JobSeeker104Service : IJobSeekerService
             {
                 JobId = x.Id,
                 Name = x.Name,
-                JobUrl = _104Parameters.Get104JobPageUrl(x.Id),
+                JobUrl = x.Url,
                 Salary = x.Salary,
                 JobPlace = x.JobPlace,
                 OtherRequirement = x.OtherRequirement,

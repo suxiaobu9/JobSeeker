@@ -118,8 +118,6 @@ public class Http104JobService : IHttpService
             return null;
         }
 
-        companyInfo.Data.CustLink = url;
-
         return JsonSerializer.Serialize(companyInfo);
     }
 }

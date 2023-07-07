@@ -49,11 +49,15 @@ public class Db104JobService : IDbService
         {
             Id = companyNo,
             Name = companyInfo.Data.CustName,
-            Url = companyInfo.Data.CustLink,
+            Url = _104Parameters.Get104CompanyPageUrl(companyNo),
             CreateUtcAt = now.UtcDateTime,
             UpdateUtcAt = now.UtcDateTime,
             Ignore = false,
             Sort = 0,
+            GetInfoUrl = _104Parameters.Get104CompanyInfoUrl(companyNo),
+            Product = companyInfo.Data.Product,
+            Profile = companyInfo.Data.Profile,
+            Welfare = companyInfo.Data.Welfare,
         };
 
         return company;
@@ -100,7 +104,7 @@ public class Db104JobService : IDbService
             Id = jobId,
             CompanyId = companyId,
             Name = jobInfo.Data.Header.JobName,
-            Url = _104Parameters.Get104JobInfoUrl(jobId),
+            Url = _104Parameters.Get104JobPageUrl(jobId),
             CreateUtcAt = now.UtcDateTime,
             UpdateUtcAt = now.UtcDateTime,
             Sort = 0,
@@ -111,6 +115,7 @@ public class Db104JobService : IDbService
             OtherRequirement = jobInfo.Data.Condition.Other,
             WorkContent = jobInfo.Data.JobDetail.JobDescription,
             Ignore = false,
+            GetInfoUrl = _104Parameters.Get104JobInfoUrl(jobId)
         };
     }
 
