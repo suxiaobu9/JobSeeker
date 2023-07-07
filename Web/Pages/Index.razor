@@ -15,7 +15,7 @@
         {
             <div class="col-3 p-1">
                 <div class="border border-1 p-2 d-flex flex-column align-items-center" style="min-height:100px">
-                    <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyInfoUrl">@company.Name</a>
+                    <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
                     <div class="mt-1">
                         <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(async()=>await GetJobs(company))>職缺</button>
                     </div>
@@ -114,7 +114,7 @@
         if (company.Id == null)
             return;
 
-        JobModalCompanyUrl = _104Parameters.Get104CompanyPageUrl(company.Id);
+        JobModalCompanyUrl = company.CompanyPageUrl ?? "";
         Jobs = await jobSeekerService.GetJobs(company.Id, false);
     }
 
