@@ -36,6 +36,11 @@ namespace Model.JobSeekerDb
                     .HasColumnName("create_utc_at")
                     .HasComment("建立時間");
 
+                entity.Property(e => e.GetInfoUrl)
+                    .HasColumnName("get_info_url")
+                    .HasDefaultValueSql("''::text")
+                    .HasComment("取得資料的網址");
+
                 entity.Property(e => e.Ignore)
                     .HasColumnName("ignore")
                     .HasComment("忽略不看");
@@ -49,6 +54,14 @@ namespace Model.JobSeekerDb
                     .HasColumnName("name")
                     .HasComment("公司名稱");
 
+                entity.Property(e => e.Product)
+                    .HasColumnName("product")
+                    .HasComment("主要商品/服務");
+
+                entity.Property(e => e.Profile)
+                    .HasColumnName("profile")
+                    .HasComment("公司描述");
+
                 entity.Property(e => e.Sort)
                     .HasColumnName("sort")
                     .HasComment("排序");
@@ -60,6 +73,10 @@ namespace Model.JobSeekerDb
                 entity.Property(e => e.Url)
                     .HasColumnName("url")
                     .HasComment("公司網址");
+
+                entity.Property(e => e.Welfare)
+                    .HasColumnName("welfare")
+                    .HasComment("福利");
             });
 
             modelBuilder.Entity<Job>(entity =>

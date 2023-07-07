@@ -39,6 +39,22 @@ namespace Model.JobSeekerDb
         /// 忽略理由
         /// </summary>
         public string? IgnoreReason { get; set; }
+        /// <summary>
+        /// 取得資料的網址
+        /// </summary>
+        public string? GetInfoUrl { get; set; }
+        /// <summary>
+        /// 主要商品/服務
+        /// </summary>
+        public string? Product { get; set; }
+        /// <summary>
+        /// 公司描述
+        /// </summary>
+        public string? Profile { get; set; }
+        /// <summary>
+        /// 福利
+        /// </summary>
+        public string? Welfare { get; set; }
 
         public virtual ICollection<Job> Jobs { get; set; }
     }
