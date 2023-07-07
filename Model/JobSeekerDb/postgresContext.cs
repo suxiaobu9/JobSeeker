@@ -99,6 +99,11 @@ namespace Model.JobSeekerDb
                     .HasColumnName("create_utc_at")
                     .HasComment("建立時間");
 
+                entity.Property(e => e.GetInfoUrl)
+                    .HasColumnName("get_info_url")
+                    .HasDefaultValueSql("''::text")
+                    .HasComment("取得資訊的網址");
+
                 entity.Property(e => e.HaveRead)
                     .HasColumnName("have_read")
                     .HasComment("已讀");
