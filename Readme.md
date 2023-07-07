@@ -14,6 +14,7 @@
 - 更新 EF Core entity
 
   ```ps1
+  cd Model
   $connectionString = "Server=localhost;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker"
   dotnet ef dbcontext scaffold $connectionString Npgsql.EntityFrameworkCore.PostgreSQL -o ./JobSeekerDb --force
   ```
