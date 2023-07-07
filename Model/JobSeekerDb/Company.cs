@@ -42,7 +42,7 @@ namespace Model.JobSeekerDb
         /// <summary>
         /// 取得資料的網址
         /// </summary>
-        public string? GetInfoUrl { get; set; }
+        public string GetInfoUrl { get; set; } = null!;
         /// <summary>
         /// 主要商品/服務
         /// </summary>
