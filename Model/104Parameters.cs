@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿using System.Web;
 
 namespace Model;
 
@@ -59,4 +53,6 @@ public static class _104Parameters
 
     public static readonly string _104JobListQueueName = "104JobList";
     public static readonly string _104JobInfoQueueName = "104JobInfo";
+
+    public static readonly string Redis104CompanyHashSetKey = "Redis104CompanyHashKey";
 }

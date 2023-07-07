@@ -2,6 +2,7 @@
 using Service.Db;
 using Service.Http;
 using Service.Mq;
+using StackExchange.Redis;
 
 namespace Crawer_104.Workers;
 
@@ -11,16 +12,19 @@ public class JobListWorker : BackgroundService
     private readonly IHttpService get104JobService;
     private readonly IMqService mqService;
     private readonly IDbService dbService;
+    private readonly IDatabase redisDb;
 
     public JobListWorker(ILogger<JobListWorker> logger,
         IHttpService get104JobService,
         IMqService mqService,
-        IDbService dbService)
+        IDbService dbService,
+        IDatabase redisDb)
     {
         this.logger = logger;
         this.get104JobService = get104JobService;
         this.mqService = mqService;
         this.dbService = dbService;
+        this.redisDb = redisDb;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,13 +32,15 @@ public class JobListWorker : BackgroundService
         var currentMethod = "JobListWorker.ExecuteAsync";
         while (!stoppingToken.IsCancellationRequested)
         {
+            await redisDb.KeyDeleteAsync(_104Parameters.Redis104CompanyHashSetKey);
+
             logger.LogInformation($"{{currentMethod}} running at: {{time}}", currentMethod, DateTimeOffset.Now);
 
             await GetJobListAndSendMessageToMq();
 
             logger.LogInformation($"{{currentMethod}} end at: {{time}}", currentMethod, DateTimeOffset.Now);
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromHours(2), stoppingToken);
         }
     }
 

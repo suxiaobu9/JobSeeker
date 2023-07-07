@@ -37,7 +37,7 @@ public interface IDbService
     /// </summary>
     /// <param name="companyInfoData"></param>
     /// <returns></returns>
-    public Model.JobSeekerDb.Company? TransCompanyInfoToDbEntity(string companyInfoData);
+    public Model.JobSeekerDb.Company? TransCompanyInfoToDbEntity(string companyNo, string companyInfoData);
 
     /// <summary>
     /// 將未刪除的職缺設為刪除
