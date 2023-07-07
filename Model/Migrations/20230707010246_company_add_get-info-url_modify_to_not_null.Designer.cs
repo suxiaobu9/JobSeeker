@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Model.JobSeekerDb;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Model.Migrations
 {
     [DbContext(typeof(postgresContext))]
-    partial class postgresContextModelSnapshot : ModelSnapshot
+    [Migration("20230707010246_company_add_get-info-url_modify_to_not_null")]
+    partial class company_add_getinfourl_modify_to_not_null
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,12 +115,6 @@ namespace Model.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_utc_at")
                         .HasComment("建立時間");
-
-                    b.Property<string>("GetInfoUrl")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("get_info_url")
-                        .HasComment("取得資訊的網址");
 
                     b.Property<bool>("HaveRead")
                         .HasColumnType("boolean")

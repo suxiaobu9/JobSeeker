@@ -59,6 +59,10 @@ namespace Model.JobSeekerDb
         /// 忽略不看
         /// </summary>
         public string? IgnoreReason { get; set; }
+        /// <summary>
+        /// 取得資訊的網址
+        /// </summary>
+        public string GetInfoUrl { get; set; } = null!;
 
         public virtual Company Company { get; set; } = null!;
     }
