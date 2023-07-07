@@ -39,12 +39,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<JobInfoWorker>();
         services.AddHostedService<JobInfoToDbWorker>();
 
-        if (!hostContext.HostingEnvironment.IsDevelopment())
-        {
-            using var scope = services.BuildServiceProvider().CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
-            context.Database.Migrate();
-        }
+        using var scope = services.BuildServiceProvider().CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
+        context.Database.Migrate();
 
     }).ConfigureAppConfiguration(config =>
     {
