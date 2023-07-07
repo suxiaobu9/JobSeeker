@@ -62,7 +62,7 @@ namespace Model.JobSeekerDb
         /// <summary>
         /// 取得資訊的網址
         /// </summary>
-        public string? GetInfoUrl { get; set; }
+        public string GetInfoUrl { get; set; } = null!;
 
         public virtual Company Company { get; set; } = null!;
     }

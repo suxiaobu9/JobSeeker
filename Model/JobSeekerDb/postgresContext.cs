@@ -101,7 +101,6 @@ namespace Model.JobSeekerDb
 
                 entity.Property(e => e.GetInfoUrl)
                     .HasColumnName("get_info_url")
-                    .HasDefaultValueSql("''::text")
                     .HasComment("取得資訊的網址");
 
                 entity.Property(e => e.HaveRead)
