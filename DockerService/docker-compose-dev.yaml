@@ -98,6 +98,24 @@ services:
       job_seeker_network:
         ipv4_address: 172.20.0.6
 
+  redis-stack-server:
+    image: redis/redis-stack-server:latest
+    container_name: redis-stack-server
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --requirepass jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    networks:
+      job_seeker_network:
+        ipv4_address: 172.20.0.9
+
 networks:
   job_seeker_network:
     ipam:
