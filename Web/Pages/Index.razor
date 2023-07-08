@@ -13,24 +13,32 @@
     {
         foreach (var company in CompanyInfos.Companies)
         {
-            <div class="col-3 p-1">
-                <div class="border border-1 p-2 d-flex flex-column align-items-center" style="min-height:100px">
+            <div class="col-12 p-1">
+                <div class="border border-1 p-2" style="min-height:100px">
                     <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
-                    <div class="mt-1">
-                        <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(async()=>await GetJobs(company))>職缺</button>
+                    <div class="mt-2">
+                        <button class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(()=>GetJobs(company))>職缺</button>
+                        @if (company.NeedToRead)
+                        {
+                            <button class="btn btn-outline-success ms-2" @onclick=@(()=>ReadedAllJobs(company))>已讀</button>
+                        }
+                        @if (!company.IsIgnore)
+                        {
+                            <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreCompany(company))>Ignore</button>
+                        }
                     </div>
-                    @if (company.NeedToRead)
-                    {
-                        <div class="mt-1">
-                            <button class="btn btn-outline-light text-black" @onclick=@(async()=>await ReadedAllJobs(company))>已讀</button>
-                        </div>
-                    }
-                    @if (!company.IsIgnore)
-                    {
-                        <div class="mt-5">
-                            <button class="btn btn-sm btn-danger" @onclick=@(async()=>await IgnoreCompany(company))>Ignore</button>
-                        </div>
-                    }
+                    <div class="mt-2">
+                        <h3>介紹</h3>
+                        <pre>@company.Profile</pre>
+                    </div>
+                    <div class="mt-2">
+                        <h3>主要服務</h3>
+                        <pre>@company.Product</pre>
+                    </div>
+                    <div class="mt-2">
+                        <h3>福利</h3>
+                        <pre>@company.Welfare</pre>
+                    </div>
                 </div>
             </div>
         }
@@ -46,9 +54,9 @@
                     職缺
                 </h1>
 
-                <button type="button" class="m-1 btn btn-outline-light text-black" data-bs-dismiss="modal" @onclick=@(async()=>await ReadedAllJobs(ModalCompany))>已讀</button>
+                <button type="button" class="m-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
                 <a href="@JobModalCompanyUrl" target="_blank" class="m-1 btn btn-outline-primary">公司</a>
-                <button type="button" class="m-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(async()=>await IgnoreCompany(ModalCompany))>Ignore</button>
+                <button type="button" class="m-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -57,35 +65,33 @@
                 {
                     foreach (var job in Jobs)
                     {
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <a href="@job.JobUrl" target="_blank" class="btn btn-outline-primary">@job.Name</a>
-                                @if (!job.HaveRead)
-                                {
-                                    <button class="btn btn-outline-light text-black" @onclick=@(async()=>await ReadedJob(job))>已讀</button>
-                                }
-                            </div>
-                            <div>
-                                @if (!job.Ignore)
-                                {
-                                    <button class="btn btn-danger btn-sm" @onclick=@(async()=>await IgnoreJob(job))>Ignore</button>
-                                }
-                            </div>
+                        <h3>
+                            <a href="@job.JobUrl" target="_blank" class="btn btn-outline-primary">@job.Name</a>
+                        </h3>
+                        <div>
+                            @if (!job.HaveRead)
+                            {
+                                <button class="btn btn-outline-success ms-2" @onclick=@(()=> ReadedJob(job))>已讀</button>
+                            }
+                            @if (!job.Ignore)
+                            {
+                                <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
+                            }
                         </div>
                         <div>
                             @job.JobPlace @job.Salary
                         </div>
                         <pre>@job.WorkContent</pre>
                         <pre>@job.OtherRequirement</pre>
-
+                        <hr />
                     }
                 }
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-outline-light text-black" data-bs-dismiss="modal" @onclick=@(async()=>await ReadedAllJobs(ModalCompany))>已讀</button>
+                <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
                 <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">公司</a>
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick=@(async()=>await IgnoreCompany(ModalCompany))>Ignore</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
             </div>
         </div>
     </div>
@@ -97,9 +103,13 @@
     private JobModel[]? Jobs;
     private CompanyModel? ModalCompany;
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int? Take { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        CompanyInfos = await jobSeekerService.GetCompanies(false);
+        CompanyInfos = await jobSeekerService.GetCompanies(false, Take);
 
         await base.OnInitializedAsync();
     }
@@ -118,7 +128,7 @@
         Jobs = await jobSeekerService.GetJobs(company.Id, false);
     }
 
-    private async Task ReadedAllJobs(CompanyModel? company)
+    private void ReadedAllJobs(CompanyModel? company)
     {
         if (company == null || string.IsNullOrWhiteSpace(company.Id))
             return;
@@ -127,10 +137,10 @@
 
         SortCompany();
 
-        await jobSeekerService.ReadedAllJobs(company.Id);
+        _ = jobSeekerService.ReadedAllJobs(company.Id);
     }
 
-    private async Task IgnoreCompany(CompanyModel? company)
+    private void IgnoreCompany(CompanyModel? company)
     {
         if (company == null || string.IsNullOrWhiteSpace(company.Id))
             return;
@@ -139,7 +149,7 @@
 
         SortCompany();
 
-        await jobSeekerService.IgnoreCompany(company.Id);
+        _ = jobSeekerService.IgnoreCompany(company.Id);
 
 
     }
@@ -165,24 +175,24 @@
                     .ToArray();
     }
 
-    private async Task ReadedJob(JobModel? job)
+    private void ReadedJob(JobModel? job)
     {
         if (job == null || string.IsNullOrWhiteSpace(job.JobId))
             return;
 
         job.HaveRead = true;
         SortJobs();
-        await jobSeekerService.ReadedJob(job.JobId);
+        _ = jobSeekerService.ReadedJob(job.JobId);
     }
 
-    private async Task IgnoreJob(JobModel? job)
+    private void IgnoreJob(JobModel? job)
     {
         if (job == null || string.IsNullOrWhiteSpace(job.JobId))
             return;
 
         job.Ignore = true;
         SortJobs();
-        await jobSeekerService.IgnoreJob(job.JobId);
+        _ = jobSeekerService.IgnoreJob(job.JobId);
     }
 
 }

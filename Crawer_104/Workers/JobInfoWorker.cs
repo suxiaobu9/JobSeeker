@@ -38,6 +38,7 @@ public class JobInfoWorker : BackgroundService
         {
             logger.LogInformation($"{{currentMethod}} get job info url from job list.", currentMethod);
 
+            // 取得工作清單中的所有職缺網址
             var jobInfoUrls = get104JobService.GetJobInfoUrlFromJobList(jobListData);
 
             if (jobInfoUrls == null)

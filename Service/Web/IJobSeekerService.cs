@@ -9,7 +9,7 @@ public interface IJobSeekerService
     /// </summary>
     /// <param name="includeIgnore"></param>
     /// <returns></returns>
-    public Task<JobSeekerHomePageModel> GetCompanies(bool includeIgnore);
+    public Task<JobSeekerHomePageModel> GetCompanies(bool includeIgnore,int? take);
 
     /// <summary>
     /// 取得工作清單

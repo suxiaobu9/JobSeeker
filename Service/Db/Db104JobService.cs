@@ -124,7 +124,15 @@ public class Db104JobService : IDbService
     /// <returns></returns>
     public async Task UpsertCompany(Company model)
     {
-        await db.Companies.Upsert(model).On(x => x.Id)
+        await db.Companies.Upsert(model)
+            .On(x => x.Id)
+            .WhenMatched(x => new Company
+            {
+                CreateUtcAt = x.CreateUtcAt,
+                Ignore = x.Ignore,
+                IgnoreReason = x.IgnoreReason,
+                Sort = x.Sort,
+            })
             .RunAsync();
 
         await db.SaveChangesAsync();
@@ -145,7 +153,6 @@ public class Db104JobService : IDbService
             await db.Jobs.Upsert(newJobInfo)
                 .On(x => x.Id)
                 .RunAsync();
-
         }
         else
         {

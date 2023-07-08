@@ -104,7 +104,7 @@ public class Http104JobService : IHttpService
         var response = await httpClient.GetAsync(url);
         var content = await response.Content.ReadAsStringAsync();
 
-        if (!response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(content))
         {
             logger.LogWarning($"{{currentMethod}} get response fail.{{url}}, {{statusCode}}, {{content}}", currentMethod, url, response.StatusCode, content);
             return null;

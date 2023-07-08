@@ -32,6 +32,7 @@ public class JobListWorker : BackgroundService
         var currentMethod = "JobListWorker.ExecuteAsync";
         while (!stoppingToken.IsCancellationRequested)
         {
+            // 刪除 Redis 中所有已更新的公司 id
             await redisDb.KeyDeleteAsync(_104Parameters.Redis104CompanyHashSetKey);
 
             logger.LogInformation($"{{currentMethod}} running at: {{time}}", currentMethod, DateTimeOffset.Now);
@@ -44,10 +45,15 @@ public class JobListWorker : BackgroundService
         }
     }
 
+    /// <summary>
+    /// 取得職缺資訊並新增訊息至 MQ
+    /// </summary>
+    /// <returns></returns>
     private async Task GetJobListAndSendMessageToMq()
     {
         var currentMethod = "JobListWorker.GetJobListAndSendMessageToMq";
 
+        // 先將所有工作刪除
         await dbService.SetAllUndeleteJobToDelete();
 
         foreach ((string jobArea, string keyword) in _104Parameters.AreaAndKeywords)
@@ -62,6 +68,7 @@ public class JobListWorker : BackgroundService
 
                     logger.LogInformation($"{{currentMethod}} Start get initial Data.", currentMethod);
 
+                    // 取得工作清單
                     var jobList = await get104JobService.GetJobListAsync<_104JobListModel>(getJobListUrl);
 
                     if (i == 1)
