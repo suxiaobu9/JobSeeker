@@ -11,4 +11,10 @@ public class CompanyModel
     public bool IsIgnore { get; set; }
 
     public bool NeedToRead { get; set; }
+
+    public string? Product { get; set; }
+
+    public string? Profile { get; set; }
+
+    public string? Welfare { get; set; }
 }

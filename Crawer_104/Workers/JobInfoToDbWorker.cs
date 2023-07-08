@@ -52,37 +52,7 @@ public class JobInfoToDbWorker : BackgroundService
                 return;
             }
 
-            var companyNo = jobInfo.CompanyId;
-
-            try
-            {
-                if (!await IsCompanyDataExistsInRedis(companyNo))
-                {
-                    var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
-
-                    if (companyInfo == null)
-                    {
-                        logger.LogWarning($"{{currentMethod}} get company info get null.{{companyNo}}", currentMethod, companyNo);
-                        return;
-                    }
-
-                    var companyEntity = dbService.TransCompanyInfoToDbEntity(companyNo, companyInfo);
-
-                    if (companyEntity == null)
-                    {
-                        logger.LogWarning($"{{currentMethod}} get company entity get null.{{companyInfo}}", currentMethod, companyInfo);
-                        return;
-                    }
-
-                    await dbService.UpsertCompany(companyEntity);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Upsert Company data get exception.{companyNo}", companyNo);
-                await redisDb.HashDeleteAsync(_104Parameters.Redis104CompanyHashSetKey, companyNo);
-                throw;
-            }
+            await UpsertCompany(jobInfo.CompanyId);
 
             await dbService.UpsertJob(jobInfo);
 
@@ -90,6 +60,41 @@ public class JobInfoToDbWorker : BackgroundService
         catch (Exception ex)
         {
             logger.LogError(ex, $"{{currentMethod}} get exception.{{jobInfoData}}", currentMethod, jobInfoData);
+        }
+    }
+
+    private async Task UpsertCompany(string companyNo)
+    {
+        var currentMethod = "JobInfoToDbWorker.UpsertCompany";
+
+        try
+        {
+            if (!await IsCompanyDataExistsInRedis(companyNo) || !await dbService.CompanyExists(companyNo))
+            {
+                var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
+
+                if (companyInfo == null)
+                {
+                    logger.LogWarning($"{{currentMethod}} get company info get null.{{companyNo}}", currentMethod, companyNo);
+                    return;
+                }
+
+                var companyEntity = dbService.TransCompanyInfoToDbEntity(companyNo, companyInfo);
+
+                if (companyEntity == null)
+                {
+                    logger.LogWarning($"{{currentMethod}} get company entity get null.{{companyInfo}}", currentMethod, companyInfo);
+                    return;
+                }
+
+                await dbService.UpsertCompany(companyEntity);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Upsert Company data get exception.{companyNo}", companyNo);
+            await redisDb.HashDeleteAsync(_104Parameters.Redis104CompanyHashSetKey, companyNo);
+            throw;
         }
     }
 
@@ -113,6 +118,9 @@ public class JobInfoToDbWorker : BackgroundService
 
         if (!committed && companySetTask.IsCanceled)
             return true;
+
+        if (committed)
+            return false;
 
         logger.LogWarning("{companyId} committed {committed}. {IsCanceled},{IsCompleted},{IsCompletedSuccessfully},{IsFaulted}", companyId, committed, companySetTask.IsCanceled, companySetTask.IsCompleted, companySetTask.IsCompletedSuccessfully, companySetTask.IsFaulted);
 

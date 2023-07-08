@@ -23,9 +23,9 @@ public class JobSeeker104Service : IJobSeekerService
     /// </summary>
     /// <param name="includeIgnore"></param>
     /// <returns></returns>
-    public async Task<JobSeekerHomePageModel> GetCompanies(bool includeIgnore)
+    public async Task<JobSeekerHomePageModel> GetCompanies(bool includeIgnore, int? take)
     {
-        var companyDatas = await db.Companies
+        var query = db.Companies
             .Where(x => includeIgnore || x.Ignore == false)
             .OrderByDescending(x => x.Jobs.Any(y => !y.IsDeleted && !y.Ignore && !y.HaveRead))
             .ThenBy(x => x.Id)
@@ -36,8 +36,16 @@ public class JobSeeker104Service : IJobSeekerService
                 Name = x.Name,
                 IsIgnore = x.Ignore,
                 CompanyPageUrl = x.Url,
-                NeedToRead = x.Jobs.Any(x => !x.IsDeleted && !x.HaveRead)
-            }).ToArrayAsync();
+                NeedToRead = x.Jobs.Any(x => !x.IsDeleted && !x.HaveRead),
+                Product = x.Product,
+                Profile = x.Profile,
+                Welfare = x.Welfare
+            });
+
+        if (take != null)
+            query = query.Take(take.Value);
+
+        var companyDatas = await query.ToArrayAsync();
 
         var result = new JobSeekerHomePageModel { Companies = companyDatas };
 
