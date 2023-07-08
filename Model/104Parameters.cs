@@ -55,4 +55,5 @@ public static class _104Parameters
     public static readonly string _104JobInfoQueueName = "104JobInfo";
 
     public static readonly string Redis104CompanyHashSetKey = "Redis104CompanyHashKey";
+    public static readonly string Redis104JobHashSetKey = "Redis104JobHashKey";
 }

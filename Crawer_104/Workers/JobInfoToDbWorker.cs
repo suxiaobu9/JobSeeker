@@ -1,4 +1,5 @@
 ﻿using Model;
+using Model.JobSeekerDb;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
@@ -54,7 +55,7 @@ public class JobInfoToDbWorker : BackgroundService
 
             await UpsertCompany(jobInfo.CompanyId);
 
-            await dbService.UpsertJob(jobInfo);
+            await UpsertJob(jobInfo);
 
         }
         catch (Exception ex)
@@ -69,38 +70,58 @@ public class JobInfoToDbWorker : BackgroundService
 
         try
         {
-            if (!await IsCompanyDataExistsInRedis(companyNo) || !await dbService.CompanyExists(companyNo))
+            if (await IsKeyFieldExistsInRedis(_104Parameters.Redis104CompanyHashSetKey, companyNo))
+                return;
+
+            var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
+
+            if (companyInfo == null)
             {
-                var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
-
-                if (companyInfo == null)
-                {
-                    logger.LogWarning($"{{currentMethod}} get company info get null.{{companyNo}}", currentMethod, companyNo);
-                    return;
-                }
-
-                var companyEntity = dbService.TransCompanyInfoToDbEntity(companyNo, companyInfo);
-
-                if (companyEntity == null)
-                {
-                    logger.LogWarning($"{{currentMethod}} get company entity get null.{{companyInfo}}", currentMethod, companyInfo);
-                    return;
-                }
-
-                await dbService.UpsertCompany(companyEntity);
+                logger.LogWarning($"{{currentMethod}} get company info get null.{{companyNo}}", currentMethod, companyNo);
+                return;
             }
+
+            var companyEntity = dbService.TransCompanyInfoToDbEntity(companyNo, companyInfo);
+
+            if (companyEntity == null)
+            {
+                logger.LogWarning($"{{currentMethod}} get company entity get null.{{companyInfo}}", currentMethod, companyInfo);
+                return;
+            }
+
+            await dbService.UpsertCompany(companyEntity);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Upsert Company data get exception.{companyNo}", companyNo);
+            logger.LogError(ex, "{currentMethod} Company data get exception.{companyNo}", currentMethod, companyNo);
             await redisDb.HashDeleteAsync(_104Parameters.Redis104CompanyHashSetKey, companyNo);
             throw;
         }
     }
 
-    private async Task<bool> IsCompanyDataExistsInRedis(string companyId)
+    private async Task UpsertJob(Job jobInfo)
     {
-        var companyExist = await redisDb.HashExistsAsync(_104Parameters.Redis104CompanyHashSetKey, companyId);
+        var currentMethod = "JobInfoToDbWorker.UpsertJob";
+        try
+        {
+            if (await IsKeyFieldExistsInRedis(_104Parameters.Redis104JobHashSetKey, jobInfo.Id))
+                return;
+
+            await dbService.UpsertJob(jobInfo);
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "{currentMethod} get exception.{jobInfo}", currentMethod, jobInfo);
+            await redisDb.HashDeleteAsync(_104Parameters.Redis104JobHashSetKey, jobInfo.Id);
+            throw;
+        }
+
+    }
+
+    private async Task<bool> IsKeyFieldExistsInRedis(string key, string field)
+    {
+        var companyExist = await redisDb.HashExistsAsync(key, field);
 
         if (companyExist)
             return true;
@@ -108,10 +129,10 @@ public class JobInfoToDbWorker : BackgroundService
         var redisTrans = redisDb.CreateTransaction();
 
         // 1. 如果 key 不存在才執行下一個動作
-        redisTrans.AddCondition(StackExchange.Redis.Condition.HashNotExists(_104Parameters.Redis104CompanyHashSetKey, companyId));
+        redisTrans.AddCondition(StackExchange.Redis.Condition.HashNotExists(key, field));
 
         // 2. 第 1 點條件成立才會執行
-        var companySetTask = redisTrans.HashSetAsync(_104Parameters.Redis104CompanyHashSetKey, companyId, "");
+        var companySetTask = redisTrans.HashSetAsync(key, field, "");
 
         // 有完整執行到第 2 點 committed 才會是 true
         var committed = await redisTrans.ExecuteAsync();
@@ -122,7 +143,7 @@ public class JobInfoToDbWorker : BackgroundService
         if (committed)
             return false;
 
-        logger.LogWarning("{companyId} committed {committed}. {IsCanceled},{IsCompleted},{IsCompletedSuccessfully},{IsFaulted}", companyId, committed, companySetTask.IsCanceled, companySetTask.IsCompleted, companySetTask.IsCompletedSuccessfully, companySetTask.IsFaulted);
+        logger.LogWarning("{companyId} committed {committed}. {IsCanceled},{IsCompleted},{IsCompletedSuccessfully},{IsFaulted}", field, committed, companySetTask.IsCanceled, companySetTask.IsCompleted, companySetTask.IsCompletedSuccessfully, companySetTask.IsFaulted);
 
         return !committed;
     }
