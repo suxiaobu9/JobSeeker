@@ -34,6 +34,7 @@ public class JobListWorker : BackgroundService
         {
             // 刪除 Redis 中所有已更新的公司 id
             await redisDb.KeyDeleteAsync(_104Parameters.Redis104CompanyHashSetKey);
+            await redisDb.KeyDeleteAsync(_104Parameters.Redis104JobHashSetKey);
 
             logger.LogInformation($"{{currentMethod}} running at: {{time}}", currentMethod, DateTimeOffset.Now);
 

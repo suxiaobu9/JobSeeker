@@ -124,18 +124,36 @@ public class Db104JobService : IDbService
     /// <returns></returns>
     public async Task UpsertCompany(Company model)
     {
-        await db.Companies.Upsert(model)
-            .On(x => x.Id)
-            .WhenMatched(x => new Company
-            {
-                CreateUtcAt = x.CreateUtcAt,
-                Ignore = x.Ignore,
-                IgnoreReason = x.IgnoreReason,
-                Sort = x.Sort,
-            })
-            .RunAsync();
+        using var trans = await db.Database.BeginTransactionAsync();
 
-        await db.SaveChangesAsync();
+        try
+        {
+            var company = await db.Companies.FirstOrDefaultAsync(x => x.Id == model.Id);
+
+            if (company == null)
+            {
+                await db.Companies.AddAsync(model);
+            }
+            else
+            {
+                company.Name = model.Name;
+                company.Url = model.Url;
+                company.UpdateUtcAt = model.UpdateUtcAt;
+                company.GetInfoUrl = model.GetInfoUrl;
+                company.Product = model.Product;
+                company.Profile = model.Profile;
+                company.Welfare = model.Welfare;
+            }
+
+            await db.SaveChangesAsync();
+
+            await trans.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Db104JobService UpsertCompany get exception.");
+            await trans.RollbackAsync();
+        }
     }
 
     /// <summary>
@@ -144,37 +162,47 @@ public class Db104JobService : IDbService
     /// <param name="model"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public async Task UpsertJob(Job newJobInfo)
+    public async Task UpsertJob(Job model)
     {
-        var job = await db.Jobs.FirstOrDefaultAsync(x => x.Id == newJobInfo.Id);
+        using var trans = await db.Database.BeginTransactionAsync();
 
-        if (job == null)
+        try
         {
-            await db.Jobs.Upsert(newJobInfo)
-                .On(x => x.Id)
-                .RunAsync();
-        }
-        else
-        {
-            var needUpdate = job.JobPlace != newJobInfo.JobPlace ||
-                                 job.Salary != newJobInfo.Salary ||
-                                 job.OtherRequirement != newJobInfo.OtherRequirement ||
-                                 job.WorkContent != newJobInfo.WorkContent;
+            var job = await db.Jobs.FirstOrDefaultAsync(x => x.Id == model.Id);
 
-            if (needUpdate)
+            if (job == null)
             {
-                job.JobPlace = newJobInfo.JobPlace;
-                job.Salary = newJobInfo.Salary;
-                job.OtherRequirement = newJobInfo.OtherRequirement;
-                job.WorkContent = newJobInfo.WorkContent;
-                job.HaveRead = false;
+                await db.Jobs.AddAsync(model);
+            }
+            else
+            {
+                job.Name = model.Name;
+                job.Url = model.Url;
+                job.WorkContent = model.WorkContent;
+                job.Salary = model.Salary;
+                job.OtherRequirement = model.OtherRequirement;
+                job.JobPlace = model.JobPlace;
+                job.UpdateUtcAt = model.UpdateUtcAt;
+                job.GetInfoUrl = model.GetInfoUrl;
+
+                if (job.WorkContent != model.WorkContent ||
+                    job.Salary != model.Salary ||
+                    job.OtherRequirement != model.OtherRequirement ||
+                    job.JobPlace != model.JobPlace)
+                {
+                    job.HaveRead = false;
+                }
             }
 
-            job.IsDeleted = false;
-            job.UpdateUtcAt = newJobInfo.UpdateUtcAt;
-        }
+            await db.SaveChangesAsync();
 
-        await db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Db104JobService UpsertJob get exception.");
+
+            await trans.RollbackAsync();
+        }
     }
 
     /// <summary>
