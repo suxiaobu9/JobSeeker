@@ -104,7 +104,7 @@ public class JobInfoToDbWorker : BackgroundService
         var currentMethod = "JobInfoToDbWorker.UpsertJob";
         try
         {
-            if (await IsKeyFieldExistsInRedis(_104Parameters.Redis104JobHashSetKey, jobInfo.Id))
+            if (!await IsKeyFieldExistsInRedis(_104Parameters.Redis104JobHashSetKey, jobInfo.Id))
                 return;
 
             await dbService.UpsertJob(jobInfo);
