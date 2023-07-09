@@ -104,7 +104,7 @@ public class JobInfoToDbWorker : BackgroundService
         var currentMethod = "JobInfoToDbWorker.UpsertJob";
         try
         {
-            if (!await IsKeyFieldExistsInRedis(_104Parameters.Redis104JobHashSetKey, jobInfo.Id))
+            if (await IsKeyFieldExistsInRedis(_104Parameters.Redis104JobHashSetKey, jobInfo.Id))
                 return;
 
             await dbService.UpsertJob(jobInfo);
@@ -121,9 +121,9 @@ public class JobInfoToDbWorker : BackgroundService
 
     private async Task<bool> IsKeyFieldExistsInRedis(string key, string field)
     {
-        var companyExist = await redisDb.HashExistsAsync(key, field);
+        var dataExist = await redisDb.HashExistsAsync(key, field);
 
-        if (companyExist)
+        if (dataExist)
             return true;
 
         var redisTrans = redisDb.CreateTransaction();
@@ -132,18 +132,19 @@ public class JobInfoToDbWorker : BackgroundService
         redisTrans.AddCondition(StackExchange.Redis.Condition.HashNotExists(key, field));
 
         // 2. 第 1 點條件成立才會執行
-        var companySetTask = redisTrans.HashSetAsync(key, field, "");
+        var setValueTask = redisTrans.HashSetAsync(key, field, "");
 
         // 有完整執行到第 2 點 committed 才會是 true
         var committed = await redisTrans.ExecuteAsync();
 
-        if (!committed && companySetTask.IsCanceled)
+        if (!committed && setValueTask.IsCanceled)
             return true;
 
         if (committed)
             return false;
 
-        logger.LogWarning("{companyId} committed {committed}. {IsCanceled},{IsCompleted},{IsCompletedSuccessfully},{IsFaulted}", field, committed, companySetTask.IsCanceled, companySetTask.IsCompleted, companySetTask.IsCompletedSuccessfully, companySetTask.IsFaulted);
+        logger.LogWarning("{key} {field} committed {committed}. {IsCanceled},{IsCompleted},{IsCompletedSuccessfully},{IsFaulted}",
+            key, field, committed, setValueTask.IsCanceled, setValueTask.IsCompleted, setValueTask.IsCompletedSuccessfully, setValueTask.IsFaulted);
 
         return !committed;
     }

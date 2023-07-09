@@ -195,7 +195,7 @@ public class Db104JobService : IDbService
             }
 
             await db.SaveChangesAsync();
-
+            await trans.CommitAsync();
         }
         catch (Exception ex)
         {
