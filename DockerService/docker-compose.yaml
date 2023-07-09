@@ -102,7 +102,7 @@ services:
     build:
       context: ..
       dockerfile: ./Crawer_104/Dockerfile
-    image: crawer-104-worker-service:v1.0.7
+    image: crawer-104-worker-service:v1.0.8
     volumes:
       - ./data/crawer104:/app/data"
     restart: unless-stopped

@@ -73,6 +73,8 @@ public class JobInfoToDbWorker : BackgroundService
             if (await IsKeyFieldExistsInRedis(_104Parameters.Redis104CompanyHashSetKey, companyNo))
                 return;
 
+            logger.LogInformation($"{{currentMethod}} start upsert company info.{{companyNo}}", currentMethod, companyNo);
+
             var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
 
             if (companyInfo == null)
@@ -106,6 +108,8 @@ public class JobInfoToDbWorker : BackgroundService
         {
             if (await IsKeyFieldExistsInRedis(_104Parameters.Redis104JobHashSetKey, jobInfo.Id))
                 return;
+
+            logger.LogInformation($"{{currentMethod}} start upsert job info.{{jobId}}", currentMethod, jobInfo.Id);
 
             await dbService.UpsertJob(jobInfo);
 
