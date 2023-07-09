@@ -51,11 +51,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5">
-                    職缺
+                    <a href="@JobModalCompanyUrl" target="_blank" class="m-1 btn btn-outline-primary">@JobModalCompanyName</a>
                 </h1>
 
                 <button type="button" class="m-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                <a href="@JobModalCompanyUrl" target="_blank" class="m-1 btn btn-outline-primary">公司</a>
                 <button type="button" class="m-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -66,7 +65,7 @@
                     foreach (var job in Jobs)
                     {
                         <h3>
-                            <a href="@job.JobUrl" target="_blank" class="btn btn-outline-primary">@job.Name</a>
+                            <a href="@job.JobUrl" target="_blank" class="btn btn-primary">@job.Name</a>
                         </h3>
                         <div>
                             @if (!job.HaveRead)
@@ -99,6 +98,7 @@
 
 @code {
     private JobSeekerHomePageModel? CompanyInfos;
+    private string JobModalCompanyName = "";
     private string JobModalCompanyUrl = "";
     private JobModel[]? Jobs;
     private CompanyModel? ModalCompany;
@@ -121,10 +121,12 @@
             return;
         ModalCompany = company;
         JobModalCompanyUrl = "";
+        JobModalCompanyName = "";
         if (company.Id == null)
             return;
 
         JobModalCompanyUrl = company.CompanyPageUrl ?? "";
+        JobModalCompanyName = company.Name ?? "";
         Jobs = await jobSeekerService.GetJobs(company.Id, false);
     }
 
