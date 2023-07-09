@@ -184,6 +184,7 @@ public class Db104JobService : IDbService
                 job.JobPlace = model.JobPlace;
                 job.UpdateUtcAt = model.UpdateUtcAt;
                 job.GetInfoUrl = model.GetInfoUrl;
+                job.IsDeleted = false;
 
                 if (job.WorkContent != model.WorkContent ||
                     job.Salary != model.Salary ||
