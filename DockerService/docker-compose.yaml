@@ -102,7 +102,7 @@ services:
     build:
       context: ..
       dockerfile: ./Crawer_104/Dockerfile
-    image: crawer-104-worker-service:v1.0.11
+    image: crawer-104-worker-service:v1.0.12
     volumes:
       - ./data/crawer104:/app/data"
     restart: unless-stopped
@@ -123,7 +123,7 @@ services:
     build:
       context: ..
       dockerfile: ./Web/Dockerfile
-    image: jobseeker-web:v1.0.6
+    image: jobseeker-web:v1.0.7
     restart: unless-stopped  
     networks:
       job_seeker_network:

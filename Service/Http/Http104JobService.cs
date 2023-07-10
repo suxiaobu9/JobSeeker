@@ -99,25 +99,34 @@ public class Http104JobService : IHttpService
     public async Task<string?> GetCompanyInfo(string companyNo)
     {
         var currentMethod = "Http104JobService.GetCompanyInfo";
-        var url = _104Parameters.Get104CompanyInfoUrl(companyNo);
-
-        var response = await httpClient.GetAsync(url);
-        var content = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(content))
+        var content = "";
+        try
         {
-            logger.LogWarning($"{{currentMethod}} get response fail.{{url}}, {{statusCode}}, {{content}}", currentMethod, url, response.StatusCode, content);
-            return null;
+            var url = _104Parameters.Get104CompanyInfoUrl(companyNo);
+
+            var response = await httpClient.GetAsync(url);
+            content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(content))
+            {
+                logger.LogWarning($"{{currentMethod}} get response fail.{{url}}, {{statusCode}}, {{content}}", currentMethod, url, response.StatusCode, content);
+                return null;
+            }
+
+            var companyInfo = JsonSerializer.Deserialize<_104CompanyInfoModel>(content);
+
+            if (companyInfo == null)
+            {
+                logger.LogWarning($"{{currentMethod}} deserialize company info fail.{{content}}", currentMethod, content);
+                return null;
+            }
+
+            return JsonSerializer.Serialize(companyInfo);
         }
-
-        var companyInfo = JsonSerializer.Deserialize<_104CompanyInfoModel>(content);
-
-        if (companyInfo == null)
+        catch (Exception ex)
         {
-            logger.LogWarning($"{{currentMethod}} deserialize company info fail.{{content}}", currentMethod, content);
-            return null;
+            logger.LogError(ex, $"{{currentMethod}} get exception.{{content}}", currentMethod, content);
+            throw;
         }
-
-        return JsonSerializer.Serialize(companyInfo);
     }
 }

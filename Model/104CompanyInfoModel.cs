@@ -18,7 +18,7 @@ public class CompanyData
     public string CustName { get; set; }
 
     [JsonPropertyName("custNo")]
-    public string CustNo { get; set; }
+    public long CustNo { get; set; }
 
     [JsonPropertyName("industryDesc")]
     public string IndustryDesc { get; set; }
