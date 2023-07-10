@@ -7,102 +7,104 @@
 <PageTitle>職缺</PageTitle>
 
 @*<SurveyPrompt Title="How is Blazor working for you?" />*@
+<div style="max-width:95vw">
 
-<div class="row">
-    @if (CompanyInfos != null && CompanyInfos.Companies != null)
-    {
-        foreach (var company in CompanyInfos.Companies)
+    <div class="row">
+        @if (CompanyInfos != null && CompanyInfos.Companies != null)
         {
-            <div class="col-12 p-1">
-                <div class="border border-1 p-2" style="min-height:100px">
-                    <div class="d-flex">
-                        <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
-                        <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @company.UpdateCount</p>
-                    </div>
-                    <div class="mt-2">
-                        <button class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(()=>GetJobs(company))>職缺</button>
-                        @if (company.NeedToRead)
-                        {
-                            <button class="btn btn-outline-success ms-2" @onclick=@(()=>ReadedAllJobs(company))>已讀</button>
-                        }
-                        @if (!company.IsIgnore)
-                        {
-                            <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreCompany(company))>Ignore</button>
-                        }
+            foreach (var company in CompanyInfos.Companies)
+            {
+                <div class="col-12 p-1">
+                    <div class="border border-1 p-2" style="min-height:100px">
+                        <div class="d-flex">
+                            <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
+                            <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @company.UpdateCount</p>
+                        </div>
+                        <div class="mt-2">
+                            <button class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(()=>GetJobs(company))>職缺</button>
+                            @if (company.NeedToRead)
+                            {
+                                <button class="btn btn-outline-success ms-2" @onclick=@(()=>ReadedAllJobs(company))>已讀</button>
+                            }
+                            @if (!company.IsIgnore)
+                            {
+                                <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreCompany(company))>Ignore</button>
+                            }
 
-                    </div>
-                    <div class="mt-2">
-                        <h3>介紹</h3>
-                        <pre>@company.Profile</pre>
-                    </div>
-                    <div class="mt-2">
-                        <h3>主要服務</h3>
-                        <pre>@company.Product</pre>
-                    </div>
-                    <div class="mt-2">
-                        <h3>福利</h3>
-                        <pre>@company.Welfare</pre>
+                        </div>
+                        <div class="mt-2">
+                            <h3>介紹</h3>
+                            <pre>@company.Profile</pre>
+                        </div>
+                        <div class="mt-2">
+                            <h3>主要服務</h3>
+                            <pre>@company.Product</pre>
+                        </div>
+                        <div class="mt-2">
+                            <h3>福利</h3>
+                            <pre>@company.Welfare</pre>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         }
-    }
-</div>
+    </div>
 
-<!-- Modal -->
-<div class="modal fade" id="jobsModal" tabindex="-1" aria-labelledby="jobsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
+    <!-- Modal -->
+    <div class="modal fade" id="jobsModal" tabindex="-1" aria-labelledby="jobsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
                     <div>
-                        <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">@JobModalCompanyName</a>
-                    </div>
-                    <div class="mt-2">
+                        <div>
+                            <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">@JobModalCompanyName</a>
+                        </div>
+                        <div class="mt-2">
 
-                        <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                        <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
+                            <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
+                            <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
 
-                        <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
+                            <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
+                        </div>
                     </div>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @if (Jobs != null)
-                {
-                    foreach (var job in Jobs)
+                <div class="modal-body">
+                    @if (Jobs != null)
                     {
-                        <h3>
-                            <a href="@job.JobUrl" target="_blank" class="btn btn-primary">@job.Name</a>
-                        </h3>
-                        <div>
-                            @if (!job.HaveRead)
-                            {
-                                <button class="btn btn-outline-success ms-2" @onclick=@(()=> ReadedJob(job))>已讀</button>
-                            }
-                            @if (!job.Ignore)
-                            {
-                                <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
-                            }
-                            <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @job.UpdateCount</p>
+                        foreach (var job in Jobs)
+                        {
+                            <h3>
+                                <a href="@job.JobUrl" target="_blank" class="btn btn-primary">@job.Name</a>
+                            </h3>
+                            <div>
+                                @if (!job.HaveRead)
+                                {
+                                    <button class="btn btn-outline-success ms-2" @onclick=@(()=> ReadedJob(job))>已讀</button>
+                                }
+                                @if (!job.Ignore)
+                                {
+                                    <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
+                                }
+                                <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @job.UpdateCount</p>
 
-                        </div>
-                        <div>
-                            @job.JobPlace @job.Salary
-                        </div>
-                        <pre>@job.WorkContent</pre>
-                        <pre>@job.OtherRequirement</pre>
-                        <hr />
+                            </div>
+                            <div>
+                                @job.JobPlace @job.Salary
+                            </div>
+                            <pre>@job.WorkContent</pre>
+                            <pre>@job.OtherRequirement</pre>
+                            <hr />
+                        }
                     }
-                }
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">公司</a>
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
+                    <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">公司</a>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
+                </div>
             </div>
         </div>
     </div>
