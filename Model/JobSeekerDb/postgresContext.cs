@@ -38,6 +38,7 @@ namespace Model.JobSeekerDb
 
                 entity.Property(e => e.GetInfoUrl)
                     .HasColumnName("get_info_url")
+                    .HasDefaultValueSql("''::text")
                     .HasComment("取得資料的網址");
 
                 entity.Property(e => e.Ignore)
@@ -64,6 +65,10 @@ namespace Model.JobSeekerDb
                 entity.Property(e => e.Sort)
                     .HasColumnName("sort")
                     .HasComment("排序");
+
+                entity.Property(e => e.UpdateCount)
+                    .HasColumnName("update_count")
+                    .HasComment("手動更新次數");
 
                 entity.Property(e => e.UpdateUtcAt)
                     .HasColumnName("update_utc_at")
@@ -101,6 +106,7 @@ namespace Model.JobSeekerDb
 
                 entity.Property(e => e.GetInfoUrl)
                     .HasColumnName("get_info_url")
+                    .HasDefaultValueSql("''::text")
                     .HasComment("取得資訊的網址");
 
                 entity.Property(e => e.HaveRead)
@@ -141,6 +147,10 @@ namespace Model.JobSeekerDb
                 entity.Property(e => e.Sort)
                     .HasColumnName("sort")
                     .HasComment("排序");
+
+                entity.Property(e => e.UpdateCount)
+                    .HasColumnName("update_count")
+                    .HasComment("手動更新次數");
 
                 entity.Property(e => e.UpdateUtcAt)
                     .HasColumnName("update_utc_at")

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Model.JobSeekerDb;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Model.Migrations
 {
     [DbContext(typeof(postgresContext))]
-    partial class postgresContextModelSnapshot : ModelSnapshot
+    [Migration("20230710031149_Company_and_Job_add_UpdateCount_col")]
+    partial class Company_and_Job_add_UpdateCount_col
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,9 +76,11 @@ namespace Model.Migrations
                         .HasColumnName("sort")
                         .HasComment("排序");
 
-                    b.Property<int>("UpdateCount")
+                    b.Property<int?>("UpdateCount")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("update_count")
+                        .HasDefaultValueSql("0")
                         .HasComment("手動更新次數");
 
                     b.Property<DateTime?>("UpdateUtcAt")
@@ -179,9 +183,11 @@ namespace Model.Migrations
                         .HasColumnName("sort")
                         .HasComment("排序");
 
-                    b.Property<int>("UpdateCount")
+                    b.Property<int?>("UpdateCount")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("update_count")
+                        .HasDefaultValueSql("0")
                         .HasComment("手動更新次數");
 
                     b.Property<DateTime?>("UpdateUtcAt")

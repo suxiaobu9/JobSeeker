@@ -55,6 +55,10 @@ namespace Model.JobSeekerDb
         /// 福利
         /// </summary>
         public string? Welfare { get; set; }
+        /// <summary>
+        /// 手動更新次數
+        /// </summary>
+        public int UpdateCount { get; set; }
 
         public virtual ICollection<Job> Jobs { get; set; }
     }
