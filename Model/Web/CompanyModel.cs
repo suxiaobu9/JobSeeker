@@ -17,4 +17,6 @@ public class CompanyModel
     public string? Profile { get; set; }
 
     public string? Welfare { get; set; }
+
+    public int UpdateCount { get; set; }
 }

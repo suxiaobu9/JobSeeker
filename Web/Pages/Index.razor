@@ -15,7 +15,10 @@
         {
             <div class="col-12 p-1">
                 <div class="border border-1 p-2" style="min-height:100px">
-                    <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
+                    <div class="d-flex">
+                        <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
+                        <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @company.UpdateCount</p>
+                    </div>
                     <div class="mt-2">
                         <button class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(()=>GetJobs(company))>職缺</button>
                         @if (company.NeedToRead)
@@ -26,6 +29,7 @@
                         {
                             <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreCompany(company))>Ignore</button>
                         }
+
                     </div>
                     <div class="mt-2">
                         <h3>介紹</h3>
@@ -50,12 +54,14 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">
-                    <a href="@JobModalCompanyUrl" target="_blank" class="m-1 btn btn-outline-primary">@JobModalCompanyName</a>
-                </h1>
+                <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">@JobModalCompanyName</a>
 
-                <button type="button" class="m-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                <button type="button" class="m-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
+                <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
+                <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
+               
+                <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
+
+
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -76,6 +82,8 @@
                             {
                                 <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
                             }
+                            <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @job.UpdateCount</p>
+
                         </div>
                         <div>
                             @job.JobPlace @job.Salary

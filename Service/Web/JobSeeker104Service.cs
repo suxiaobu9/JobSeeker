@@ -39,7 +39,8 @@ public class JobSeeker104Service : IJobSeekerService
                 NeedToRead = x.Jobs.Any(x => !x.IsDeleted && !x.HaveRead),
                 Product = x.Product,
                 Profile = x.Profile,
-                Welfare = x.Welfare
+                Welfare = x.Welfare,
+                UpdateCount = x.UpdateCount
             });
 
         if (take != null)
@@ -75,7 +76,8 @@ public class JobSeeker104Service : IJobSeekerService
                 OtherRequirement = x.OtherRequirement,
                 WorkContent = x.WorkContent,
                 HaveRead = x.HaveRead,
-                Ignore = x.Ignore
+                Ignore = x.Ignore,
+                UpdateCount = x.UpdateCount
             }).ToArrayAsync();
 
         return result;
@@ -96,6 +98,7 @@ public class JobSeeker104Service : IJobSeekerService
             return;
         }
 
+        company.UpdateCount += 1;
         company.Ignore = true;
 
         await db.SaveChangesAsync();
@@ -116,6 +119,7 @@ public class JobSeeker104Service : IJobSeekerService
             return;
         }
 
+        job.UpdateCount += 1;
         job.Ignore = true;
 
         await db.SaveChangesAsync();
@@ -130,15 +134,18 @@ public class JobSeeker104Service : IJobSeekerService
     public async Task ReadedAllJobs(string companyId)
     {
         var jobs = await db.Jobs.Where(x => x.CompanyId == companyId).ToArrayAsync();
-
-        if (!jobs.Any())
+        var company = await db.Companies.FirstOrDefaultAsync(x => x.Id == companyId);
+        if (company == null || !jobs.Any())
         {
-            logger.LogWarning("ReadedAllJobs : Can't get jobs info by company id. {companyId}", companyId);
+            logger.LogWarning("ReadedAllJobs : Can't get jobs info or company info by company id. {companyId}", companyId);
             return;
         }
 
+        company.UpdateCount += 1;
+
         foreach (var job in jobs)
         {
+            job.UpdateCount += 1;
             job.HaveRead = true;
         }
 
@@ -161,6 +168,7 @@ public class JobSeeker104Service : IJobSeekerService
             return;
         }
 
+        job.UpdateCount += 1;
         job.HaveRead = true;
 
         await db.SaveChangesAsync();

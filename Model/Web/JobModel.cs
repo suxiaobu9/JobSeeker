@@ -25,4 +25,6 @@ public class JobModel
     public bool HaveRead { get; set; }
 
     public bool Ignore { get; set; }
+
+    public int UpdateCount { get; set; }
 }
