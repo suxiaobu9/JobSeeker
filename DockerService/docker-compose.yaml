@@ -123,7 +123,7 @@ services:
     build:
       context: ..
       dockerfile: ./Web/Dockerfile
-    image: jobseeker-web:v1.0.7
+    image: jobseeker-web:v1.0.8
     restart: unless-stopped  
     networks:
       job_seeker_network:

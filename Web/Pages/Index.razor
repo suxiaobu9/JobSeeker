@@ -54,14 +54,18 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">@JobModalCompanyName</a>
+                <div>
+                    <div>
+                        <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">@JobModalCompanyName</a>
+                    </div>
+                    <div class="mt-2">
 
-                <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
-               
-                <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
+                        <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
+                        <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
 
-
+                        <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
+                    </div>
+                </div>
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
