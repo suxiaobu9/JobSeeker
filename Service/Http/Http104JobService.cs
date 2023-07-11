@@ -22,7 +22,7 @@ public class Http104JobService : IHttpService
     /// </summary>
     /// <param name="jobListData"></param>
     /// <returns></returns>
-    public IEnumerable<string>? GetJobInfoUrlFromJobList(string jobListData)
+    public IEnumerable<string>? GetJobIdFromJobList(string jobListData)
     {
         var currentMethod = "Http104JobService.GetJobInfoUrlFromJobList";
         var jobList = JsonSerializer.Deserialize<_104JobListModel>(jobListData);
@@ -43,7 +43,7 @@ public class Http104JobService : IHttpService
 
                     return new Uri(jobInfoWebUrl).Segments.LastOrDefault();
                 }).Where(x => !string.IsNullOrWhiteSpace(x))
-                .Select(x => _104Parameters.Get104JobInfoUrl(x!));
+                .Select(x => x!);
     }
 
     /// <summary>

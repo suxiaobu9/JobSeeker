@@ -79,7 +79,7 @@ public class Db104JobService : IDbService
             return null;
         }
 
-        var jobId = jobInfo.Data.Header.AnalysisUrl.Split('/').LastOrDefault();
+        var jobId = jobInfo.GetJobId;
 
         if (string.IsNullOrWhiteSpace(jobId))
         {

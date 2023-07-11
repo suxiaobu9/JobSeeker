@@ -1,4 +1,5 @@
 ﻿using Model;
+using Service.Cache;
 using Service.Http;
 using Service.Mq;
 
@@ -9,14 +10,17 @@ public class JobInfoWorker : BackgroundService
     private readonly ILogger<JobInfoWorker> logger;
     private readonly IHttpService get104JobService;
     private readonly IMqService mqService;
+    private readonly ICacheService cacheService;
 
     public JobInfoWorker(ILogger<JobInfoWorker> logger,
         IHttpService get104JobService,
-        IMqService mqService)
+        IMqService mqService,
+        ICacheService cacheService)
     {
         this.logger = logger;
         this.get104JobService = get104JobService;
         this.mqService = mqService;
+        this.cacheService = cacheService;
     }
 
 
@@ -25,7 +29,7 @@ public class JobInfoWorker : BackgroundService
         var currentMethod = "JobInfoWorker.ExecuteAsync";
         logger.LogInformation($"{{currentMethod}} running at: {{time}}", currentMethod, DateTimeOffset.Now);
 
-        mqService.ProcessMessageFromMq(_104Parameters._104JobListQueueName, GetJobListAndSendJobInfoToMq, 10);
+        mqService.ProcessMessageFromMq(_104Parameters._104JobListQueueName, GetJobListAndSendJobInfoToMq, 20);
 
         while (!stoppingToken.IsCancellationRequested)
             await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
@@ -38,18 +42,27 @@ public class JobInfoWorker : BackgroundService
         {
             logger.LogInformation($"{{currentMethod}} get job info url from job list.", currentMethod);
 
-            // 取得工作清單中的所有職缺網址
-            var jobInfoUrls = get104JobService.GetJobInfoUrlFromJobList(jobListData);
+            // 取得工作清單中的所有職缺 Id
+            var jobIds = get104JobService.GetJobIdFromJobList(jobListData);
 
-            if (jobInfoUrls == null)
+            if (jobIds == null)
             {
                 logger.LogWarning($"{{currentMethod}} get job info url from job list get null. {{jobListData}}", currentMethod, jobListData);
                 return;
             }
 
-            foreach (var jobInfoUrl in jobInfoUrls)
+            foreach (var jobId in jobIds)
             {
+                if (await cacheService.IsKeyFieldExistsInCache(_104Parameters.Redis104JobHashSetKey, jobId))
+                    continue;
+
+                var jobInfoUrl = _104Parameters.Get104JobInfoUrl(jobId);
+
                 var jobInfo = await get104JobService.GetJobInfoAsync<_104JobInfoModel>(jobInfoUrl);
+
+                if (jobInfo == null || string.IsNullOrWhiteSpace(jobInfo.GetJobId))
+                    continue;
+
                 mqService.SendMessageToMq(_104Parameters._104JobInfoQueueName, jobInfo);
             }
         }

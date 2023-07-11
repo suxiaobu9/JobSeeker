@@ -23,7 +23,7 @@ public interface IHttpService
     /// </summary>
     /// <param name="jobListData"></param>
     /// <returns></returns>
-    public IEnumerable<string>? GetJobInfoUrlFromJobList(string jobListData);
+    public IEnumerable<string>? GetJobIdFromJobList(string jobListData);
 
     /// <summary>
     /// 取得公司資訊

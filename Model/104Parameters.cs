@@ -31,6 +31,16 @@ public static class _104Parameters
 
     private static readonly string[] Keywords = new string[]
     {
+        ".net core",
+        "asp.net",
+        ".net",
+        "net",
+        "C sharp",
+        "C#"
+    };
+
+    public static readonly string[] KeywordsFilters = new string[]
+    {
         ".net",
         "C#"
     };
@@ -42,7 +52,7 @@ public static class _104Parameters
     {
         keyword = HttpUtility.UrlEncode(keyword);
 
-        return $@"{Referer}/jobs/search/list?ro=1&kwop=7&keyword={keyword}&area={jobArea}&order=15&asc=0&page={page}&mode=l&jobsource=2018indexpoc&searchTempExclude=2&langFlag=0&langStatus=0&recommendJob=1&hotJob=1";
+        return $@"{Referer}/jobs/search/list?ro=1&jobcat=2007001000&kwop=7&keyword={keyword}&area={jobArea}&order=15&asc=0&page={page}&mode=l&jobsource=2018indexpoc&searchTempExclude=2&langFlag=0&langStatus=0&recommendJob=1&hotJob=1";
     }
 
     public static string Get104JobInfoUrl(string jobId) => $@"{Referer}/job/ajax/content/{jobId}";

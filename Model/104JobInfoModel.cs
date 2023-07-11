@@ -7,6 +7,9 @@ public class _104JobInfoModel
 {
     [JsonPropertyName("data")]
     public JobInfoData Data { get; set; }
+
+    public string? GetJobId => Data.Header.AnalysisUrl.Split('/').LastOrDefault();
+
 }
 
 public class JobInfoData
