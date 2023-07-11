@@ -91,11 +91,17 @@ public class JobSeeker104Service : IJobSeekerService
     public async Task IgnoreCompany(string companyId)
     {
         var company = await db.Companies.FirstOrDefaultAsync(x => x.Id == companyId);
-
+        var jobs = await db.Jobs.Where(x => x.CompanyId == companyId).ToArrayAsync();
         if (company == null)
         {
             logger.LogWarning("IgnoreCompany : Can't get company info.{companyId}", companyId);
             return;
+        }
+
+        foreach (var job in jobs)
+        {
+            job.UpdateCount += 1;
+            job.Ignore = true;
         }
 
         company.UpdateCount += 1;
