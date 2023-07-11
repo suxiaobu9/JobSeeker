@@ -3,6 +3,7 @@
 @using Model
 @page "/"
 @inject IJobSeekerService jobSeekerService
+@inject IJSRuntime jsRuntime
 
 <PageTitle>職缺</PageTitle>
 
@@ -21,14 +22,14 @@
                             <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @company.UpdateCount</p>
                         </div>
                         <div class="mt-2">
-                            <button class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(()=>GetJobs(company))>職缺</button>
+                            <button id="btn-jobs" class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(()=>GetJobs(company))>職缺</button>
                             @if (company.NeedToRead)
                             {
-                                <button class="btn btn-outline-success ms-2" @onclick=@(()=>ReadedAllJobs(company))>已讀</button>
+                                <button id="read-comp" class="btn btn-outline-success ms-2" @onclick=@(()=>ReadedAllJobs(company))>已讀</button>
                             }
                             @if (!company.IsIgnore)
                             {
-                                <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreCompany(company))>Ignore</button>
+                                <button id="ignore-comp" class="btn btn-danger ms-2" @onclick=@(()=> IgnoreCompany(company))>Ignore</button>
                             }
 
                         </div>
@@ -81,11 +82,11 @@
                             <div>
                                 @if (!job.HaveRead)
                                 {
-                                    <button class="btn btn-outline-success ms-2" @onclick=@(()=> ReadedJob(job))>已讀</button>
+                                    <button id="read-job" class="btn btn-outline-success ms-2" @onclick=@(()=> ReadedJob(job))>已讀</button>
                                 }
                                 @if (!job.Ignore)
                                 {
-                                    <button class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
+                                    <button id="ignore-job" class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
                                 }
                                 <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @job.UpdateCount</p>
 
@@ -123,7 +124,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        CompanyInfos = await jobSeekerService.GetCompanies(false, Take);
+        CompanyInfos = await jobSeekerService.GetCompanies(false, Take ?? 100);
 
         await base.OnInitializedAsync();
     }
@@ -142,6 +143,7 @@
         JobModalCompanyUrl = company.CompanyPageUrl ?? "";
         JobModalCompanyName = company.Name ?? "";
         Jobs = await jobSeekerService.GetJobs(company.Id, false);
+        StateHasChanged();
     }
 
     private void ReadedAllJobs(CompanyModel? company)
@@ -211,4 +213,17 @@
         _ = jobSeekerService.IgnoreJob(job.JobId);
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await jsRuntime.InvokeVoidAsync("registerShortcut", DotNetObjectReference.Create(this));
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    [JSInvokable]
+    public async Task HandleKeyPress()
+    {
+        await GetJobs(CompanyInfos?.Companies?[0]);
+    }
 }
