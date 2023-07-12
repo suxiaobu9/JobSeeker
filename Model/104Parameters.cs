@@ -42,7 +42,8 @@ public static class _104Parameters
     public static readonly string[] KeywordsFilters = new string[]
     {
         ".net",
-        "C#"
+        "net",
+        "c#"
     };
 
     public static (string Area, string Keyword)[] AreaAndKeywords => JobAreas.SelectMany(x => Keywords.Select(y => (x, y))).ToArray();

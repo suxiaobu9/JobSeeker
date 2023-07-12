@@ -134,14 +134,11 @@ public class JobInfoToDbWorker : BackgroundService
 
     private static bool FilterPassed(Job job)
     {
-        var content = job.WorkContent + job.OtherRequirement ?? "";
+        var content = (job.WorkContent + job.OtherRequirement ?? "").ToLower();
 
         string urlPattern = @"https?://[^\s\u4E00-\u9FA5]+";
 
         var matches = Regex.Matches(content, urlPattern);
-
-        if (!matches.Any())
-            return true;
 
         foreach (Match match in matches)
         {
