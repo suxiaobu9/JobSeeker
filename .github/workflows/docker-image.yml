@@ -23,7 +23,8 @@ jobs:
       run: echo "::set-output name=date::$(date +'%Y.%m.%d.%H.%M.%S')"
     - name: Build and Push Docker image
       run: |
-        docker build -t arisuokay/test-github-action:${{ steps.datetime.outputs.date }} -t arisuokay/test-github-action:latest .
+        docker build -f ./Crawer_104/Dockerfile -t arisuokay/test-github-action:${{ steps.datetime.outputs.date }} -t arisuokay/test-github-action:latest .
         docker push arisuokay/test-github-action:${{ steps.datetime.outputs.date }}
+        docker push arisuokay/test-github-action:latest
       
 
