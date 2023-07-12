@@ -21,16 +21,16 @@ jobs:
 
       - name: Set up date and time
         id: datetime
-        run: echo "::set-output name=date::$(date +'%Y.%m.%d.%H.%M.%S')"
+        run: echo "DATE=$(date +'%Y.%m.%d.%H.%M.%S')" >> $GITHUB_ENV
 
       - name: Build and Push Docker image - Crawer
         run: |
-          docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer:${{ steps.datetime.outputs.date }} -t arisuokay/job-seeker-crawer:latest .
-          docker push arisuokay/job-seeker-crawer:${{ steps.datetime.outputs.date }}
+          docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer:${{ env.DATE }} -t arisuokay/job-seeker-crawer:latest .
+          docker push arisuokay/job-seeker-crawer:${{ env.DATE }}
           docker push arisuokay/job-seeker-crawer:latest
 
       - name: Build and Push Docker image - Web
         run: |
-          docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:${{ steps.datetime.outputs.date }} -t arisuokay/job-seeker-web:latest .
-          docker push arisuokay/job-seeker-web:${{ steps.datetime.outputs.date }}
+          docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:${{ env.DATE }} -t arisuokay/job-seeker-web:latest .
+          docker push arisuokay/job-seeker-web:${{ env.DATE }}
           docker push arisuokay/job-seeker-web:latest
