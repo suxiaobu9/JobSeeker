@@ -13,5 +13,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag arisuokay/crawer-104:$(date +"%Y.%m.%d.%H.%M.%S")
+      run: docker build -f ./Crawer_104/Dockerfile -t arisuokay/crawer-104:$(date +"%Y.%m.%d.%H.%M.%S") .
 
