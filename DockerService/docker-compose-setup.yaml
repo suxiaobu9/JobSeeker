@@ -97,42 +97,6 @@ services:
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.6
-        
-  crawer-104:
-    image: arisuokay/job-seeker-crawer:latest
-    container_name: crawer-104
-    restart: unless-stopped
-    networks:
-      job_seeker_network:
-        ipv4_address: 172.20.0.7
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      nacos:
-        condition: service_healthy
-      redis-stack-server:
-        condition: service_healthy
-
-  jobseeker-web:
-    image: arisuokay/job-seeker-web:latest
-    container_name: jobseeker-web
-    restart: unless-stopped
-    networks:
-      job_seeker_network:
-        ipv4_address: 172.20.0.8
-    ports:
-      - "80:80"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      nacos:
-        condition: service_healthy
-      redis-stack-server:
-        condition: service_healthy
 
   redis-stack-server:
     image: redis/redis-stack-server:latest
@@ -144,7 +108,7 @@ services:
       - ./data/redis:/data
     command: redis-server --requirepass jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 10s
       retries: 10

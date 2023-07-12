@@ -22,7 +22,7 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true,
       "useSSL": true,
-      "DockerfileRunArguments": "--network job-seeker_job_seeker_network"
+      "DockerfileRunArguments": "--network job-seeker_job_seeker_network -p 80:80 -p 443:443"
     }
   },
   "iisSettings": {
