@@ -145,7 +145,7 @@ public class JobInfoToDbWorker : BackgroundService
             content = content.Replace(match.Value, "");
         }
 
-        return _104Parameters.KeywordsFilters.Any(x => content.Contains(x));
+        return _104Parameters.KeywordsFilters.Any(x => content.Contains(x.ToLower()));
 
     }
 }

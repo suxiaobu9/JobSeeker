@@ -1,6 +1,7 @@
 ﻿@using Service.Web
 @using Model.Web
 @using Model
+@using System.Text.RegularExpressions;
 @page "/"
 @inject IJobSeekerService jobSeekerService
 @inject IJSRuntime jsRuntime
@@ -35,15 +36,15 @@
                         </div>
                         <div class="mt-2">
                             <h3>介紹</h3>
-                            <pre>@company.Profile</pre>
+                            <p>@company.Profile</p>
                         </div>
                         <div class="mt-2">
                             <h3>主要服務</h3>
-                            <pre>@company.Product</pre>
+                            <p>@company.Product</p>
                         </div>
                         <div class="mt-2">
                             <h3>福利</h3>
-                            <pre>@company.Welfare</pre>
+                            <p>@company.Welfare</p>
                         </div>
                     </div>
                 </div>
@@ -62,8 +63,17 @@
                         </div>
                         <div class="mt-2">
 
-                            <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                            <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
+                            @if (ModalCompany != null)
+                            {
+                                if (ModalCompany.NeedToRead)
+                                {
+                                    <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
+                                }
+                                if (!ModalCompany.IsIgnore)
+                                {
+                                    <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
+                                }
+                            }
 
                             <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
                         </div>
@@ -94,8 +104,8 @@
                             <div>
                                 @job.JobPlace @job.Salary
                             </div>
-                            <pre>@job.WorkContent</pre>
-                            <pre>@job.OtherRequirement</pre>
+                            <p>@((MarkupString)(job.WorkContent ?? ""))</p>
+                            <p>@((MarkupString)(job.OtherRequirement ?? ""))</p>
                             <hr />
                         }
                     }
@@ -143,7 +153,23 @@
         JobModalCompanyUrl = company.CompanyPageUrl ?? "";
         JobModalCompanyName = company.Name ?? "";
         Jobs = await jobSeekerService.GetJobs(company.Id, false);
+
+        if (Jobs != null)
+        {
+            foreach (var job in Jobs)
+            {
+                foreach (var key in _104Parameters.KeywordsFilters)
+                {
+                    string replacementText = $"<span style=\"color: red;\">{key.ToUpper()}</span>";
+
+                    job.WorkContent = job.WorkContent?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
+                    job.OtherRequirement = job.OtherRequirement?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+
         StateHasChanged();
+
     }
 
     private void ReadedAllJobs(CompanyModel? company)
@@ -152,6 +178,12 @@
             return;
 
         company.NeedToRead = false;
+
+        if (Jobs != null)
+        {
+            foreach (var item in Jobs)
+                item.HaveRead = true;
+        }
 
         SortCompany();
 
@@ -165,11 +197,15 @@
 
         company.IsIgnore = true;
 
+        if (Jobs != null)
+        {
+            foreach (var item in Jobs)
+                item.HaveRead = true;
+        }
+
         SortCompany();
 
         _ = jobSeekerService.IgnoreCompany(company.Id);
-
-
     }
 
     private void SortCompany()
@@ -191,6 +227,20 @@
         Jobs = Jobs.OrderBy(x => x.Ignore)
                     .ThenBy(x => x.HaveRead)
                     .ToArray();
+
+        if (Jobs.All(x => x.Ignore || x.HaveRead))
+        {
+            IgnoreCompany(CompanyInfos?.Companies?[0]);
+
+            if (ModalCompany != null)
+                ModalCompany.NeedToRead = false;
+
+            foreach (var job in Jobs)
+            {
+                job.Ignore = true;
+                job.HaveRead = true;
+            }
+        }
     }
 
     private void ReadedJob(JobModel? job)

@@ -41,7 +41,6 @@ public static class _104Parameters
 
     public static readonly string[] KeywordsFilters = new string[]
     {
-        ".net",
         "net",
         "c#"
     };
