@@ -1,13 +1,16 @@
 # Job Seeker
 
-## 專案初始化流程
+## 專案啟動
 
-1. 需要先跑起相關服務
-
-   ```ps1
-   cd DockerService
-   docker compose up -d
-   ```
+```ps1
+ cd DockerService
+# setup 環境
+docker compose -f docker-compose-setup.yaml up -d
+# dev 環境
+docker compose -f docker-compose-dev.yaml up -d
+# 一般環境
+docker compose -f docker-compose.yaml up -d
+```
 
 ## 指令
 
@@ -31,65 +34,64 @@
 
 ## 環境設定
 
-- 啟動 docker compose 服務
+- 啟動 setup 的 docker compose
 
   ```ps1
-  # dev 環境
-  docker compose -f docker-compose-dev.yaml up -d
-  # 一般環境
-  docker compose -f docker-compose.yaml up -d
+  docker compose -f ./DockerService/docker-compose-setup.yaml up -d
   ```
 
-- 設定 nacos 中的參數 `http://localhost:8848/nacos`
+### 設定 nacos 參數
 
-  1. 設定 namespace
+- 開啟網站 `http://localhost:8848/nacos`，預設帳密 nacos/nacos
 
-     1. Namespace ID : `608369bd-2a9e-4a62-bdc2-b023c0d720a4`
-     1. Namespace : `JobSeeker`
-     1. Description : `JobSeeker`
+  1.  設定 namespace
 
-  1. 在 namespace = JobSeeker 中設定參數
+      1. Namespace ID : `608369bd-2a9e-4a62-bdc2-b023c0d720a4`
+      1. Namespace : `JobSeeker`
+      1. Description : `JobSeeker`
 
-     1. Data Id = `seq`
+  2.  在 namespace = JobSeeker 中設定參數
 
-        ```json
-        {
-          "SeqLogServerAddress": "http://172.20.0.2:5341/"
-        }
-        ```
+      1. Data Id = `seq`
 
-     1. Data Id = `rabbit-mq`
+         ```json
+         {
+           "SeqLogServerAddress": "http://172.20.0.2:5341/"
+         }
+         ```
 
-        ```json
-        {
-          "RabbitMq": {
-            "Host": "172.20.0.3",
-            "Name": "guest",
-            "Password": "guest"
-          }
-        }
-        ```
+      2. Data Id = `rabbit-mq`
 
-     1. Data Id = `postgresql`
+         ```json
+         {
+           "RabbitMq": {
+             "Host": "172.20.0.3",
+             "Name": "guest",
+             "Password": "guest"
+           }
+         }
+         ```
 
-        ```json
-        {
-          "ConnectionStrings": {
-            "NpgsqlConnection": "Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker"
-          }
-        }
-        ```
+      3. Data Id = `postgresql`
 
-     1. Data Id = `redis`
+         ```json
+         {
+           "ConnectionStrings": {
+             "NpgsqlConnection": "Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker"
+           }
+         }
+         ```
 
-        ```json
-        {
-          "Redis": {
-            "Host": "172.20.0.9:6379",
-            "Secret": "jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc"
-          }
-        }
-        ```
+      4. Data Id = `redis`
+
+         ```json
+         {
+           "Redis": {
+             "Host": "172.20.0.9:6379",
+             "Secret": "jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc"
+           }
+         }
+         ```
 
 - 利用指令新增
 
@@ -168,3 +170,9 @@
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=redis&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
 
   ```
+
+### 啟動服務
+
+```ps1
+docker compose -f ./DockerService/docker-compose.yaml up -d
+```

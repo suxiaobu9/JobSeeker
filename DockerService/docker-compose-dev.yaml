@@ -1,4 +1,4 @@
-version: "3.5"
+version: "1"
 name: job-seeker
 services:
   seq-jobseeker:
@@ -81,7 +81,7 @@ services:
     build:
       context: .
       dockerfile: ./image/mysql/8/Dockerfile
-    image: nacos/mysql:8.0.30
+    image: nacos/mysql:8.0.31
     env_file:
       - ./env/mysql.env
     volumes:
@@ -98,6 +98,48 @@ services:
       job_seeker_network:
         ipv4_address: 172.20.0.6
 
+  crawer-104:
+    build:
+      context: ..
+      dockerfile: ./Crawer_104/Dockerfile
+    image: crawer-104-worker-service:v1.0.14
+    container_name: crawer-104-dev
+    restart: unless-stopped
+    networks:
+      job_seeker_network:
+        ipv4_address: 172.20.0.7
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+      redis-stack-server:
+        condition: service_healthy
+
+  jobseeker-web:
+    build:
+      context: ..
+      dockerfile: ./Web/Dockerfile
+    image: jobseeker-web:v1.0.11
+    restart: unless-stopped
+    container_name: jobseeker-web-dev
+    networks:
+      job_seeker_network:
+        ipv4_address: 172.20.0.8
+    ports:
+      - "80:80"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+      redis-stack-server:
+        condition: service_healthy
+
   redis-stack-server:
     image: redis/redis-stack-server:latest
     container_name: redis-stack-server
@@ -108,7 +150,7 @@ services:
       - ./data/redis:/data
     command: redis-server --requirepass jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 10s
       retries: 10
