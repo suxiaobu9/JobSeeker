@@ -17,7 +17,7 @@ public interface IJobSeekerService
     /// <param name="companyId"></param>
     /// <param name="includeIgnore"></param>
     /// <returns></returns>
-    public Task<JobModel[]?> GetJobs(string companyId, bool includeIgnore);
+    public Task<JobSeekerJobModal> GetJobs(string companyId, bool includeIgnore);
 
     /// <summary>
     /// 已讀公司的所有職缺

@@ -1,22 +1,22 @@
 window.registerShortcut = (dotNetReference) => {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'q') {
-            dotNetReference.invokeMethodAsync('HandleKeyPress');
+            dotNetReference.invokeMethodAsync('ReloadJobs');
         }
         if (event.key === 'w') {
             document.querySelector('#btn-jobs').click();
         }
         if (event.key === 'a') {
-            document.querySelector('#read-job').click();
+            dotNetReference.invokeMethodAsync('ReadFirstJob');
         }
         if (event.key === 's') {
-            document.querySelector('#ignore-job').click();
+            dotNetReference.invokeMethodAsync('IgnoreFirstJob');
         }
         if (event.key === 'z') {
-            document.querySelector('#read-comp').click();
+            dotNetReference.invokeMethodAsync('ReadCompany');
         }
         if (event.key === 'x') {
-            document.querySelector('#ignore-comp').click();
+            dotNetReference.invokeMethodAsync('IgnoreCompany');
         }
     });
 }

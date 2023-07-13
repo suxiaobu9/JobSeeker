@@ -59,9 +59,9 @@ public class JobSeeker104Service : IJobSeekerService
     /// <param name="companyId"></param>
     /// <param name="includeIgnore"></param>
     /// <returns></returns>
-    public async Task<JobModel[]?> GetJobs(string companyId, bool includeIgnore)
+    public async Task<JobSeekerJobModal> GetJobs(string companyId, bool includeIgnore)
     {
-        var result = await db.Jobs.Where(x => x.CompanyId == companyId)
+        var data = await db.Jobs.Where(x => x.CompanyId == companyId)
             .Where(x => includeIgnore || x.Ignore == false)
             .Where(x => x.IsDeleted == false)
             .OrderBy(x => x.HaveRead)
@@ -79,6 +79,12 @@ public class JobSeeker104Service : IJobSeekerService
                 Ignore = x.Ignore,
                 UpdateCount = x.UpdateCount
             }).ToArrayAsync();
+
+        var result = new JobSeekerJobModal
+        {
+            CompanyId = companyId,
+            Jobs = data
+        };
 
         return result;
     }

@@ -59,20 +59,14 @@
                 <div class="modal-header">
                     <div>
                         <div>
-                            <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">@JobModalCompanyName</a>
+                            <a href="@ModalCompany?.CompanyPageUrl" target="_blank" class="btn btn-outline-primary">@ModalCompany?.Name</a>
                         </div>
                         <div class="mt-2">
 
                             @if (ModalCompany != null)
                             {
-                                if (ModalCompany.NeedToRead)
-                                {
-                                    <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                                }
-                                if (!ModalCompany.IsIgnore)
-                                {
-                                    <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
-                                }
+                                <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
+                                <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
                             }
 
                             <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
@@ -82,9 +76,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    @if (Jobs != null)
+                    @if (JobInfos != null && JobInfos.Jobs != null)
                     {
-                        foreach (var job in Jobs)
+                        foreach (var job in JobInfos.Jobs)
                         {
                             <h3>
                                 <a href="@job.JobUrl" target="_blank" class="btn btn-primary">@job.Name</a>
@@ -113,7 +107,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                    <a href="@JobModalCompanyUrl" target="_blank" class="btn btn-outline-primary">公司</a>
+                    <a href="@ModalCompany?.CompanyPageUrl" target="_blank" class="btn btn-outline-primary">公司</a>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
                 </div>
             </div>
@@ -123,9 +117,7 @@
 
 @code {
     private JobSeekerHomePageModel? CompanyInfos;
-    private string JobModalCompanyName = "";
-    private string JobModalCompanyUrl = "";
-    private JobModel[]? Jobs;
+    private JobSeekerJobModal? JobInfos;
     private CompanyModel? ModalCompany;
 
     [Parameter]
@@ -141,71 +133,66 @@
 
     private async Task GetJobs(CompanyModel? company)
     {
-        Jobs = null;
-        if (company == null)
+        JobInfos = null;
+
+        if (company == null || company.Id == null)
             return;
+
         ModalCompany = company;
-        JobModalCompanyUrl = "";
-        JobModalCompanyName = "";
-        if (company.Id == null)
-            return;
 
-        JobModalCompanyUrl = company.CompanyPageUrl ?? "";
-        JobModalCompanyName = company.Name ?? "";
-        Jobs = await jobSeekerService.GetJobs(company.Id, false);
+        JobInfos = await jobSeekerService.GetJobs(company.Id, false);
 
-        if (Jobs != null)
+        if (JobInfos == null || JobInfos.Jobs == null)
         {
-            foreach (var job in Jobs)
-            {
-                foreach (var key in _104Parameters.KeywordsFilters)
-                {
-                    string replacementText = $"<span style=\"color: red;\">{key.ToUpper()}</span>";
-
-                    job.WorkContent = job.WorkContent?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
-                    job.OtherRequirement = job.OtherRequirement?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
-                }
-            }
+            return;
         }
 
-        StateHasChanged();
+        foreach (var job in JobInfos.Jobs)
+        {
+            foreach (var key in _104Parameters.KeywordsFilters)
+            {
+                string replacementText = $"<span style=\"color: red;\">{key.ToUpper()}</span>";
 
+                job.WorkContent = job.WorkContent?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
+                job.OtherRequirement = job.OtherRequirement?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
+            }
+        }
     }
 
     private void ReadedAllJobs(CompanyModel? company)
     {
-        if (company == null || string.IsNullOrWhiteSpace(company.Id))
-            return;
-
-        company.NeedToRead = false;
-
-        if (Jobs != null)
-        {
-            foreach (var item in Jobs)
-                item.HaveRead = true;
-        }
-
-        SortCompany();
-
-        _ = jobSeekerService.ReadedAllJobs(company.Id);
+        IgnoreOrReadedCompany(company, readedCompany: true);
     }
 
     private void IgnoreCompany(CompanyModel? company)
     {
+        IgnoreOrReadedCompany(company, ignoreCompany: true);
+    }
+
+    private void IgnoreOrReadedCompany(CompanyModel? company, bool readedCompany = false, bool ignoreCompany = false)
+    {
+
         if (company == null || string.IsNullOrWhiteSpace(company.Id))
             return;
 
-        company.IsIgnore = true;
-
-        if (Jobs != null)
+        if (readedCompany)
         {
-            foreach (var item in Jobs)
+            company.NeedToRead = false;
+            _ = jobSeekerService.ReadedAllJobs(company.Id);
+        }
+
+        if (ignoreCompany)
+        {
+            company.IsIgnore = true;
+            _ = jobSeekerService.IgnoreCompany(company.Id);
+        }
+        if (JobInfos != null && JobInfos.Jobs != null)
+        {
+            foreach (var item in JobInfos.Jobs)
                 item.HaveRead = true;
         }
 
         SortCompany();
-
-        _ = jobSeekerService.IgnoreCompany(company.Id);
     }
 
     private void SortCompany()
@@ -216,31 +203,20 @@
         CompanyInfos.Companies = CompanyInfos.Companies
                                     .OrderBy(x => x.IsIgnore)
                                     .ThenByDescending(x => x.NeedToRead)
+                                    .ThenBy(x => x.Id)
                                     .ToArray();
     }
 
     private void SortJobs()
     {
-        if (Jobs == null)
+        if (JobInfos == null || JobInfos.Jobs == null)
             return;
 
-        Jobs = Jobs.OrderBy(x => x.Ignore)
-                    .ThenBy(x => x.HaveRead)
-                    .ToArray();
+        JobInfos.Jobs = JobInfos.Jobs.OrderBy(x => x.Ignore)
+            .ThenBy(x => x.HaveRead)
+            .ThenBy(x => x.JobId)
+            .ToArray();
 
-        if (Jobs.All(x => x.Ignore || x.HaveRead))
-        {
-            IgnoreCompany(CompanyInfos?.Companies?[0]);
-
-            if (ModalCompany != null)
-                ModalCompany.NeedToRead = false;
-
-            foreach (var job in Jobs)
-            {
-                job.Ignore = true;
-                job.HaveRead = true;
-            }
-        }
     }
 
     private void ReadedJob(JobModel? job)
@@ -271,9 +247,112 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    private async Task AutoGetNewCompAndJobData()
+    {
+        if (JobInfos == null || JobInfos.Jobs == null)
+            return;
+
+        if (JobInfos.Jobs.Any(x => !x.Ignore && !x.HaveRead))
+            return;
+
+        foreach (var job in JobInfos.Jobs)
+        {
+            job.HaveRead = true;
+            job.Ignore = true;
+        }
+
+        var company = CompanyInfos?.Companies?.FirstOrDefault(x => x.Id == JobInfos.CompanyId);
+
+        if (company == null)
+            return;
+
+        company.NeedToRead = false;
+
+        SortCompany();
+
+        ModalCompany = CompanyInfos?.Companies?.FirstOrDefault();
+        await GetJobs(ModalCompany);
+    }
+
     [JSInvokable]
-    public async Task HandleKeyPress()
+    public async Task ReloadJobs()
     {
         await GetJobs(CompanyInfos?.Companies?[0]);
+    }
+
+    [JSInvokable]
+    public async Task ReadFirstJob()
+    {
+        var job = JobInfos?.Jobs?.FirstOrDefault();
+        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
+            return;
+
+        await jobSeekerService.ReadedJob(job.JobId);
+        job.HaveRead = true;
+        SortJobs();
+
+        await AutoGetNewCompAndJobData();
+        StateHasChanged();
+
+    }
+
+    [JSInvokable]
+    public async Task IgnoreFirstJob()
+    {
+        var job = JobInfos?.Jobs?.FirstOrDefault();
+        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
+            return;
+
+        await jobSeekerService.IgnoreJob(job.JobId);
+        job.Ignore = true;
+        SortJobs();
+
+        await AutoGetNewCompAndJobData();
+        StateHasChanged();
+
+    }
+
+    [JSInvokable]
+    public async Task ReadCompany()
+    {
+        if (ModalCompany != null)
+        {
+            ModalCompany.NeedToRead = false;
+            if (!string.IsNullOrWhiteSpace(ModalCompany.Id))
+            {
+                await jobSeekerService.ReadedAllJobs(ModalCompany.Id);
+            }
+        }
+
+        if (JobInfos != null && JobInfos.Jobs != null)
+        {
+            foreach (var job in JobInfos.Jobs)
+                job.HaveRead = true;
+        }
+        SortCompany();
+        await AutoGetNewCompAndJobData();
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task IgnoreCompany()
+    {
+        if (ModalCompany != null)
+        {
+            ModalCompany.IsIgnore = true;
+            if (!string.IsNullOrWhiteSpace(ModalCompany.Id))
+            {
+                await jobSeekerService.IgnoreCompany(ModalCompany.Id);
+            }
+        }
+
+        if (JobInfos != null && JobInfos.Jobs != null)
+        {
+            foreach (var job in JobInfos.Jobs)
+                job.HaveRead = true;
+        }
+        SortCompany();
+        await AutoGetNewCompAndJobData();
+        StateHasChanged();
     }
 }
