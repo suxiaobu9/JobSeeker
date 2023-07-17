@@ -59,6 +59,10 @@ namespace Model.JobSeekerDb
         /// 手動更新次數
         /// </summary>
         public int UpdateCount { get; set; }
+        /// <summary>
+        /// 來源
+        /// </summary>
+        public string SourceFrom { get; set; } = null!;
 
         public virtual ICollection<Job> Jobs { get; set; }
     }
