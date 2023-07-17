@@ -1,9 +1,11 @@
+using Crawer_104.Service;
+using Crawer_104.Workers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Http;
 using Model.Dto104;
 using Model.JobSeekerDb;
 using Serilog;
+using Service.Cache;
+using Service.Http;
 using StackExchange.Redis;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -19,7 +21,6 @@ IHost host = Host.CreateDefaultBuilder(args)
                     .CreateLogger());
         });
 
-        // httpclient
         services.AddHttpClient(Parameters104.Referer, client => client.DefaultRequestHeaders.Add("Referer", Parameters104.Referer));
 
         // db connection
@@ -29,9 +30,14 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         // redis
         string redisConnectionString = hostContext.Configuration.GetSection("redis:Host").Value;
-        string redisSecret= hostContext.Configuration.GetSection("redis:Secret").Value;
+        string redisSecret = hostContext.Configuration.GetSection("redis:Secret").Value;
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString + ",password=" + redisSecret));
         services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
+
+        services.AddSingleton<IHttpService, Http104Service>();
+        services.AddSingleton<ICacheService, Redis104Service>();
+
+        services.AddHostedService<GetCompanyAndJobWorker>();
 
         // db migration
         using var scope = services.BuildServiceProvider().CreateScope();

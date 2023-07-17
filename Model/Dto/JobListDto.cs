@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace Model.Dto;
 
-public class JobListDto
+public class JobListDto<T> where T:SimpleJobInfoDto
 {
-    public string? CompanyId { get; set; }
-
-    public string? JobId { get; set; }
-
+    public IEnumerable<T>? JobList { get; set; }
 }
 
+public class SimpleJobInfoDto
+{
+    public string CompanyId { get; set; } = null!;
+
+    public string JobId { get; set; } = null!;
+
+}

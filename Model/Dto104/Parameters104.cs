@@ -31,12 +31,12 @@ public static class Parameters104
 
     private static readonly string[] Keywords = new string[]
     {
-        ".net core",
+        ".net%20core",
         "asp.net",
         ".net",
         "net",
-        "C sharp",
-        "C#"
+        "C%20sharp",
+        "C%23"
     };
 
     public static readonly string[] KeywordsFilters = new string[]
@@ -50,8 +50,6 @@ public static class Parameters104
     public static readonly string Referer = @"https://www.104.com.tw";
     public static string Get104JobListUrl(string keyword, string jobArea, int page)
     {
-        keyword = HttpUtility.UrlEncode(keyword);
-
         return $@"{Referer}/jobs/search/list?ro=1&jobcat=2007001000&kwop=7&keyword={keyword}&area={jobArea}&order=15&asc=0&page={page}&mode=l&jobsource=2018indexpoc&searchTempExclude=2&langFlag=0&langStatus=0&recommendJob=1&hotJob=1";
     }
 
