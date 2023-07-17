@@ -56,6 +56,7 @@ public class Db104JobService : IDbService
             Product = companyInfo.Data.Product,
             Profile = companyInfo.Data.Profile,
             Welfare = companyInfo.Data.Welfare,
+            SourceFrom = "104"
         };
 
         return company;
