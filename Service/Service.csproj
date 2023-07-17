@@ -28,4 +28,12 @@
 	  <ProjectReference Include="..\Model\Model.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Cache\" />
+	  <Folder Include="Db\" />
+	  <Folder Include="Http\" />
+	  <Folder Include="Mq\" />
+	  <Folder Include="Web\" />
+	</ItemGroup>
+
 </Project>

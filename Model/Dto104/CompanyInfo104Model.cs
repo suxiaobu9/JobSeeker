@@ -1,9 +1,9 @@
 ﻿#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 using System.Text.Json.Serialization;
 
-namespace Model;
+namespace Model.Dto104;
 
-public class _104CompanyInfoModel
+public class CompanyInfo104Model
 {
     [JsonPropertyName("data")]
     public CompanyData Data { get; set; }

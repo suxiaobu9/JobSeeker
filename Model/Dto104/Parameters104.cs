@@ -1,8 +1,8 @@
 ﻿using System.Web;
 
-namespace Model;
+namespace Model.Dto104;
 
-public static class _104Parameters
+public static class Parameters104
 {
     private static readonly string[] JobAreas = new string[]
     {
@@ -61,9 +61,9 @@ public static class _104Parameters
     public static string Get104CompanyInfoUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
     public static string Get104CompanyPageUrl(string companyId) => $@"{Referer}/company/{companyId}";
 
-    public static readonly string _104JobListQueueName = "104JobList";
-    public static readonly string _104JobInfoQueueName = "104JobInfo";
+    public static string _104JobListQueueName => "104JobList";
+    public static string _104JobInfoQueueName => "104JobInfo";
 
-    public static readonly string Redis104CompanyHashSetKey = "Redis104CompanyHashKey";
-    public static readonly string Redis104JobHashSetKey = "Redis104JobHashKey";
+    public static string Redis104CompanyHashSetKey => "Redis104CompanyHashKey";
+    public static string Redis104JobHashSetKey => "Redis104JobHashKey";
 }
