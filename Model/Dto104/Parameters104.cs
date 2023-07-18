@@ -37,12 +37,6 @@ public static class Parameters104
         "C%23"
     };
 
-    public static string[] KeywordsFilters => new string[]
-    {
-        "net",
-        "c#"
-    };
-
     public static (string Area, string Keyword)[] AreaAndKeywords => JobAreas.SelectMany(x => Keywords.Select(y => (x, y))).ToArray();
 
     public static readonly string Referer = @"https://www.104.com.tw";

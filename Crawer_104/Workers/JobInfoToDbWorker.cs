@@ -86,6 +86,13 @@ public class JobInfoToDbWorker : BackgroundService
                 return;
             }
 
+            if (!jobDto.FilterPassed)
+            {
+                //logger.LogWarning($"{nameof(JobInfoToDbWorker)} JobDto filter failed.{{jobId}}", jobId);
+                await args.CompleteMessageAsync(args.Message);
+                return;
+            }
+
             // save to db
             await dbService.UpsertJob(jobDto);
         }

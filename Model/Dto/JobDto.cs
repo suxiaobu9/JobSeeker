@@ -1,4 +1,6 @@
-﻿namespace Model.Dto;
+﻿using System.Text.RegularExpressions;
+
+namespace Model.Dto;
 
 public class JobDto
 {
@@ -30,4 +32,26 @@ public class JobDto
     /// 工作地點
     /// </summary>
     public string JobPlace { get; set; } = null!;
+
+    /// <summary>
+    /// 判斷職缺是否符合條件
+    /// </summary>
+    public bool FilterPassed
+    {
+        get
+        {
+            var content = (WorkContent + OtherRequirement).ToLower();
+
+            string urlPattern = @"https?://[^\s\u4E00-\u9FA5]+";
+
+            var matches = Regex.Matches(content, urlPattern);
+            foreach (Match match in matches)
+            {
+                content = content.Replace(match.Value, "");
+            }
+
+            return Parameters.KeywordsFilters.Any(x => content.Contains(x.ToLower()));
+
+        }
+    }
 }
