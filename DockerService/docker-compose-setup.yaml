@@ -1,4 +1,4 @@
-version: "1"
+version: "2"
 name: job-seeker
 services:
   seq-jobseeker:
@@ -15,24 +15,6 @@ services:
       job_seeker_network:
         ipv4_address: 172.20.0.2
 
-  # rabbitmq:
-  #   image: rabbitmq:3.12-management
-  #   container_name: rabbitmq
-  #   restart: unless-stopped
-  #   networks:
-  #     job_seeker_network:
-  #       ipv4_address: 172.20.0.3
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
-  #   healthcheck:
-  #     test: rabbitmq-diagnostics -q ping
-  #     interval: 5s
-  #     timeout: 10s
-  #     retries: 10
-  #   volumes:
-  #     - ./data/rabbitmq:/var/lib/rabbitmq
-
   postgres:
     image: postgres:15.3
     container_name: postgres
@@ -45,7 +27,7 @@ services:
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
       interval: 5s
       timeout: 10s
       retries: 10
@@ -89,7 +71,7 @@ services:
     ports:
       - "3306:3306"
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 10s
       retries: 10
