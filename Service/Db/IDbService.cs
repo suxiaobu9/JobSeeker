@@ -1,50 +1,28 @@
-﻿using Model.JobSeekerDb;
+﻿using Model.Dto;
 
 namespace Service.Db;
 
 public interface IDbService
 {
     /// <summary>
-    /// 將工作資訊轉換成資料庫實體
+    /// 新增或更新公司資訊
     /// </summary>
-    /// <param name="jobInfoJson"></param>
+    /// <param name="companyDto"></param>
     /// <returns></returns>
-    public Model.JobSeekerDb.Job? TransJobInfoToDbEntity(string jobInfoJson);
+    public Task UpsertCompany(CompanyDto companyDto);
 
     /// <summary>
-    /// 公司是否存在
+    /// 新增或更新職缺資訊
     /// </summary>
-    /// <param name="companyNo"></param>
+    /// <param name="jobDto"></param>
     /// <returns></returns>
-    public Task<bool> CompanyExists(string companyNo);
+    public Task UpsertJob(JobDto jobDto);
 
     /// <summary>
-    /// 更新或新增公司資料
+    /// 將指定來源的工作全部設為刪除
     /// </summary>
-    /// <param name="model"></param>
+    /// <param name="sourceFrom"></param>
     /// <returns></returns>
-    public Task UpsertCompany(Company model);
-
-    /// <summary>
-    /// 更新或新增職缺資料
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    public Task UpsertJob(Job model);
-
-    /// <summary>
-    /// 將公司資訊轉換成資料庫實體
-    /// </summary>
-    /// <param name="companyInfoData"></param>
-    /// <returns></returns>
-    public Model.JobSeekerDb.Company? TransCompanyInfoToDbEntity(string companyNo, string companyInfoData);
-
-    /// <summary>
-    /// 將未刪除的職缺設為刪除
-    /// </summary>
-    /// <returns></returns>
-    public Task SetAllUndeleteJobToDelete();
-
+    public Task MakeAllJobAsDelete(string sourceFrom);
 
 }
-

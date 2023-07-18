@@ -1,34 +1,30 @@
-﻿namespace Service.Http;
+﻿using Model.Dto;
+
+namespace Service.Http;
 
 public interface IHttpService
 {
     /// <summary>
-    /// 取得職缺內容
+    /// 取得職缺清單
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public Task<T?> GetJobList<T>(string url) where T : JobListDto<SimpleJobInfoDto>;
+
+    /// <summary>
+    /// 取得職缺資訊
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="url"></param>
     /// <returns></returns>
-    public Task<T?> GetJobListAsync<T>(string url);
-
-    /// <summary>
-    /// 取得工作資訊
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="url"></param>
-    /// <returns></returns>
-    public Task<T?> GetJobInfoAsync<T>(string url);
-
-    /// <summary>
-    /// 從工作清單取得工作內容網址
-    /// </summary>
-    /// <param name="jobListData"></param>
-    /// <returns></returns>
-    public IEnumerable<string>? GetJobIdFromJobList(string jobListData);
+    public Task<T?> GetJobInfo<T>(string jobId, string companyId, string url) where T : JobDto;
 
     /// <summary>
     /// 取得公司資訊
     /// </summary>
-    /// <param name="string"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="url"></param>
     /// <returns></returns>
-    public Task<string?> GetCompanyInfo(string companyNo);
+    public Task<T?> GetCompanyInfo<T>(string companyId, string url) where T : CompanyDto;
+
 }

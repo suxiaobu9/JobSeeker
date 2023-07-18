@@ -1,12 +1,12 @@
-﻿using Model;
-using Model.JobSeekerDb;
+﻿using Azure.Messaging.ServiceBus;
+using Model.Dto;
+using Model.Dto104;
 using Service.Cache;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
 using StackExchange.Redis;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace Crawer_104.Workers;
 
@@ -14,138 +14,93 @@ public class JobInfoToDbWorker : BackgroundService
 {
     private readonly ILogger<JobInfoToDbWorker> logger;
     private readonly IMqService mqService;
-    private readonly IDbService dbService;
-    private readonly IHttpService get104JobService;
-    private readonly IDatabase redisDb;
     private readonly ICacheService cacheService;
+    private readonly IHttpService httpService;
+    private readonly IDbService dbService;
+    private readonly IDatabase redisDb;
 
     public JobInfoToDbWorker(ILogger<JobInfoToDbWorker> logger,
         IMqService mqService,
+        ICacheService cacheService,
+        IHttpService httpService,
         IDbService dbService,
-        IHttpService get104JobService,
-        IDatabase redisDb,
-        ICacheService cacheService)
+        IDatabase redisDb)
     {
         this.logger = logger;
         this.mqService = mqService;
-        this.dbService = dbService;
-        this.get104JobService = get104JobService;
-        this.redisDb = redisDb;
         this.cacheService = cacheService;
+        this.httpService = httpService;
+        this.dbService = dbService;
+        this.redisDb = redisDb;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var currentMethod = "JobInfoToDbWorker.ExecuteAsync";
-        logger.LogInformation($"{{currentMethod}} running at: {{time}}", currentMethod, DateTimeOffset.Now);
+        logger.LogInformation($"{nameof(CompanyToDbWorker)} ExecuteAsync start.");
+        await mqService.ProcessMessageFromMq(Parameters104.JobIdForRedisAndQueue, MessageHandler);
 
-        mqService.ProcessMessageFromMq(_104Parameters._104JobInfoQueueName, GetJobInfoAndSaveToDb);
+        while (true)
+            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
 
-
-        while (!stoppingToken.IsCancellationRequested)
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
     }
 
-    private async Task GetJobInfoAndSaveToDb(string jobInfoData)
+    /// <summary>
+    /// 處理 Company id mq 訊息
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    private async Task MessageHandler(ProcessMessageEventArgs args)
     {
-        var currentMethod = "JobInfoToDbWorker.GetJobInfoAndSaveToDb";
+        // get get mq (job_id_for_104)
+        string message = args.Message.Body.ToString();
         try
         {
-            var jobInfo = dbService.TransJobInfoToDbEntity(jobInfoData);
+            var simpleJobInfo = JsonSerializer.Deserialize<SimpleJobInfoDto>(message);
 
-            if (jobInfo == null)
+            if (simpleJobInfo == null || string.IsNullOrWhiteSpace(simpleJobInfo.JobId) || string.IsNullOrWhiteSpace(simpleJobInfo.CompanyId))
             {
-                logger.LogWarning($"{{currentMethod}} get job info from job list get null.{{jobInfoData}}", currentMethod, jobInfoData);
+                logger.LogWarning($"{nameof(JobInfoToDbWorker)} MessageHandler get null simpleJobInfo.{{message}}", message);
+                await args.CompleteMessageAsync(args.Message);
                 return;
             }
 
-            await UpsertCompany(jobInfo.CompanyId);
+            var jobId = simpleJobInfo.JobId;
+            var companyId = simpleJobInfo.CompanyId;
 
-            await UpsertJob(jobInfo);
+            // 確定公司資訊是否新增了
+            if (!await redisDb.HashExistsAsync(Parameters104.CompanyIdForRedisAndQueue, companyId))
+            {
+                logger.LogInformation($"{nameof(JobInfoToDbWorker)} company not exist, renew message.{{message}}", message);
+                // 把 Message 推回 MQ
+                await args.RenewMessageLockAsync(args.Message);
+                return;
+            }
 
+            // get job dto
+            var jobDto = await httpService.GetJobInfo<JobDto>(jobId, companyId, Parameters104.Get104JobInfoUrl(jobId));
+
+            if (jobDto == null)
+            {
+                logger.LogWarning($"{nameof(JobInfoToDbWorker)} MessageHandler get null jobDto.{{jobId}}", jobId);
+                await args.CompleteMessageAsync(args.Message);
+                return;
+            }
+
+            if (!jobDto.FilterPassed)
+            {
+                //logger.LogWarning($"{nameof(JobInfoToDbWorker)} JobDto filter failed.{{jobId}}", jobId);
+                await args.CompleteMessageAsync(args.Message);
+                return;
+            }
+
+            // save to db
+            await dbService.UpsertJob(jobDto);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{{currentMethod}} get exception.{{jobInfoData}}", currentMethod, jobInfoData);
-        }
-    }
-
-    private async Task UpsertCompany(string companyNo)
-    {
-        var currentMethod = "JobInfoToDbWorker.UpsertCompany";
-
-        try
-        {
-            if (await cacheService.IsKeyFieldExistsInCache(_104Parameters.Redis104CompanyHashSetKey, companyNo))
-                return;
-
-            logger.LogInformation($"{{currentMethod}} start upsert company info.{{companyNo}}", currentMethod, companyNo);
-
-            var companyInfo = await get104JobService.GetCompanyInfo(companyNo);
-
-            if (companyInfo == null)
-            {
-                logger.LogWarning($"{{currentMethod}} get company info get null.{{companyNo}}", currentMethod, companyNo);
-                return;
-            }
-
-            var companyEntity = dbService.TransCompanyInfoToDbEntity(companyNo, companyInfo);
-
-            if (companyEntity == null)
-            {
-                logger.LogWarning($"{{currentMethod}} get company entity get null.{{companyInfo}}", currentMethod, companyInfo);
-                return;
-            }
-
-            await dbService.UpsertCompany(companyEntity);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "{currentMethod} Company data get exception.{companyNo}", currentMethod, companyNo);
-            await redisDb.HashDeleteAsync(_104Parameters.Redis104CompanyHashSetKey, companyNo);
-            throw;
-        }
-    }
-
-    private async Task UpsertJob(Job jobInfo)
-    {
-        var currentMethod = "JobInfoToDbWorker.UpsertJob";
-        try
-        {
-            if (!FilterPassed(jobInfo))
-            {
-                //logger.LogInformation("FilterPassed = false {jobUrl}.{jobInfo}", jobInfo.Url, JsonSerializer.Serialize(jobInfo));
-                return;
-            }
-
-            logger.LogInformation($"{{currentMethod}} start upsert job info.{{jobId}}", currentMethod, jobInfo.Id);
-
-            await dbService.UpsertJob(jobInfo);
-
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "{currentMethod} get exception.{jobInfo}", currentMethod, jobInfo);
-            await redisDb.HashDeleteAsync(_104Parameters.Redis104JobHashSetKey, jobInfo.Id);
-            throw;
+            logger.LogError(ex, $"{nameof(JobInfoToDbWorker)} MessageHandler get exception.{{message}}", message);
         }
 
-    }
-
-    private static bool FilterPassed(Job job)
-    {
-        var content = (job.WorkContent + job.OtherRequirement ?? "").ToLower();
-
-        string urlPattern = @"https?://[^\s\u4E00-\u9FA5]+";
-
-        var matches = Regex.Matches(content, urlPattern);
-
-        foreach (Match match in matches)
-        {
-            content = content.Replace(match.Value, "");
-        }
-
-        return _104Parameters.KeywordsFilters.Any(x => content.Contains(x.ToLower()));
-
+        await args.CompleteMessageAsync(args.Message);
     }
 }

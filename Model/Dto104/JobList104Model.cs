@@ -6,13 +6,13 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Model;
+namespace Model.Dto104;
 
-public class _104JobListModel
+public class JobList104Model
 {
     [JsonPropertyName("status")]
     public int Status { get; set; }
-    
+
     [JsonPropertyName("data")]
     public JobListData Data { get; set; }
 

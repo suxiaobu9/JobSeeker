@@ -42,56 +42,58 @@ docker compose -f docker-compose.yaml up -d
 
 ### 設定 nacos 參數
 
+- 需要先變更 `AzureServiceBus` 的 ConnectionString
+
+  > ConnectionString 如果有 `+` 號要換成 `%2B`
+
 - 開啟網站 `http://localhost:8848/nacos`，預設帳密 nacos/nacos
 
-  1.  設定 namespace
+  1. 設定 namespace
 
-      1. Namespace ID : `608369bd-2a9e-4a62-bdc2-b023c0d720a4`
-      1. Namespace : `JobSeeker`
-      1. Description : `JobSeeker`
+     1. Namespace ID : `608369bd-2a9e-4a62-bdc2-b023c0d720a4`
+     2. Namespace : `JobSeeker`
+     3. Description : `JobSeeker`
 
-  2.  在 namespace = JobSeeker 中設定參數
+  2. 在 namespace = JobSeeker 中設定參數
 
-      1. Data Id = `seq`
+     1. Data Id = `seq`
 
-         ```json
-         {
-           "SeqLogServerAddress": "http://172.20.0.2:5341/"
-         }
-         ```
+        ```json
+        {
+          "SeqLogServerAddress": "http://172.20.0.2:5341/"
+        }
+        ```
 
-      2. Data Id = `rabbit-mq`
+     2. Data Id = `azure-service-bus`
 
-         ```json
-         {
-           "RabbitMq": {
-             "Host": "172.20.0.3",
-             "Name": "guest",
-             "Password": "guest"
-           }
-         }
-         ```
+        ```json
+        {
+          "AzureServiceBus": {
+            "ConnectionString": "<your connection string>"
+          }
+        }
+        ```
 
-      3. Data Id = `postgresql`
+     3. Data Id = `postgresql`
 
-         ```json
-         {
-           "ConnectionStrings": {
-             "NpgsqlConnection": "Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker"
-           }
-         }
-         ```
+        ```json
+        {
+          "ConnectionStrings": {
+            "NpgsqlConnection": "Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker"
+          }
+        }
+        ```
 
-      4. Data Id = `redis`
+     4. Data Id = `redis`
 
-         ```json
-         {
-           "Redis": {
-             "Host": "172.20.0.9:6379",
-             "Secret": "jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc"
-           }
-         }
-         ```
+        ```json
+        {
+          "Redis": {
+            "Host": "172.20.0.9:6379",
+            "Secret": "jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc"
+          }
+        }
+        ```
 
 - 利用指令新增
 
@@ -101,12 +103,12 @@ docker compose -f docker-compose.yaml up -d
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/console/namespaces' -d "customNamespaceId=608369bd-2a9e-4a62-bdc2-b023c0d720a4&namespaceName=JobSeeker&namespaceDesc=JobSeeker&accessToken=$token"
 
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=seq&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"SeqLogServerAddress\":\"http://172.20.0.2:5341/\"}&accessToken=$token"
-  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=rabbit-mq&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"RabbitMq\":{\"Host\":\"172.20.0.3\",\"Name\":\"guest\",\"Password\":\"guest\"}}&accessToken=$token"
+  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=azure-service-bus&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"AzureServiceBus\":{\"ConnectionString\":\"<your connection string>\"}}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=postgresql&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"ConnectionStrings\":{\"NpgsqlConnection\":\"Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker\"}}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=redis&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"Redis\":{\"Host\":\"172.20.0.9:6379\",\"Secret\":\"jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc\"}}&accessToken=$token"
 
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
-  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=redis&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
 
@@ -138,10 +140,10 @@ docker compose -f docker-compose.yaml up -d
   }
 
   Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
-      dataId = 'rabbit-mq'
+      dataId = 'azure-service-bus'
       group = 'DEFAULT_GROUP'
       tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
-      content = '{"RabbitMq":{"Host":"172.20.0.3","Name":"guest","Password":"guest"}}'
+      content = '{"AzureServiceBus":{"ConnectionString":"<your connection string>"}}'
       type = 'json'
       accessToken = $token
   }
@@ -165,7 +167,7 @@ docker compose -f docker-compose.yaml up -d
   }
 
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
-  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=redis&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
 

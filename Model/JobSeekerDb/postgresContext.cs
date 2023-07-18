@@ -29,7 +29,7 @@ namespace Model.JobSeekerDb
                     .IsUnique();
 
                 entity.Property(e => e.Id)
-                    .HasMaxLength(10)
+                    .HasColumnType("character varying")
                     .HasColumnName("id");
 
                 entity.Property(e => e.CreateUtcAt)
@@ -66,6 +66,11 @@ namespace Model.JobSeekerDb
                     .HasColumnName("sort")
                     .HasComment("排序");
 
+                entity.Property(e => e.SourceFrom)
+                    .HasMaxLength(20)
+                    .HasColumnName("source_from")
+                    .HasComment("來源");
+
                 entity.Property(e => e.UpdateCount)
                     .HasColumnName("update_count")
                     .HasComment("手動更新次數");
@@ -93,11 +98,11 @@ namespace Model.JobSeekerDb
                     .IsUnique();
 
                 entity.Property(e => e.Id)
-                    .HasMaxLength(10)
+                    .HasColumnType("character varying")
                     .HasColumnName("id");
 
                 entity.Property(e => e.CompanyId)
-                    .HasMaxLength(10)
+                    .HasColumnType("character varying")
                     .HasColumnName("company_id");
 
                 entity.Property(e => e.CreateUtcAt)

@@ -1,8 +1,6 @@
-﻿using System.Web;
+﻿namespace Model.Dto104;
 
-namespace Model;
-
-public static class _104Parameters
+public static class Parameters104
 {
     private static readonly string[] JobAreas = new string[]
     {
@@ -29,20 +27,14 @@ public static class _104Parameters
         "6001002029"
     };
 
-    private static readonly string[] Keywords = new string[]
+    private static string[] Keywords => new string[]
     {
-        ".net core",
+        ".net%20core",
         "asp.net",
         ".net",
         "net",
-        "C sharp",
-        "C#"
-    };
-
-    public static readonly string[] KeywordsFilters = new string[]
-    {
-        "net",
-        "c#"
+        "C%20sharp",
+        "C%23"
     };
 
     public static (string Area, string Keyword)[] AreaAndKeywords => JobAreas.SelectMany(x => Keywords.Select(y => (x, y))).ToArray();
@@ -50,8 +42,6 @@ public static class _104Parameters
     public static readonly string Referer = @"https://www.104.com.tw";
     public static string Get104JobListUrl(string keyword, string jobArea, int page)
     {
-        keyword = HttpUtility.UrlEncode(keyword);
-
         return $@"{Referer}/jobs/search/list?ro=1&jobcat=2007001000&kwop=7&keyword={keyword}&area={jobArea}&order=15&asc=0&page={page}&mode=l&jobsource=2018indexpoc&searchTempExclude=2&langFlag=0&langStatus=0&recommendJob=1&hotJob=1";
     }
 
@@ -61,9 +51,6 @@ public static class _104Parameters
     public static string Get104CompanyInfoUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
     public static string Get104CompanyPageUrl(string companyId) => $@"{Referer}/company/{companyId}";
 
-    public static readonly string _104JobListQueueName = "104JobList";
-    public static readonly string _104JobInfoQueueName = "104JobInfo";
-
-    public static readonly string Redis104CompanyHashSetKey = "Redis104CompanyHashKey";
-    public static readonly string Redis104JobHashSetKey = "Redis104JobHashKey";
+    public static string CompanyIdForRedisAndQueue => "comp_id_for_104";
+    public static string JobIdForRedisAndQueue => "job_id_for_104";
 }
