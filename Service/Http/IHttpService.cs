@@ -17,7 +17,7 @@ public interface IHttpService
     /// <typeparam name="T"></typeparam>
     /// <param name="url"></param>
     /// <returns></returns>
-    public Task<T?> GetJobInfo<T>(string url) where T : JobDto;
+    public Task<T?> GetJobInfo<T>(string jobId, string companyId, string url) where T : JobDto;
 
     /// <summary>
     /// 取得公司資訊
@@ -25,6 +25,6 @@ public interface IHttpService
     /// <typeparam name="T"></typeparam>
     /// <param name="url"></param>
     /// <returns></returns>
-    public Task<T?> GetCompanyInfo<T>(string url) where T : CompanyDto;
+    public Task<T?> GetCompanyInfo<T>(string companyId, string url) where T : CompanyDto;
 
 }

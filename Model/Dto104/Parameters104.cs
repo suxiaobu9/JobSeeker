@@ -1,6 +1,4 @@
-﻿using System.Web;
-
-namespace Model.Dto104;
+﻿namespace Model.Dto104;
 
 public static class Parameters104
 {
@@ -29,7 +27,7 @@ public static class Parameters104
         "6001002029"
     };
 
-    private static readonly string[] Keywords = new string[]
+    private static string[] Keywords => new string[]
     {
         ".net%20core",
         "asp.net",
@@ -39,7 +37,7 @@ public static class Parameters104
         "C%23"
     };
 
-    public static readonly string[] KeywordsFilters = new string[]
+    public static string[] KeywordsFilters => new string[]
     {
         "net",
         "c#"
@@ -59,9 +57,6 @@ public static class Parameters104
     public static string Get104CompanyInfoUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
     public static string Get104CompanyPageUrl(string companyId) => $@"{Referer}/company/{companyId}";
 
-    public static string CompanyIdQueueName => "comp_id_for_104";
-    public static string JobIdQueueName => "job_id_for_104";
-
-    public static string Redis104CompanyHashSetKey => "Redis104CompanyHashKey";
-    public static string Redis104JobHashSetKey => "Redis104JobHashKey";
+    public static string CompanyIdForRedisAndQueue => "comp_id_for_104";
+    public static string JobIdForRedisAndQueue => "job_id_for_104";
 }

@@ -1,11 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Service.Mq;
 
@@ -29,13 +24,19 @@ public class ServiceBusService : IMqService
     /// </summary>
     /// <param name="queueName"></param>
     /// <param name="message"></param>
-    public async Task ProcessMessageFromMq(string queueName, Func<ProcessMessageEventArgs, Task> messageHandler, Func<ProcessErrorEventArgs, Task> errorHandler)
+    public async Task ProcessMessageFromMq(string queueName, Func<ProcessMessageEventArgs, Task> messageHandler, Func<ProcessErrorEventArgs, Task>? errorHandler = null)
     {
-        var processor = mqClient.CreateProcessor(queueName, new ServiceBusProcessorOptions());
+        var processor = mqClient.CreateProcessor(queueName, new ServiceBusProcessorOptions
+        {
+            AutoCompleteMessages = false,
+        });
 
         processor.ProcessMessageAsync += messageHandler;
 
-        processor.ProcessErrorAsync += errorHandler;
+        if (errorHandler == null)
+            processor.ProcessErrorAsync += BasicErrorHandler;
+        else
+            processor.ProcessErrorAsync += errorHandler;
 
         await processor.StartProcessingAsync();
 
@@ -71,5 +72,16 @@ public class ServiceBusService : IMqService
     public async Task SendMessageToMq<T>(string queueName, T message)
     {
         await SendMessageToMq(queueName, JsonSerializer.Serialize(message));
+    }
+
+    /// <summary>
+    /// 基礎的處理訊息錯誤的 handle
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    private Task BasicErrorHandler(ProcessErrorEventArgs args)
+    {
+        logger.LogError(args.Exception, $"{nameof(ServiceBusService)} BasicErrorHandler get exception.");
+        return Task.CompletedTask;
     }
 }

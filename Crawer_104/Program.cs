@@ -2,11 +2,11 @@ using Azure.Messaging.ServiceBus;
 using Crawer_104.Service;
 using Crawer_104.Workers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Model.Dto104;
 using Model.JobSeekerDb;
 using Serilog;
 using Service.Cache;
+using Service.Db;
 using Service.Http;
 using Service.Mq;
 using StackExchange.Redis;
@@ -29,7 +29,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         // db connection
         services.AddDbContext<postgresContext>(option =>
             option.UseNpgsql(hostContext.Configuration.GetConnectionString("NpgsqlConnection")),
-            contextLifetime: ServiceLifetime.Singleton);
+            contextLifetime: ServiceLifetime.Transient, optionsLifetime: ServiceLifetime.Transient);
 
         // redis
         string redisConnectionString = hostContext.Configuration.GetSection("redis:Host").Value;
@@ -40,8 +40,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
         services.AddSingleton<IMqService, ServiceBusService>();
+        services.AddTransient<IDbService, DbService>();
 
         services.AddHostedService<GetCompanyAndJobWorker>();
+        services.AddHostedService<CompanyToDbWorker>();
+        services.AddHostedService<JobInfoToDbWorker>();
 
         string serviceBusConnectionString = hostContext.Configuration.GetSection("AzureServiceBus:ConnectionString").Value;
 
@@ -56,13 +59,13 @@ IHost host = Host.CreateDefaultBuilder(args)
         {
             var scope = services.BuildServiceProvider().CreateScope();
             var serviceBusClient = scope.ServiceProvider.GetRequiredService<ServiceBusClient>();
-            var companySender = serviceBusClient.CreateSender(Parameters104.CompanyIdQueueName);
-            var jobSender = serviceBusClient.CreateSender(Parameters104.JobIdQueueName);
+            var companySender = serviceBusClient.CreateSender(Parameters104.CompanyIdForRedisAndQueue);
+            var jobSender = serviceBusClient.CreateSender(Parameters104.JobIdForRedisAndQueue);
 
             return new Dictionary<string, ServiceBusSender>
             {
-                { Parameters104.CompanyIdQueueName, companySender },
-                { Parameters104.JobIdQueueName, jobSender },
+                { Parameters104.CompanyIdForRedisAndQueue, companySender },
+                { Parameters104.JobIdForRedisAndQueue, jobSender },
             };
         });
 

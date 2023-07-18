@@ -2,7 +2,7 @@
 
 public class JobDto
 {
-    public string JobId { get; set; } = null!;
+    public string Id { get; set; } = null!;
 
     public string CompanyId { get; set; } = null!;
 
