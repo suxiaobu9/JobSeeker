@@ -2,6 +2,7 @@
 using Model.Dto104;
 using Service.Cache;
 using Service.Http;
+using Service.Mq;
 
 namespace Crawer_104.Workers;
 
@@ -10,15 +11,17 @@ public class GetCompanyAndJobWorker : BackgroundService
     private readonly ILogger<GetCompanyAndJobWorker> logger;
     private readonly ICacheService cacheService;
     private readonly IHttpService httpService;
+    private readonly IMqService mqService;
 
     public GetCompanyAndJobWorker(ILogger<GetCompanyAndJobWorker> logger,
         ICacheService cacheService,
-        IHttpService httpService
-        )
+        IHttpService httpService,
+        IMqService mqService)
     {
         this.logger = logger;
         this.cacheService = cacheService;
         this.httpService = httpService;
+        this.mqService = mqService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,7 +31,7 @@ public class GetCompanyAndJobWorker : BackgroundService
 
             logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync start.");
 
-            // delete all job and company redis key
+            // 刪除所有已存在的 company 與 job 的 Redis 資料
             await cacheService.ResetExistCompanyAndJob();
 
             foreach (var (Area, Keyword) in Parameters104.AreaAndKeywords)
@@ -37,7 +40,8 @@ public class GetCompanyAndJobWorker : BackgroundService
                 for (var i = 1; i <= totalPage; i++)
                 {
                     var url = Parameters104.Get104JobListUrl(Keyword, Area, i);
-                    // get job list
+
+                    // 取得職缺清單
                     var jobListData = await httpService.GetJobList<JobListWithPageDto>(url);
 
                     if (jobListData == null || jobListData.JobList == null)
@@ -51,11 +55,13 @@ public class GetCompanyAndJobWorker : BackgroundService
                     {
                         if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.Redis104CompanyHashSetKey, item.CompanyId))
                         {
-                            //todo: send company id to mq
+                            // 送 company id 到 mq
+                            await mqService.SendMessageToMq(Parameters104.CompanyIdQueueName, item.CompanyId);
                         }
                         if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.Redis104JobHashSetKey, item.JobId))
                         {
-                            //todo: send job id to mq
+                            // 送 job id 到 mq
+                            await mqService.SendMessageToMq(Parameters104.JobIdQueueName, item.JobId);
                         }
                     }
                 }

@@ -1,11 +1,14 @@
+using Azure.Messaging.ServiceBus;
 using Crawer_104.Service;
 using Crawer_104.Workers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Model.Dto104;
 using Model.JobSeekerDb;
 using Serilog;
 using Service.Cache;
 using Service.Http;
+using Service.Mq;
 using StackExchange.Redis;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -36,11 +39,35 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
+        services.AddSingleton<IMqService, ServiceBusService>();
 
         services.AddHostedService<GetCompanyAndJobWorker>();
 
+        string serviceBusConnectionString = hostContext.Configuration.GetSection("AzureServiceBus:ConnectionString").Value;
+
+
+        // ServiceBusClient 
+        services.AddSingleton(serviceProvider =>
+        {
+            return new ServiceBusClient(serviceBusConnectionString);
+        });
+
+        services.AddSingleton(serviceProvider =>
+        {
+            var scope = services.BuildServiceProvider().CreateScope();
+            var serviceBusClient = scope.ServiceProvider.GetRequiredService<ServiceBusClient>();
+            var companySender = serviceBusClient.CreateSender(Parameters104.CompanyIdQueueName);
+            var jobSender = serviceBusClient.CreateSender(Parameters104.JobIdQueueName);
+
+            return new Dictionary<string, ServiceBusSender>
+            {
+                { Parameters104.CompanyIdQueueName, companySender },
+                { Parameters104.JobIdQueueName, jobSender },
+            };
+        });
+
         // db migration
-        using var scope = services.BuildServiceProvider().CreateScope();
+        var scope = services.BuildServiceProvider().CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
         context.Database.Migrate();
 

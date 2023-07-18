@@ -59,8 +59,8 @@ public static class Parameters104
     public static string Get104CompanyInfoUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
     public static string Get104CompanyPageUrl(string companyId) => $@"{Referer}/company/{companyId}";
 
-    public static string _104JobListQueueName => "104JobList";
-    public static string _104JobInfoQueueName => "104JobInfo";
+    public static string CompanyIdQueueName => "comp_id_for_104";
+    public static string JobIdQueueName => "job_id_for_104";
 
     public static string Redis104CompanyHashSetKey => "Redis104CompanyHashKey";
     public static string Redis104JobHashSetKey => "Redis104JobHashKey";

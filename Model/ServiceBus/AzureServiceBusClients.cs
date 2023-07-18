@@ -1,11 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Model;
+namespace Model.ServiceBus;
 
 public class AzureServiceBusClients
 {
@@ -14,7 +9,7 @@ public class AzureServiceBusClients
 
     public AzureServiceBusClients(ServiceBusClient jobQueue, ServiceBusClient companyQueue)
     {
-        this.JobQueue = jobQueue;
-        this.CompanyQueue = companyQueue;
+        JobQueue = jobQueue;
+        CompanyQueue = companyQueue;
     }
 }
