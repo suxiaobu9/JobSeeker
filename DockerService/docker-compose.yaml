@@ -130,7 +130,7 @@ services:
 
   crawer-cakeresume:
     image: arisuokay/job-seeker-crawer-cakeresume:latest
-    container_name: crawer-104
+    container_name: crawer-cakeresume
     restart: unless-stopped
     networks:
       job_seeker_network:

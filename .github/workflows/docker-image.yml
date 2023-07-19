@@ -29,7 +29,7 @@ jobs:
 
       - name: Build and Push Docker image - Crawer - CakeResume
         run: |
-          docker build -f ./Crawer_Cakeresume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:${{ env.DATE }} -t arisuokay/job-seeker-crawer-cakeresume:latest .
+          docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:${{ env.DATE }} -t arisuokay/job-seeker-crawer-cakeresume:latest .
           docker push arisuokay/job-seeker-crawer-cakeresume:${{ env.DATE }}
           docker push arisuokay/job-seeker-crawer-cakeresume:latest
 
