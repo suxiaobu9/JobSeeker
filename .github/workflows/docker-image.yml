@@ -23,9 +23,9 @@ jobs:
 
       - name: Build and Push Docker image - Crawer
         run: |
-          docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer:${{ env.DATE }} -t arisuokay/job-seeker-crawer:latest .
-          docker push arisuokay/job-seeker-crawer:${{ env.DATE }}
-          docker push arisuokay/job-seeker-crawer:latest
+          docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:${{ env.DATE }} -t arisuokay/job-seeker-crawer-104:latest .
+          docker push arisuokay/job-seeker-crawer-104:${{ env.DATE }}
+          docker push arisuokay/job-seeker-crawer-104:latest
 
       - name: Build and Push Docker image - Web
         run: |
