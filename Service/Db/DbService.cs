@@ -1,11 +1,9 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model.Dto;
 using Model.Dto104;
 using Model.JobSeekerDb;
-using System;
-using System.ComponentModel.Design;
+using StackExchange.Redis;
 
 namespace Service.Db;
 
@@ -13,12 +11,15 @@ public abstract class DbService : IDbService
 {
     private readonly ILogger<DbService> logger;
     private readonly postgresContext postgresContext;
+    private readonly IDatabase redisDb;
 
     public DbService(ILogger<DbService> logger,
-        postgresContext postgresContext)
+        postgresContext postgresContext,
+        IDatabase redisDb)
     {
         this.logger = logger;
         this.postgresContext = postgresContext;
+        this.redisDb = redisDb;
     }
 
     /// <summary>
@@ -159,4 +160,22 @@ AND company.source_from  = {0}
     public abstract string CompanyPageUrl(CompanyDto dto);
     public abstract string JobInfoUrl(JobDto dto);
     public abstract string JobPageUrl(JobDto dto);
+
+    /// <summary>
+    /// 公司資訊是否存在
+    /// </summary>
+    /// <param name="companyId"></param>
+    /// <returns></returns>
+    public async Task<bool> CompanyExist(string companyId)
+    {
+        if (await redisDb.HashExistsAsync(Parameters104.CompanyExistInDbRedisKey, companyId))
+            return true;
+
+        if (!await postgresContext.Companies.AnyAsync(x => x.Id == companyId))
+            return false;
+
+        await redisDb.HashSetAsync(Parameters104.CompanyExistInDbRedisKey, companyId, "");
+
+        return true;
+    }
 }

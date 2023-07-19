@@ -2,12 +2,13 @@
 using Model.Dto104;
 using Model.JobSeekerDb;
 using Service.Db;
+using StackExchange.Redis;
 
 namespace Crawer_104.Service;
 
 public class Db104Service : DbService
 {
-    public Db104Service(ILogger<DbService> logger, postgresContext postgresContext) : base(logger, postgresContext)
+    public Db104Service(ILogger<DbService> logger, postgresContext postgresContext, IDatabase redisDb) : base(logger, postgresContext, redisDb)
     {
     }
 
