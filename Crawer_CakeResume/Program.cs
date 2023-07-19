@@ -1,14 +1,11 @@
-using Azure.Messaging.ServiceBus;
-using Crawer_104.Service;
-using Crawer_104.Workers;
+using Crawer_CakeResume.Service;
+using Crawer_CakeResume.Workers;
 using Microsoft.EntityFrameworkCore;
-using Model.Dto104;
 using Model.JobSeekerDb;
 using Serilog;
 using Service.Cache;
 using Service.Db;
 using Service.Http;
-using Service.Mq;
 using StackExchange.Redis;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -24,7 +21,7 @@ IHost host = Host.CreateDefaultBuilder(args)
                     .CreateLogger());
         });
 
-        services.AddHttpClient(Parameters104.Referer, client => client.DefaultRequestHeaders.Add("Referer", Parameters104.Referer));
+        services.AddHttpClient();
 
         // db connection
         services.AddDbContext<postgresContext>(option =>
@@ -37,41 +34,16 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString + ",password=" + redisSecret));
         services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
-        services.AddSingleton<IHttpService, Http104Service>();
-        services.AddSingleton<ICacheService, Redis104Service>();
-        services.AddSingleton<IMqService, ServiceBusService>();
-        services.AddTransient<IDbService, Db104Service>();
+        services.AddSingleton<IHttpService, HttpCakeResumeService>();
+        services.AddSingleton<ICacheService, RedisCakeResumeService>();
+        services.AddTransient<IDbService, DbCakeResumeService>();
 
-        services.AddHostedService<GetCompanyAndJobWorker>();
-        services.AddHostedService<CompanyToDbWorker>();
-        services.AddHostedService<JobInfoToDbWorker>();
-
-        // ServiceBusClient 
-        string serviceBusConnectionString = hostContext.Configuration.GetSection("AzureServiceBus:ConnectionString").Value;
-        services.AddSingleton(serviceProvider =>
-        {
-            return new ServiceBusClient(serviceBusConnectionString);
-        });
-        services.AddSingleton(serviceProvider =>
-        {
-            var scope = services.BuildServiceProvider().CreateScope();
-            var serviceBusClient = scope.ServiceProvider.GetRequiredService<ServiceBusClient>();
-            var companySender = serviceBusClient.CreateSender(Parameters104.CompanyIdForRedisAndQueue);
-            var jobSender = serviceBusClient.CreateSender(Parameters104.JobIdForRedisAndQueue);
-
-            return new Dictionary<string, ServiceBusSender>
-            {
-                { Parameters104.CompanyIdForRedisAndQueue, companySender },
-                { Parameters104.JobIdForRedisAndQueue, jobSender },
-            };
-        });
-
+        services.AddHostedService<CakeResumeWorker>();
 
         // db migration
         var scope = services.BuildServiceProvider().CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
         context.Database.Migrate();
-
     }).ConfigureAppConfiguration(config =>
     {
         // nacos

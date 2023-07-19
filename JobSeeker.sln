@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crawer_104", "Crawer_104\Crawer_104.csproj", "{11E73913-BFBB-4483-A1FD-110D86597F71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{C8DEB04A-7449-4703-A7B1-6EDD4AC9DD39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{C8DEB04A-7449-4703-A7B1-6EDD4AC9DD39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawer_CakeResume", "Crawer_CakeResume\Crawer_CakeResume.csproj", "{9BB15D6A-7C21-4B7E-9446-1A76928609ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{C8DEB04A-7449-4703-A7B1-6EDD4AC9DD39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8DEB04A-7449-4703-A7B1-6EDD4AC9DD39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8DEB04A-7449-4703-A7B1-6EDD4AC9DD39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BB15D6A-7C21-4B7E-9446-1A76928609ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BB15D6A-7C21-4B7E-9446-1A76928609ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BB15D6A-7C21-4B7E-9446-1A76928609ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BB15D6A-7C21-4B7E-9446-1A76928609ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

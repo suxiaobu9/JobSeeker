@@ -90,6 +90,9 @@ namespace Model.JobSeekerDb
 
             modelBuilder.Entity<Job>(entity =>
             {
+                entity.HasKey(e => new { e.Id, e.CompanyId })
+                    .HasName("job_pk");
+
                 entity.ToTable("job", "jobseeker");
 
                 entity.HasIndex(e => e.CompanyId, "IX_job_company_id");

@@ -25,4 +25,10 @@ public interface IDbService
     /// <returns></returns>
     public Task MakeAllJobAsDelete(string sourceFrom);
 
+    /// <summary>
+    /// 公司是否存在
+    /// </summary>
+    /// <param name="companyId"></param>
+    /// <returns></returns>
+    public Task<bool> CompanyExist(string companyId);
 }

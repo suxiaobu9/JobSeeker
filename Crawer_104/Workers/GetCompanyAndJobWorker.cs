@@ -37,7 +37,7 @@ public class GetCompanyAndJobWorker : BackgroundService
 
             // 刪除所有已存在的 company 與 job 的 Redis 資料
             await cacheService.ResetExistCompanyAndJob();
-            await dbService.MakeAllJobAsDelete("104");
+            await dbService.MakeAllJobAsDelete(Parameters104.SourceFrom);
             foreach (var (Area, Keyword) in Parameters104.AreaAndKeywords)
             {
                 var totalPage = 1;
