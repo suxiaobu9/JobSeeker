@@ -33,10 +33,10 @@ public class CakeResumeWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");
+
             try
             {
-                logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");
-
                 await cacheService.ResetExistCompanyAndJob();
                 await dbService.MakeAllJobAsDelete(ParametersCakeResume.SourceFrom);
 
@@ -51,6 +51,7 @@ public class CakeResumeWorker : BackgroundService
                 logger.LogError(ex, $"{nameof(CakeResumeWorker)} get exception.");
             }
 
+            logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync end.");
             await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
         }
     }
