@@ -79,7 +79,7 @@ public class GetCompanyAndJobWorker : BackgroundService
             }
 
             logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync end.");
-            await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
+            await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
         }
     }
 }

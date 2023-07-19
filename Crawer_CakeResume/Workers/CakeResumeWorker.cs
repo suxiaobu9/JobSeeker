@@ -51,7 +51,7 @@ public class CakeResumeWorker : BackgroundService
                 logger.LogError(ex, $"{nameof(CakeResumeWorker)} get exception.");
             }
 
-            await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
+            await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
         }
     }
 
