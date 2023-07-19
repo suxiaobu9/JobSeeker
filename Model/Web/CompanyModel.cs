@@ -19,4 +19,6 @@ public class CompanyModel
     public string? Welfare { get; set; }
 
     public int UpdateCount { get; set; }
+
+    public string? SourceFrom { get; set; }
 }

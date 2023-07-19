@@ -40,7 +40,8 @@ public class JobSeeker104Service : IJobSeekerService
                 Product = x.Product,
                 Profile = x.Profile,
                 Welfare = x.Welfare,
-                UpdateCount = x.UpdateCount
+                UpdateCount = x.UpdateCount,
+                SourceFrom = x.SourceFrom
             });
 
         if (take != null)

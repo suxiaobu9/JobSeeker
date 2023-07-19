@@ -22,6 +22,7 @@
                     <div class="border border-1 p-2" style="min-height:100px">
                         <div class="d-flex">
                             <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
+                            <p class="btn btn-outline-dark m-0 ms-2 disabled">@company.SourceFrom</p>
                             <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @company.UpdateCount</p>
                         </div>
                         <div class="mt-2">
@@ -62,6 +63,8 @@
                     <div>
                         <div>
                             <a href="@ModalCompany?.CompanyPageUrl" target="_blank" class="btn btn-outline-primary">@ModalCompany?.Name</a>
+                            <p class="btn btn-outline-dark m-0 ms-2 disabled">@ModalCompany?.SourceFrom</p>
+
                         </div>
                         <div class="mt-2">
 
