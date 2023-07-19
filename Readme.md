@@ -32,6 +32,22 @@ docker compose -f docker-compose.yaml up -d
   dotnet ef migrations add <name> --context Model.JobSeekerDb.postgresContext
   ```
 
+- build docker image
+
+  ```ps1
+    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v1.0 -t arisuokay/job-seeker-crawer-104:latest .
+    docker push arisuokay/job-seeker-crawer-104:v1.0
+    docker push arisuokay/job-seeker-crawer-104:latest
+
+    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v1.0 -t arisuokay/job-seeker-crawer-cakeresume:latest .
+    docker push arisuokay/job-seeker-crawer-cakeresume:v1.0
+    docker push arisuokay/job-seeker-crawer-cakeresume:latest
+
+    docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.0 -t arisuokay/job-seeker-web:latest .
+    docker push arisuokay/job-seeker-web:v1.0
+    docker push arisuokay/job-seeker-web:latest
+  ```
+
 ## 環境設定
 
 - 啟動 setup 的 docker compose
