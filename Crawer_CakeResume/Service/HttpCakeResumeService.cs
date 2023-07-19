@@ -161,7 +161,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             var result = new JobDto
             {
                 CompanyId = companyId,
-                Id = companyId + jobId,
+                Id = jobId,
                 WorkContent = "N/A",
                 JobPlace = htmlDoc.DocumentNode.SelectSingleNode("//a[@class='CompanyInfoItem_link__E841d']")?.InnerText ?? "N/A",
                 Name = jobTitle,

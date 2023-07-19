@@ -1,13 +1,10 @@
 ﻿using Model;
 using Model.Dto;
-using Model.Dto104;
 using Model.DtoCakeResume;
-using Nacos.V2.Utils;
 using Service.Cache;
 using Service.Db;
 using Service.Http;
-using System;
-using System.Text;
+using StackExchange.Redis;
 
 namespace Crawer_CakeResume.Workers;
 
@@ -17,16 +14,19 @@ public class CakeResumeWorker : BackgroundService
     private readonly IHttpService httpService;
     private readonly IDbService dbService;
     private readonly ICacheService cacheService;
+    private readonly IDatabase redisDb;
 
     public CakeResumeWorker(ILogger<CakeResumeWorker> logger,
         IHttpService httpService,
         IDbService dbService,
-        ICacheService cacheService)
+        ICacheService cacheService,
+        IDatabase redisDb)
     {
         this.logger = logger;
         this.httpService = httpService;
         this.dbService = dbService;
         this.cacheService = cacheService;
+        this.redisDb = redisDb;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -117,10 +117,7 @@ public class CakeResumeWorker : BackgroundService
             var dto = await dtoTask;
 
             if (dto == null)
-            {
-                logger.LogWarning($"{nameof(CakeResumeWorker)} UpsertCompanies get null dto.");
                 continue;
-            }
 
             await dbService.UpsertCompany(dto);
 
@@ -138,6 +135,12 @@ public class CakeResumeWorker : BackgroundService
         {
             if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.JobIdForRedisAndQueue, jobInfo.JobId))
                 return null;
+
+            if (!await redisDb.HashExistsAsync(ParametersCakeResume.CompanyIdForRedisAndQueue, jobInfo.CompanyId))
+            {
+                logger.LogWarning($"{nameof(CakeResumeWorker)} GetJobDtoAry company not exist.{{compId}} {{jobId}}", jobInfo.CompanyId, jobInfo.JobId);
+                return null;
+            }
 
             var url = ParametersCakeResume.GetJobUrl(jobInfo.CompanyId, jobInfo.JobId);
 
@@ -160,10 +163,7 @@ public class CakeResumeWorker : BackgroundService
             var dto = await dtoTask;
 
             if (dto == null)
-            {
-                logger.LogWarning($"{nameof(CakeResumeWorker)} UpsertJobs get null dto.");
                 continue;
-            }
 
             await dbService.UpsertJob(dto);
 

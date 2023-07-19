@@ -4,6 +4,7 @@ using Model.Dto;
 using Model.Dto104;
 using Model.JobSeekerDb;
 using StackExchange.Redis;
+using System.Text.Json;
 
 namespace Service.Db;
 
@@ -89,7 +90,7 @@ AND company.source_from  = {0}
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(DbService)} UpsertCompany get exception.");
+            logger.LogError(ex, $"{nameof(DbService)} UpsertCompany get exception.{{json}}", JsonSerializer.Serialize(companyDto));
         }
 
     }
@@ -152,7 +153,7 @@ AND company.source_from  = {0}
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(DbService)} UpsertJob get exception.");
+            logger.LogError(ex, $"{nameof(DbService)} UpsertJob get exception.{{json}}", JsonSerializer.Serialize(jobDto));
         }
     }
 
