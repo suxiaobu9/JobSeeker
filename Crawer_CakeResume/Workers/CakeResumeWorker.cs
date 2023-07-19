@@ -75,11 +75,7 @@ public class CakeResumeWorker : BackgroundService
                     break;
 
                 result.AddRange(jobList.JobList);
-                //todo: 
-                break;
             }
-            //todo: 
-            break;
         }
 
         return result;

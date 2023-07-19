@@ -2,6 +2,7 @@
 using Model.DtoCakeResume;
 using Model.JobSeekerDb;
 using Service.Db;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Crawer_CakeResume.Service;
 
 public class DbCakeResumeService : DbService
 {
-    public DbCakeResumeService(ILogger<DbService> logger, postgresContext postgresContext) : base(logger, postgresContext)
+    public DbCakeResumeService(ILogger<DbService> logger, postgresContext postgresContext, IDatabase redisDb) : base(logger, postgresContext, redisDb)
     {
     }
 
