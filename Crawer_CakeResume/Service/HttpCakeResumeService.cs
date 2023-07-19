@@ -114,7 +114,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(HttpCakeResumeService)} get exception.");
-            throw;
+            return null;
         }
         finally
         {
@@ -218,7 +218,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(HttpCakeResumeService)} get exception.");
-            throw;
+            return null;
         }
         finally
         {
@@ -287,7 +287,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(HttpCakeResumeService)} get exception.");
-            throw;
+            return null;
         }
         finally
         {
