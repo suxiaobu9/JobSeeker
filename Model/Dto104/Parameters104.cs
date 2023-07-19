@@ -27,17 +27,7 @@ public static class Parameters104
         "6001002029"
     };
 
-    private static string[] Keywords => new string[]
-    {
-        ".net%20core",
-        "asp.net",
-        ".net",
-        "net",
-        "C%20sharp",
-        "C%23"
-    };
-
-    public static (string Area, string Keyword)[] AreaAndKeywords => JobAreas.SelectMany(x => Keywords.Select(y => (x, y))).ToArray();
+    public static (string Area, string Keyword)[] AreaAndKeywords => JobAreas.SelectMany(x => Parameters.Keywords.Select(y => (x, y))).ToArray();
 
     public static readonly string Referer = @"https://www.104.com.tw";
     public static string Get104JobListUrl(string keyword, string jobArea, int page)
