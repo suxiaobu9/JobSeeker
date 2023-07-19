@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Model.Dto;
-using Model.Dto104;
+using Model.DtoCakeResume;
 using Service.Http;
 
 namespace Crawer_CakeResume.Service;
@@ -54,7 +54,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             var result = new CompanyDto
             {
                 Id = companyId,
-                SourceFrom = "CakeResume",
+                SourceFrom = ParametersCakeResume.SourceFrom,
                 Name = compTitle,
                 Product = "N/A",
                 Profile = "N/A",
@@ -161,7 +161,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             var result = new JobDto
             {
                 CompanyId = companyId,
-                Id = jobId,
+                Id = companyId + jobId,
                 WorkContent = "N/A",
                 JobPlace = htmlDoc.DocumentNode.SelectSingleNode("//a[@class='CompanyInfoItem_link__E841d']")?.InnerText ?? "N/A",
                 Name = jobTitle,

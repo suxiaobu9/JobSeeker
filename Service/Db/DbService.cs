@@ -9,7 +9,7 @@ using System.ComponentModel.Design;
 
 namespace Service.Db;
 
-public class DbService : IDbService
+public abstract class DbService : IDbService
 {
     private readonly ILogger<DbService> logger;
     private readonly postgresContext postgresContext;
@@ -52,32 +52,35 @@ AND company.source_from  = {0}
         {
             var company = await postgresContext.Companies.FirstOrDefaultAsync(x => x.Id == companyDto.Id);
 
+            var infoUrl = CompanyInfoUrl(companyDto);
+            var pageUrl = CompanyPageUrl(companyDto);
+
             if (company == null)
             {
                 await postgresContext.Companies.AddAsync(new Company
                 {
                     Id = companyDto.Id,
                     CreateUtcAt = now.UtcDateTime,
-                    GetInfoUrl = Parameters104.Get104CompanyInfoUrl(companyDto.Id),
+                    GetInfoUrl = infoUrl,
                     Ignore = false,
                     Name = companyDto.Name,
                     Product = companyDto.Product,
                     Profile = companyDto.Profile,
                     SourceFrom = companyDto.SourceFrom,
                     UpdateUtcAt = now.UtcDateTime,
-                    Url = Parameters104.Get104CompanyPageUrl(companyDto.Id),
+                    Url = pageUrl,
                     Welfare = companyDto.Welfare,
                 });
             }
             else
             {
-                company.GetInfoUrl = Parameters104.Get104CompanyInfoUrl(companyDto.Id);
+                company.GetInfoUrl = infoUrl;
                 company.Name = companyDto.Name;
                 company.Product = companyDto.Product;
                 company.Profile = companyDto.Profile;
                 company.SourceFrom = companyDto.SourceFrom;
                 company.UpdateUtcAt = now.UtcDateTime;
-                company.Url = Parameters104.Get104CompanyPageUrl(companyDto.Id);
+                company.Url = pageUrl;
                 company.Welfare = companyDto.Welfare;
             }
 
@@ -102,6 +105,9 @@ AND company.source_from  = {0}
         {
             var job = await postgresContext.Jobs.FirstOrDefaultAsync(x => x.Id == jobDto.Id);
 
+            var infoUrl = JobInfoUrl(jobDto);
+            var pageUrl = JobPageUrl(jobDto);
+
             if (job == null)
             {
                 await postgresContext.Jobs.AddAsync(new Job
@@ -109,7 +115,7 @@ AND company.source_from  = {0}
                     Id = jobDto.Id,
                     CompanyId = jobDto.CompanyId,
                     CreateUtcAt = now.UtcDateTime,
-                    GetInfoUrl = Parameters104.Get104JobInfoUrl(jobDto.Id),
+                    GetInfoUrl = infoUrl,
                     HaveRead = false,
                     Ignore = false,
                     IsDeleted = false,
@@ -118,25 +124,25 @@ AND company.source_from  = {0}
                     OtherRequirement = jobDto.OtherRequirement,
                     Salary = jobDto.Salary,
                     UpdateUtcAt = now.UtcDateTime,
-                    Url = Parameters104.Get104JobPageUrl(jobDto.Id),
+                    Url = pageUrl,
                     WorkContent = jobDto.WorkContent,
                 });
             }
             else
             {
-                if (job.WorkContent == jobDto.WorkContent && job.Salary == jobDto.Salary &&
-                    job.OtherRequirement == jobDto.OtherRequirement && job.JobPlace == jobDto.JobPlace &&
-                    job.Name == jobDto.Name)
+                if (job.WorkContent != jobDto.WorkContent || job.Salary != jobDto.Salary ||
+                    job.OtherRequirement != jobDto.OtherRequirement || job.JobPlace != jobDto.JobPlace ||
+                    job.Name != jobDto.Name)
                     job.HaveRead = false;
 
                 job.IsDeleted = false;
-                job.GetInfoUrl = Parameters104.Get104JobInfoUrl(jobDto.Id);
+                job.GetInfoUrl = infoUrl;
                 job.JobPlace = jobDto.JobPlace;
                 job.Name = jobDto.Name;
                 job.OtherRequirement = jobDto.OtherRequirement;
                 job.Salary = jobDto.Salary;
                 job.UpdateUtcAt = now.UtcDateTime;
-                job.Url = Parameters104.Get104JobPageUrl(jobDto.Id);
+                job.Url = pageUrl;
                 job.WorkContent = jobDto.WorkContent;
             }
 
@@ -148,4 +154,9 @@ AND company.source_from  = {0}
             logger.LogError(ex, $"{nameof(DbService)} UpsertJob get exception.");
         }
     }
+
+    public abstract string CompanyInfoUrl(CompanyDto dto);
+    public abstract string CompanyPageUrl(CompanyDto dto);
+    public abstract string JobInfoUrl(JobDto dto);
+    public abstract string JobPageUrl(JobDto dto);
 }

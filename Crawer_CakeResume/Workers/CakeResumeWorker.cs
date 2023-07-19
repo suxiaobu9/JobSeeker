@@ -38,6 +38,7 @@ public class CakeResumeWorker : BackgroundService
                 logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");
 
                 await cacheService.ResetExistCompanyAndJob();
+                await dbService.MakeAllJobAsDelete(ParametersCakeResume.SourceFrom);
 
                 var jobInfoList = await GetJobIdAndCompIdAry();
 

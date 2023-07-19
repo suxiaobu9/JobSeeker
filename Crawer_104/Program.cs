@@ -40,7 +40,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
         services.AddSingleton<IMqService, ServiceBusService>();
-        services.AddTransient<IDbService, DbService>();
+        services.AddTransient<IDbService, Db104Service>();
 
         services.AddHostedService<GetCompanyAndJobWorker>();
         services.AddHostedService<CompanyToDbWorker>();

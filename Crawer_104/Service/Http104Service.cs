@@ -48,7 +48,7 @@ internal class Http104Service : BaseHttpService, IHttpService
             Product = companyInfo.Data.Product,
             Profile = companyInfo.Data.Profile,
             Welfare = companyInfo.Data.Welfare,
-            SourceFrom = "104"
+            SourceFrom = Parameters104.SourceFrom
         };
         return result as T;
     }
