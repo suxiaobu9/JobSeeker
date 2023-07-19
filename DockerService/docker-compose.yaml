@@ -81,7 +81,7 @@ services:
         ipv4_address: 172.20.0.6
 
   crawer-104:
-    image: arisuokay/job-seeker-crawer:latest
+    image: arisuokay/job-seeker-crawer-104:latest
     container_name: crawer-104
     restart: unless-stopped
     networks:
