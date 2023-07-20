@@ -27,9 +27,7 @@ public class JobSeeker104Service : IJobSeekerService
     {
         var query = db.Companies
             .Where(x => includeIgnore || x.Ignore == false)
-            .OrderByDescending(x => x.Jobs.Any(y => !y.IsDeleted && !y.Ignore && !y.HaveRead))
-            .ThenBy(x => x.Id)
-            .ThenBy(x => x.Sort)
+            .OrderBy(x => x.Jobs.Where(y => !y.IsDeleted && !y.Ignore && !y.HaveRead).Max(y=>y.UpdateUtcAt))
             .Select(x => new CompanyModel
             {
                 Id = x.Id,
@@ -46,6 +44,8 @@ public class JobSeeker104Service : IJobSeekerService
 
         if (take != null)
             query = query.Take(take.Value);
+
+        var aaa = query.ToString();
 
         var companyDatas = await query.ToArrayAsync();
 
