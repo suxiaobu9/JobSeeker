@@ -25,32 +25,42 @@ internal class Http104Service : BaseHttpService, IHttpService
     /// <returns></returns>
     public async Task<T?> GetCompanyInfo<T>(string companyId, string url) where T : CompanyDto
     {
-        var content = await GetDataFromHttpRequest(url);
-
-        if (string.IsNullOrWhiteSpace(content))
+        string? content = null;
+        try
         {
-            logger.LogWarning($"{nameof(Http104Service)} Company info content get null.{{url}}", url);
-            return null;
+
+            content = await GetDataFromHttpRequest(url);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                logger.LogWarning($"{nameof(Http104Service)} Company info content get null.{{url}}", url);
+                return null;
+            }
+
+            var companyInfo = JsonSerializer.Deserialize<CompanyInfo104Model>(content);
+
+            if (companyInfo == null)
+            {
+                logger.LogWarning($"{nameof(Http104Service)} Company info data Deserialize get null.{{url}} {{content}}", url, content);
+                return null;
+            }
+
+            var result = new CompanyDto
+            {
+                Id = companyId,
+                Name = companyInfo.Data.CustName,
+                Product = companyInfo.Data.Product,
+                Profile = companyInfo.Data.Profile,
+                Welfare = companyInfo.Data.Welfare,
+                SourceFrom = Parameters104.SourceFrom
+            };
+            return result as T;
         }
-
-        var companyInfo = JsonSerializer.Deserialize<CompanyInfo104Model>(content);
-
-        if (companyInfo == null)
+        catch (Exception ex)
         {
-            logger.LogWarning($"{nameof(Http104Service)} Company info data Deserialize get null.{{url}} {{content}}", url, content);
-            return null;
+            logger.LogError(ex, $"{nameof(Http104Service)} GetCompanyInfo get exception.{{content}}", content);
+            throw;
         }
-
-        var result = new CompanyDto
-        {
-            Id = companyId,
-            Name = companyInfo.Data.CustName,
-            Product = companyInfo.Data.Product,
-            Profile = companyInfo.Data.Profile,
-            Welfare = companyInfo.Data.Welfare,
-            SourceFrom = Parameters104.SourceFrom
-        };
-        return result as T;
     }
 
     /// <summary>
