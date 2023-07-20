@@ -166,6 +166,9 @@ public class CakeResumeWorker : BackgroundService
             if (dto == null)
                 continue;
 
+            if (!dto.FilterPassed)
+                continue;
+
             await dbService.UpsertJob(dto);
 
         }

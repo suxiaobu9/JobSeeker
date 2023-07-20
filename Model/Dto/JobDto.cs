@@ -40,7 +40,7 @@ public class JobDto
     {
         get
         {
-            var content = (WorkContent + OtherRequirement).ToLower();
+            var content = (Name + WorkContent + OtherRequirement).ToLower();
 
             string urlPattern = @"https?://[^\s\u4E00-\u9FA5]+";
 
