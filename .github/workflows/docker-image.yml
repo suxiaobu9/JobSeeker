@@ -23,14 +23,14 @@ jobs:
         id: datetime
         run: echo "DATE=$(date +'%Y%m%d.%H%M')" >> $GITHUB_ENV
 
-      - name: Build and Push Docker image - Crawer - 104
+      - name: Build Docker image - Crawer - 104
         run: |
           docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:${{ env.DATE }} -t arisuokay/job-seeker-crawer-104:latest .
 
-      - name: Build and Push Docker image - Crawer - CakeResume
+      - name: Build Docker image - Crawer - CakeResume
         run: |
           docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:${{ env.DATE }} -t arisuokay/job-seeker-crawer-cakeresume:latest .
 
-      - name: Build and Push Docker image - Web
+      - name: Build Docker image - Web
         run: |
           docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:${{ env.DATE }} -t arisuokay/job-seeker-web:latest .
