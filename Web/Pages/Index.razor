@@ -202,14 +202,24 @@
 
     private void SortCompany()
     {
-        if (CompanyInfos == null || CompanyInfos.Companies == null)
+        if (CompanyInfos == null || CompanyInfos.Companies == null || ModalCompany == null)
             return;
 
-        CompanyInfos.Companies = CompanyInfos.Companies
-                                    .OrderBy(x => x.IsIgnore)
-                                    .ThenByDescending(x => x.NeedToRead)
-                                    .ThenBy(x => x.Id)
-                                    .ToArray();
+        var tmp = new CompanyModel[CompanyInfos.Companies.Length];
+
+        var i = 0;
+
+        foreach (var company in CompanyInfos.Companies)
+        {
+            if (company.Id == ModalCompany?.Id)
+                continue;
+
+            tmp[i++] = company;
+        }
+
+        tmp[i] = ModalCompany;
+
+        CompanyInfos.Companies = tmp;
     }
 
     private void SortJobs()
