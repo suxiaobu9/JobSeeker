@@ -27,10 +27,8 @@ public class JobSeeker104Service : IJobSeekerService
     {
         var query = db.Companies
             .Where(x => includeIgnore || x.Ignore == false)
-            .OrderByDescending(x => x.Jobs.Any(y => !y.IsDeleted && !y.Ignore && !y.HaveRead))
-            .ThenByDescending(x=>x.Jobs.Max(y=>y.UpdateUtcAt))
-            .ThenBy(x=>x.Sort)
-            .ThenBy(x=>x.Id)
+            .Where(x => x.Jobs.Any(y => !y.IsDeleted && !y.Ignore && !y.HaveRead))
+            .OrderBy(x => x.Jobs.Max(y => y.UpdateUtcAt))
             .Select(x => new CompanyModel
             {
                 Id = x.Id,

@@ -14,7 +14,7 @@
 <div style="max-width:95vw">
 
     <div class="row">
-        @if (CompanyInfos != null && CompanyInfos.Companies != null)
+        @if (CompanyInfos != null && CompanyInfos.Companies != null && CompanyInfos.Companies.Any())
         {
             foreach (var company in CompanyInfos.Companies)
             {

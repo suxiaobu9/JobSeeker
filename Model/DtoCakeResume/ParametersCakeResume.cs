@@ -12,6 +12,9 @@ public static class ParametersCakeResume
 
     public static string JobIdForRedisAndQueue => "CakeResumeJobIdKey";
 
+    /// <summary>
+    /// CakeResume
+    /// </summary>
     public static string SourceFrom => "CakeResume";
 
 }
