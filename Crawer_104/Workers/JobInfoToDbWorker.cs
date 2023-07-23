@@ -68,13 +68,14 @@ public class JobInfoToDbWorker : BackgroundService
             var companyId = simpleJobInfo.CompanyId;
 
             // 確定公司資訊是否新增了
-            if (!await redisDb.HashExistsAsync(Parameters104.CompanyIdForRedisAndQueue, companyId) && 
-                !await redisDb.HashExistsAsync(Parameters104.CompanyExistInDbRedisKey, companyId) &&
-                !await dbService.CompanyExist(companyId))
+            if (!await cacheService.CompanyExist(Parameters104.CompanyIdForRedisAndQueue, companyId))
             {
                 logger.LogInformation($"{nameof(JobInfoToDbWorker)} company not exist, renew message.{{message}}", message);
+                
                 // 把 Message 推回 MQ
                 await args.RenewMessageLockAsync(args.Message);
+
+                await Task.Delay(TimeSpan.FromSeconds(5));
                 return;
             }
 

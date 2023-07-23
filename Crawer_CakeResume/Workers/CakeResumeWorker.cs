@@ -33,10 +33,9 @@ public class CakeResumeWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");
-
             try
             {
+                logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");
                 await cacheService.ResetExistCompanyAndJob();
                 await dbService.MakeAllJobAsDelete(ParametersCakeResume.SourceFrom);
 
@@ -93,7 +92,7 @@ public class CakeResumeWorker : BackgroundService
         {
             var companyId = jobInfo.CompanyId;
 
-            if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.CompanyIdForRedisAndQueue, companyId))
+            if (await cacheService.CompanyExist(ParametersCakeResume.CompanyIdForRedisAndQueue, companyId))
                 return null;
 
             var url = ParametersCakeResume.GetCompanyUrl(companyId);
@@ -134,7 +133,7 @@ public class CakeResumeWorker : BackgroundService
     {
         return jobInfoList.Select(async jobInfo =>
         {
-            if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.JobIdForRedisAndQueue, jobInfo.JobId))
+            if (await cacheService.JobExist(ParametersCakeResume.JobIdForRedisAndQueue, jobInfo.CompanyId, jobInfo.JobId))
                 return null;
 
             if (!await redisDb.HashExistsAsync(ParametersCakeResume.CompanyIdForRedisAndQueue, jobInfo.CompanyId))

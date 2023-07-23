@@ -26,7 +26,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         // db connection
         services.AddDbContext<postgresContext>(option =>
             option.UseNpgsql(hostContext.Configuration.GetConnectionString("NpgsqlConnection")),
-            contextLifetime: ServiceLifetime.Transient, optionsLifetime: ServiceLifetime.Transient);
+           contextLifetime: ServiceLifetime.Transient, optionsLifetime: ServiceLifetime.Transient);
 
         // redis
         string redisConnectionString = hostContext.Configuration.GetSection("redis:Host").Value;
@@ -35,15 +35,16 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
         services.AddSingleton<IHttpService, HttpCakeResumeService>();
-        services.AddSingleton<ICacheService, RedisCakeResumeService>();
+        services.AddTransient<ICacheService, RedisCakeResumeService>();
         services.AddTransient<IDbService, DbCakeResumeService>();
 
         services.AddHostedService<CakeResumeWorker>();
 
         // db migration
-        var scope = services.BuildServiceProvider().CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
+        using var scope = services.BuildServiceProvider().CreateScope();
+        using var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
         context.Database.Migrate();
+
     }).ConfigureAppConfiguration(config =>
     {
         // nacos

@@ -38,7 +38,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
         services.AddSingleton<IHttpService, Http104Service>();
-        services.AddSingleton<ICacheService, Redis104Service>();
+        services.AddTransient<ICacheService, Redis104Service>();
         services.AddSingleton<IMqService, ServiceBusService>();
         services.AddTransient<IDbService, Db104Service>();
 
@@ -66,10 +66,9 @@ IHost host = Host.CreateDefaultBuilder(args)
             };
         });
 
-
         // db migration
-        var scope = services.BuildServiceProvider().CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
+        using var scope = services.BuildServiceProvider().CreateScope();
+        using var context = scope.ServiceProvider.GetRequiredService<postgresContext>();
         context.Database.Migrate();
 
     }).ConfigureAppConfiguration(config =>

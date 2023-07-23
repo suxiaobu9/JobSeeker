@@ -32,12 +32,12 @@ public class GetCompanyAndJobWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-
             logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync start.");
 
             // 刪除所有已存在的 company 與 job 的 Redis 資料
             await cacheService.ResetExistCompanyAndJob();
             await dbService.MakeAllJobAsDelete(Parameters104.SourceFrom);
+
             foreach (var (Area, Keyword) in Parameters104.AreaAndKeywords)
             {
                 var totalPage = 1;
@@ -59,12 +59,13 @@ public class GetCompanyAndJobWorker : BackgroundService
 
                         foreach (var item in jobListData.JobList)
                         {
-                            if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.CompanyIdForRedisAndQueue, item.CompanyId))
+                            if (!await cacheService.CompanyExist(Parameters104.CompanyIdForRedisAndQueue, item.CompanyId))
                             {
                                 // 送 company id 到 mq
                                 await mqService.SendMessageToMq(Parameters104.CompanyIdForRedisAndQueue, item.CompanyId);
                             }
-                            if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.JobIdForRedisAndQueue, item.JobId))
+
+                            if (!await cacheService.JobExist(Parameters104.JobIdForRedisAndQueue, item.CompanyId, item.JobId))
                             {
                                 // 送 job id 到 mq
                                 await mqService.SendMessageToMq(Parameters104.JobIdForRedisAndQueue, item);

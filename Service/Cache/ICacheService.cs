@@ -9,11 +9,18 @@ public interface ICacheService
     public Task ResetExistCompanyAndJob();
 
     /// <summary>
-    /// key field 是否存在於 cache 中
+    /// 公司存在
     /// </summary>
-    /// <param name="key"></param>
-    /// <param name="field"></param>
+    /// <param name="companyId"></param>
     /// <returns></returns>
-    public Task<bool> IsKeyFieldExistsInCache(string key, string field);
+    public Task<bool> CompanyExist(string redisKey, string companyId);
+
+    /// <summary>
+    /// 職缺存在
+    /// </summary>
+    /// <param name="companyId"></param>
+    /// <param name="jobId"></param>
+    /// <returns></returns>
+    public Task<bool> JobExist(string redisKey, string companyId, string jobId);
 
 }

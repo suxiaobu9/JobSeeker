@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Model.Dto;
-using Model.Dto104;
 using Model.JobSeekerDb;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -105,7 +104,8 @@ AND company.source_from  = {0}
         var now = DateTimeOffset.Now;
         try
         {
-            var job = await postgresContext.Jobs.FirstOrDefaultAsync(x => x.Id == jobDto.Id);
+            var job = await postgresContext.Jobs
+                        .FirstOrDefaultAsync(x => x.Id == jobDto.Id && x.CompanyId == jobDto.CompanyId);
 
             var infoUrl = JobInfoUrl(jobDto);
             var pageUrl = JobPageUrl(jobDto);
@@ -163,20 +163,23 @@ AND company.source_from  = {0}
     public abstract string JobPageUrl(JobDto dto);
 
     /// <summary>
-    /// 公司資訊是否存在
+    /// 公司資訊存在
     /// </summary>
     /// <param name="companyId"></param>
     /// <returns></returns>
-    public async Task<bool> CompanyExist(string companyId)
+    public Task<bool> CompanyExist(string companyId)
     {
-        if (await redisDb.HashExistsAsync(Parameters104.CompanyExistInDbRedisKey, companyId))
-            return true;
+        return postgresContext.Companies.AnyAsync(x => x.Id == companyId);
+    }
 
-        if (!await postgresContext.Companies.AnyAsync(x => x.Id == companyId))
-            return false;
-
-        await redisDb.HashSetAsync(Parameters104.CompanyExistInDbRedisKey, companyId, "");
-
-        return true;
+    /// <summary>
+    /// 職缺存在
+    /// </summary>
+    /// <param name="companyId"></param>
+    /// <param name="jobId"></param>
+    /// <returns></returns>
+    public Task<bool> JobExist(string companyId, string jobId)
+    {
+        return postgresContext.Jobs.AnyAsync(x => x.Id == jobId && x.CompanyId == companyId);
     }
 }

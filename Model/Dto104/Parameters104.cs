@@ -43,7 +43,6 @@ public static class Parameters104
 
     public static string CompanyIdForRedisAndQueue => "comp_id_for_104";
     public static string JobIdForRedisAndQueue => "job_id_for_104";
-    public static string CompanyExistInDbRedisKey => "comp_exist_for_104";
 
     /// <summary>
     /// 104
