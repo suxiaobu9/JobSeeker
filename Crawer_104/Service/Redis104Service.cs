@@ -23,5 +23,7 @@ internal class Redis104Service : RedisService
         logger.LogInformation($"{nameof(Redis104Service)} Reset exist company and job");
         await redisDb.KeyDeleteAsync(Parameters104.CompanyIdForRedisAndQueue);
         await redisDb.KeyDeleteAsync(Parameters104.JobIdForRedisAndQueue);
+        await redisDb.KeyDeleteAsync(Parameters104.CompanyUpdated);
+        await redisDb.KeyDeleteAsync(Parameters104.JobUpdated);
     }
 }

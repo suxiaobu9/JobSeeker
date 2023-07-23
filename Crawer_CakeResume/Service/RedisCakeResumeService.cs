@@ -23,5 +23,7 @@ public class RedisCakeResumeService : RedisService
         logger.LogInformation($"{nameof(RedisCakeResumeService)} Reset exist company and job");
         await redisDb.KeyDeleteAsync(ParametersCakeResume.CompanyIdForRedisAndQueue);
         await redisDb.KeyDeleteAsync(ParametersCakeResume.JobIdForRedisAndQueue);
+        await redisDb.KeyDeleteAsync(ParametersCakeResume.CompanyUpdated);
+        await redisDb.KeyDeleteAsync(ParametersCakeResume.JobUpdated);
     }
 }

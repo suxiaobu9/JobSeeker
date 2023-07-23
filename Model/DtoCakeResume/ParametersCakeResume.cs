@@ -12,6 +12,10 @@ public static class ParametersCakeResume
 
     public static string JobIdForRedisAndQueue => "CakeResumeJobIdKey";
 
+    public static string CompanyUpdated => "comp_updated_cakeresume";
+    
+    public static string JobUpdated => "job_updated_cakeresume";
+
     /// <summary>
     /// CakeResume
     /// </summary>

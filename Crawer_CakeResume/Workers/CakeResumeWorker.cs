@@ -92,7 +92,7 @@ public class CakeResumeWorker : BackgroundService
         {
             var companyId = jobInfo.CompanyId;
 
-            if (await cacheService.CompanyExist(ParametersCakeResume.CompanyIdForRedisAndQueue, companyId))
+            if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.CompanyUpdated, companyId))
                 return null;
 
             var url = ParametersCakeResume.GetCompanyUrl(companyId);
@@ -133,10 +133,10 @@ public class CakeResumeWorker : BackgroundService
     {
         return jobInfoList.Select(async jobInfo =>
         {
-            if (await cacheService.JobExist(ParametersCakeResume.JobIdForRedisAndQueue, jobInfo.CompanyId, jobInfo.JobId))
+            if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.JobUpdated, jobInfo.CompanyId + jobInfo.JobId))
                 return null;
 
-            if (!await redisDb.HashExistsAsync(ParametersCakeResume.CompanyIdForRedisAndQueue, jobInfo.CompanyId))
+            if (!await cacheService.CompanyExist(ParametersCakeResume.CompanyIdForRedisAndQueue, jobInfo.CompanyId))
             {
                 logger.LogWarning($"{nameof(CakeResumeWorker)} GetJobDtoAry company not exist.{{compId}} {{jobId}}", jobInfo.CompanyId, jobInfo.JobId);
                 return null;
