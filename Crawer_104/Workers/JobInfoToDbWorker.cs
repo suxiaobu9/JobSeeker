@@ -72,10 +72,11 @@ public class JobInfoToDbWorker : BackgroundService
             {
                 logger.LogInformation($"{nameof(JobInfoToDbWorker)} company not exist, renew message.{{message}}", message);
                 
+                await Task.Delay(TimeSpan.FromSeconds(10));
+                
                 // 把 Message 推回 MQ
-                await args.RenewMessageLockAsync(args.Message);
+                await args.AbandonMessageAsync(args.Message);
 
-                await Task.Delay(TimeSpan.FromSeconds(5));
                 return;
             }
 
