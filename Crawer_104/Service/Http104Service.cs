@@ -98,6 +98,7 @@ internal class Http104Service : BaseHttpService, IHttpService
             OtherRequirement = jobInfo.Data.Condition.Other,
             Salary = jobInfo.Data.JobDetail.Salary,
             WorkContent = jobInfo.Data.JobDetail.JobDescription,
+            LatestUpdateDate = jobInfo.Data.Header.AppearDate
         };
 
         return result as T;

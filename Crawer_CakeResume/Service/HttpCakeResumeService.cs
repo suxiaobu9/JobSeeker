@@ -167,6 +167,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
                 Name = jobTitle,
                 OtherRequirement = "N/A",
                 Salary = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='JobDescriptionRightColumn_salaryWrapper__mYzNx']")?.InnerText ?? "N/A",
+                LatestUpdateDate = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='JobDescriptionLeftColumn_jobMeta__lisfc']")?.SelectSingleNode("//div[@class='InlineMessage_label__hP3Fk']").InnerText ?? "N/A",
             };
 
             // 職缺內容

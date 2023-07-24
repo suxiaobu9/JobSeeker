@@ -34,6 +34,11 @@ public class JobDto
     public string JobPlace { get; set; } = null!;
 
     /// <summary>
+    /// 最後更新時間
+    /// </summary>
+    public string? LatestUpdateDate { get; set; }
+
+    /// <summary>
     /// 判斷職缺是否符合條件
     /// </summary>
     public bool FilterPassed

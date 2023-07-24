@@ -138,6 +138,11 @@ namespace Model.JobSeekerDb
                     .HasColumnName("job_place")
                     .HasComment("工作地點");
 
+                entity.Property(e => e.LatestUpdateDate)
+                    .HasMaxLength(50)
+                    .HasColumnName("latest_update_date")
+                    .HasComment("最後更新時間");
+
                 entity.Property(e => e.Name)
                     .HasMaxLength(300)
                     .HasColumnName("name")

@@ -128,13 +128,12 @@ AND company.source_from  = {0}
                     UpdateUtcAt = now.UtcDateTime,
                     Url = pageUrl,
                     WorkContent = jobDto.WorkContent,
+                    LatestUpdateDate = jobDto.LatestUpdateDate
                 });
             }
             else
             {
-                if (job.WorkContent != jobDto.WorkContent || job.Salary != jobDto.Salary ||
-                    job.OtherRequirement != jobDto.OtherRequirement || job.JobPlace != jobDto.JobPlace ||
-                    job.Name != jobDto.Name)
+                if (job.LatestUpdateDate != jobDto.LatestUpdateDate)
                     job.HaveRead = false;
 
                 job.IsDeleted = false;
@@ -146,6 +145,7 @@ AND company.source_from  = {0}
                 job.UpdateUtcAt = now.UtcDateTime;
                 job.Url = pageUrl;
                 job.WorkContent = jobDto.WorkContent;
+                job.LatestUpdateDate = jobDto.LatestUpdateDate;
             }
 
             await postgresContext.SaveChangesAsync();
