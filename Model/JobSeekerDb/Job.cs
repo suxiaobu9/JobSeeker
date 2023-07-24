@@ -67,6 +67,10 @@ namespace Model.JobSeekerDb
         /// 手動更新次數
         /// </summary>
         public int UpdateCount { get; set; }
+        /// <summary>
+        /// 最後更新時間
+        /// </summary>
+        public string? LatestUpdateDate { get; set; }
 
         public virtual Company Company { get; set; } = null!;
     }

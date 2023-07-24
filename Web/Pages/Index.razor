@@ -85,9 +85,14 @@
                     {
                         foreach (var job in JobInfos.Jobs)
                         {
-                            <h3>
-                                <a href="@job.JobUrl" target="_blank" class="btn btn-primary">@job.Name</a>
-                            </h3>
+                            <div class="d-flex align-items-center">
+                                <h3>
+                                    <a href="@job.JobUrl" target="_blank" class="btn btn-primary">@job.Name</a>
+                                </h3>
+                                <div class="ms-2">
+                                    @job.JobPlace
+                                </div>
+                            </div>
                             <div>
                                 @if (!job.HaveRead)
                                 {
@@ -98,10 +103,14 @@
                                     <button id="ignore-job" class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
                                 }
                                 <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @job.UpdateCount</p>
-
-                            </div>
-                            <div>
-                                @job.JobPlace @job.Salary
+                                <div class="m-2">
+                                    <span>
+                                        @job.LatestUpdateDate
+                                    </span>
+                                    <span class="ms-2">
+                                        @job.Salary
+                                    </span>
+                                </div>
                             </div>
                             <p>@((MarkupString)(job.WorkContent ?? ""))</p>
                             <p>@((MarkupString)(job.OtherRequirement ?? ""))</p>

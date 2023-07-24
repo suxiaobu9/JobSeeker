@@ -15,6 +15,9 @@ public static class Parameters
     public static string[] KeywordsFilters => new string[]
     {
         "net",
-        "c#"
+        "c#",
+        "go",
+        "golang",
+        "rust"
     };
 }
