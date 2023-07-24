@@ -35,16 +35,16 @@ docker compose -f docker-compose.yaml up -d
 - build docker image
 
   ```ps1
-    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.7 -t arisuokay/job-seeker-crawer-104:latest .
-    docker push arisuokay/job-seeker-crawer-104:v2.7
+    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.8 -t arisuokay/job-seeker-crawer-104:latest .
+    docker push arisuokay/job-seeker-crawer-104:v2.8
     docker push arisuokay/job-seeker-crawer-104:latest
 
-    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.6 -t arisuokay/job-seeker-crawer-cakeresume:latest .
-    docker push arisuokay/job-seeker-crawer-cakeresume:v2.6
+    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.7 -t arisuokay/job-seeker-crawer-cakeresume:latest .
+    docker push arisuokay/job-seeker-crawer-cakeresume:v2.7
     docker push arisuokay/job-seeker-crawer-cakeresume:latest
 
-    docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.5 -t arisuokay/job-seeker-web:latest .
-    docker push arisuokay/job-seeker-web:v1.5
+    docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.6 -t arisuokay/job-seeker-web:latest .
+    docker push arisuokay/job-seeker-web:v1.6
     docker push arisuokay/job-seeker-web:latest
   ```
 
