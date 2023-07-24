@@ -79,7 +79,8 @@ public class JobSeeker104Service : IJobSeekerService
                 WorkContent = x.WorkContent,
                 HaveRead = x.HaveRead,
                 Ignore = x.Ignore,
-                UpdateCount = x.UpdateCount
+                UpdateCount = x.UpdateCount,
+                LatestUpdateDate = x.LatestUpdateDate
             }).ToArrayAsync();
 
         var result = new JobSeekerJobModal

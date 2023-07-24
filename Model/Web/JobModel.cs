@@ -27,4 +27,6 @@ public class JobModel
     public bool Ignore { get; set; }
 
     public int UpdateCount { get; set; }
+
+    public string? LatestUpdateDate { get; set; }
 }
