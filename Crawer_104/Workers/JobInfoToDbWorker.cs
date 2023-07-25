@@ -37,7 +37,7 @@ public class JobInfoToDbWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation($"{nameof(CompanyToDbWorker)} ExecuteAsync start.");
-        await mqService.ProcessMessageFromMq(Parameters104.JobIdForRedisAndQueue, MessageHandler);
+        await mqService.ProcessMessageFromMq(Parameters104.QueueNameForJobId, MessageHandler);
 
         while (true)
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
@@ -68,7 +68,7 @@ public class JobInfoToDbWorker : BackgroundService
             var companyId = simpleJobInfo.CompanyId;
 
             // 確定公司資訊是否新增了
-            if (!await cacheService.CompanyExist(Parameters104.CompanyIdForRedisAndQueue, companyId))
+            if (!await cacheService.CompanyExist(Parameters104.RedisKeyForCompanyUpdated, companyId))
             {
                 logger.LogInformation($"{nameof(JobInfoToDbWorker)} company not exist, renew message.{{message}}", message);
                 

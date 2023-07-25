@@ -56,13 +56,13 @@ IHost host = Host.CreateDefaultBuilder(args)
         {
             var scope = services.BuildServiceProvider().CreateScope();
             var serviceBusClient = scope.ServiceProvider.GetRequiredService<ServiceBusClient>();
-            var companySender = serviceBusClient.CreateSender(Parameters104.CompanyIdForRedisAndQueue);
-            var jobSender = serviceBusClient.CreateSender(Parameters104.JobIdForRedisAndQueue);
+            var companySender = serviceBusClient.CreateSender(Parameters104.QueueNameForCompanyId);
+            var jobSender = serviceBusClient.CreateSender(Parameters104.QueueNameForJobId);
 
             return new Dictionary<string, ServiceBusSender>
             {
-                { Parameters104.CompanyIdForRedisAndQueue, companySender },
-                { Parameters104.JobIdForRedisAndQueue, jobSender },
+                { Parameters104.QueueNameForCompanyId, companySender },
+                { Parameters104.QueueNameForJobId, jobSender },
             };
         });
 

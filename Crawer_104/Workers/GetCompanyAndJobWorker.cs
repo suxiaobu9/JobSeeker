@@ -59,16 +59,16 @@ public class GetCompanyAndJobWorker : BackgroundService
 
                         foreach (var item in jobListData.JobList)
                         {
-                            if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.CompanyUpdated, item.CompanyId))
+                            if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.RedisKeyForCompanyIdSendToQueue, item.CompanyId))
                             {
                                 // 送 company id 到 mq
-                                await mqService.SendMessageToMq(Parameters104.CompanyIdForRedisAndQueue, item.CompanyId);
+                                await mqService.SendMessageToMq(Parameters104.QueueNameForCompanyId, item.CompanyId);
                             }
 
-                            if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.JobUpdated, item.CompanyId + item.JobId))
+                            if (!await cacheService.IsKeyFieldExistsInCache(Parameters104.RedisKeyForJobIdSendToQueue, item.CompanyId + item.JobId))
                             {
                                 // 送 job id 到 mq
-                                await mqService.SendMessageToMq(Parameters104.JobIdForRedisAndQueue, item);
+                                await mqService.SendMessageToMq(Parameters104.QueueNameForJobId, item);
                             }
                         }
                     }

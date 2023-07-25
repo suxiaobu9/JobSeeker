@@ -32,7 +32,7 @@ namespace Crawer_104.Workers
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             logger.LogInformation($"{nameof(CompanyToDbWorker)} ExecuteAsync start.");
-            await mqService.ProcessMessageFromMq(Parameters104.CompanyIdForRedisAndQueue, MessageHandler);
+            await mqService.ProcessMessageFromMq(Parameters104.QueueNameForCompanyId, MessageHandler);
 
             while (true)
                 await Task.Delay(TimeSpan.FromDays(1), stoppingToken);

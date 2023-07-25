@@ -21,9 +21,9 @@ public class RedisCakeResumeService : RedisService
     public override async Task ResetExistCompanyAndJob()
     {
         logger.LogInformation($"{nameof(RedisCakeResumeService)} Reset exist company and job");
-        await redisDb.KeyDeleteAsync(ParametersCakeResume.CompanyIdForRedisAndQueue);
-        await redisDb.KeyDeleteAsync(ParametersCakeResume.JobIdForRedisAndQueue);
-        await redisDb.KeyDeleteAsync(ParametersCakeResume.CompanyUpdated);
-        await redisDb.KeyDeleteAsync(ParametersCakeResume.JobUpdated);
+        await redisDb.KeyDeleteAsync(ParametersCakeResume.RedisKeyForCompanyAlreadyGet);
+        await redisDb.KeyDeleteAsync(ParametersCakeResume.RedisKeyForJobAlreadyGet);
+        await redisDb.KeyDeleteAsync(ParametersCakeResume.RedisKeyForCompanyUpdated);
+
     }
 }

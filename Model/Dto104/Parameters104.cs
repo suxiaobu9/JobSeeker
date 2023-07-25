@@ -41,11 +41,30 @@ public static class Parameters104
     public static string Get104CompanyInfoUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
     public static string Get104CompanyPageUrl(string companyId) => $@"{Referer}/company/{companyId}";
 
-    public static string CompanyIdForRedisAndQueue => "comp_id_for_104";
-    public static string JobIdForRedisAndQueue => "job_id_for_104";
+    /// <summary>
+    /// queue_company_id_for_104
+    /// </summary>
+    public static string QueueNameForCompanyId => "queue_company_id_for_104";
 
-    public static string CompanyUpdated => "comp_updated_104";
-    public static string JobUpdated => "job_updated_104";
+    /// <summary>
+    /// queue_job_id_for_104
+    /// </summary>
+    public static string QueueNameForJobId => "queue_job_id_for_104";
+
+    /// <summary>
+    /// company_id_send_to_queue_104
+    /// </summary>
+    public static string RedisKeyForCompanyIdSendToQueue => "company_id_send_to_queue_104";
+
+    /// <summary>
+    /// job_id_send_to_queue_104
+    /// </summary>
+    public static string RedisKeyForJobIdSendToQueue => "job_id_send_to_queue_104";
+
+    /// <summary>
+    /// company_id_updated_104
+    /// </summary>
+    public static string RedisKeyForCompanyUpdated => "company_id_updated_104";
 
     /// <summary>
     /// 104

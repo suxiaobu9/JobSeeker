@@ -8,13 +8,20 @@ public static class ParametersCakeResume
 
     public static string GetJobUrl(string companyId, string jobId) => $"https://www.cakeresume.com/companies/{companyId}/jobs/{jobId}";
 
-    public static string CompanyIdForRedisAndQueue => "CakeResumeCompanyIdKey";
+    /// <summary>
+    /// company_id_already_get_cakeresume
+    /// </summary>
+    public static string RedisKeyForCompanyAlreadyGet => "company_id_already_get_cakeresume";
 
-    public static string JobIdForRedisAndQueue => "CakeResumeJobIdKey";
+    /// <summary>
+    /// job_id_already_get_cakeresume
+    /// </summary>
+    public static string RedisKeyForJobAlreadyGet => "job_id_already_get_cakeresume";
 
-    public static string CompanyUpdated => "comp_updated_cakeresume";
-    
-    public static string JobUpdated => "job_updated_cakeresume";
+    /// <summary>
+    /// company_id_updated_cakeresume
+    /// </summary>
+    public static string RedisKeyForCompanyUpdated => "company_id_updated_cakeresume";
 
     /// <summary>
     /// CakeResume

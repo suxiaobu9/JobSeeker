@@ -21,9 +21,8 @@ internal class Redis104Service : RedisService
     public override async Task ResetExistCompanyAndJob()
     {
         logger.LogInformation($"{nameof(Redis104Service)} Reset exist company and job");
-        await redisDb.KeyDeleteAsync(Parameters104.CompanyIdForRedisAndQueue);
-        await redisDb.KeyDeleteAsync(Parameters104.JobIdForRedisAndQueue);
-        await redisDb.KeyDeleteAsync(Parameters104.CompanyUpdated);
-        await redisDb.KeyDeleteAsync(Parameters104.JobUpdated);
+        await redisDb.KeyDeleteAsync(Parameters104.RedisKeyForCompanyIdSendToQueue);
+        await redisDb.KeyDeleteAsync(Parameters104.RedisKeyForCompanyUpdated);
+        await redisDb.KeyDeleteAsync(Parameters104.RedisKeyForJobIdSendToQueue);
     }
 }

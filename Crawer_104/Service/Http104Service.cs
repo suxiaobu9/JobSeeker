@@ -54,6 +54,7 @@ internal class Http104Service : BaseHttpService, IHttpService
                 Welfare = companyInfo.Data.Welfare,
                 SourceFrom = Parameters104.SourceFrom
             };
+
             return result as T;
         }
         catch (Exception ex)
