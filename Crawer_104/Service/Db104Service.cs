@@ -8,7 +8,7 @@ namespace Crawer_104.Service;
 
 public class Db104Service : DbService
 {
-    public Db104Service(ILogger<DbService> logger, postgresContext postgresContext, IDatabase redisDb) : base(logger, postgresContext, redisDb)
+    public Db104Service(ILogger<DbService> logger, IServiceScopeFactory serviceScopeFactory, IDatabase redisDb) : base(logger, serviceScopeFactory, redisDb)
     {
     }
 

@@ -35,8 +35,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
         services.AddSingleton<IHttpService, HttpCakeResumeService>();
-        services.AddTransient<ICacheService, RedisCakeResumeService>();
-        services.AddTransient<IDbService, DbCakeResumeService>();
+        services.AddSingleton<ICacheService, RedisCakeResumeService>();
+        services.AddSingleton<IDbService, DbCakeResumeService>();
 
         services.AddHostedService<CakeResumeWorker>();
 

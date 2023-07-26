@@ -38,9 +38,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
         services.AddSingleton<IHttpService, Http104Service>();
-        services.AddTransient<ICacheService, Redis104Service>();
+        services.AddSingleton<ICacheService, Redis104Service>();
         services.AddSingleton<IMqService, ServiceBusService>();
-        services.AddTransient<IDbService, Db104Service>();
+        services.AddSingleton<IDbService, Db104Service>();
 
         services.AddHostedService<GetCompanyAndJobWorker>();
         services.AddHostedService<CompanyToDbWorker>();

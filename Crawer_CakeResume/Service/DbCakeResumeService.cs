@@ -8,7 +8,7 @@ namespace Crawer_CakeResume.Service;
 
 public class DbCakeResumeService : DbService
 {
-    public DbCakeResumeService(ILogger<DbService> logger, postgresContext postgresContext, IDatabase redisDb) : base(logger, postgresContext, redisDb)
+    public DbCakeResumeService(ILogger<DbService> logger, IServiceScopeFactory serviceScopeFactory, IDatabase redisDb) : base(logger, serviceScopeFactory, redisDb)
     {
     }
 

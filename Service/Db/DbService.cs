@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model.Dto;
 using Model.JobSeekerDb;
@@ -10,15 +11,15 @@ namespace Service.Db;
 public abstract class DbService : IDbService
 {
     private readonly ILogger<DbService> logger;
-    private readonly postgresContext postgresContext;
+    private readonly IServiceScope serviceScope;
     private readonly IDatabase redisDb;
 
     public DbService(ILogger<DbService> logger,
-        postgresContext postgresContext,
+        IServiceScopeFactory serviceScopeFactory,
         IDatabase redisDb)
     {
         this.logger = logger;
-        this.postgresContext = postgresContext;
+        this.serviceScope = serviceScopeFactory.CreateScope();
         this.redisDb = redisDb;
     }
 
@@ -36,7 +37,7 @@ FROM company
 WHERE job.company_id  = company.id
 AND company.source_from  = {0}
 ";
-
+        var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
         await postgresContext.Database.ExecuteSqlRawAsync(rawSql, sourceFrom);
     }
 
@@ -51,6 +52,7 @@ AND company.source_from  = {0}
 
         try
         {
+            var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
             var company = await postgresContext.Companies.FirstOrDefaultAsync(x => x.Id == companyDto.Id);
 
             var infoUrl = CompanyInfoUrl(companyDto);
@@ -104,6 +106,7 @@ AND company.source_from  = {0}
         var now = DateTimeOffset.Now;
         try
         {
+            var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
             var job = await postgresContext.Jobs
                         .FirstOrDefaultAsync(x => x.Id == jobDto.Id && x.CompanyId == jobDto.CompanyId);
 
@@ -169,6 +172,7 @@ AND company.source_from  = {0}
     /// <returns></returns>
     public Task<bool> CompanyExist(string companyId)
     {
+        var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
         return postgresContext.Companies.AnyAsync(x => x.Id == companyId);
     }
 
@@ -180,6 +184,7 @@ AND company.source_from  = {0}
     /// <returns></returns>
     public Task<bool> JobExist(string companyId, string jobId)
     {
+        var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
         return postgresContext.Jobs.AnyAsync(x => x.Id == jobId && x.CompanyId == companyId);
     }
 }
