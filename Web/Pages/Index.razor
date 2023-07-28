@@ -13,8 +13,8 @@
 <div class="row m-2" style="min-height:98vh">
     @if (Company != null && Company.Jobs != null)
     {
-        <div class="col-6 border border-1 p-2">
-            <div>
+        <div class="col-12 col-md-6 border border-1">
+            <div class="mt-2">
                 <a class="btn btn-outline-primary" href="@Company.CompanyPageUrl" target="_blank">@Company.Name</a>
                 <button class="btn btn-outline-dark disabled">@Company.SourceFrom</button>
                 <button class="btn btn-outline-info disabled">更新次數 : @Company.UpdateCount</button>
@@ -42,10 +42,9 @@
                 <p>@Company.Welfare</p>
             </div>
         </div>
-        <div class="col-6">
+        <div class="col-12 col-md-6 p-0">
             @foreach (var job in Company.Jobs)
             {
-
                 <div class="border border-1 p-2">
 
                     <div>
