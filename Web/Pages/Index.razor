@@ -109,12 +109,15 @@
                 job.OtherRequirement = job.OtherRequirement?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
             }
         }
+        StateHasChanged();
+
     }
 
     /// <summary>
     /// 已讀所有工作
     /// </summary>
-    private async Task ReadAllJobs()
+    [JSInvokable]
+    public async Task ReadAllJobs()
     {
         if (Company == null)
         {
@@ -129,7 +132,8 @@
     /// <summary>
     /// 忽略公司
     /// </summary>
-    private async Task IgnoreCompany()
+    [JSInvokable]
+    public async Task IgnoreCompany()
     {
         if (Company == null)
         {
@@ -192,6 +196,7 @@
             tmp[i++] = item;
         }
         Company.Jobs = tmp;
+        StateHasChanged();
     }
 
     /// <summary>
@@ -209,10 +214,36 @@
         return true;
     }
 
-    //[JSInvokable]
-    //public async Task ReloadJobs()
-    //{
-    //    await GetJobs(CompanyInfos?.Companies?[0]);
-    //}
+    /// <summary>
+    /// 已讀第一筆工作
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task ReadFirstJob()
+    {
+        if (Company?.Jobs == null || Company.Jobs.Length == 0)
+            return;
 
+        await ReadJob(Company.Jobs[0]);
+    }
+
+    /// <summary>
+    /// 忽略第一筆工作
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task IgnoreFirstJob()
+    {
+        if (Company?.Jobs == null || Company.Jobs.Length == 0)
+            return;
+        await IgnoreJob(Company.Jobs[0]);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await jsRuntime.InvokeVoidAsync("registerShortcut", DotNetObjectReference.Create(this));
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
 }
