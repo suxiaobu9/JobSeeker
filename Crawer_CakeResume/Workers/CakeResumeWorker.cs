@@ -51,7 +51,7 @@ public class CakeResumeWorker : BackgroundService
             }
 
             logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync end.");
-            await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
+            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
         }
     }
 
