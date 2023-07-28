@@ -4,6 +4,6 @@ public class JobSeekerJobModal
 {
     public string? CompanyId { get; set; }
 
-    public JobModel[]? Jobs { get; set; }
+    public JobViewModel[]? Jobs { get; set; }
 
 }

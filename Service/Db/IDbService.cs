@@ -1,4 +1,5 @@
 ﻿using Model.Dto;
+using Model.JobSeekerDb;
 
 namespace Service.Db;
 
@@ -39,4 +40,10 @@ public interface IDbService
     /// <param name="jobId"></param>
     /// <returns></returns>
     public Task<bool> JobExist(string companyId, string jobId);
+
+    /// <summary>
+    /// 取得 PostgresContext
+    /// </summary>
+    /// <returns></returns>
+    public postgresContext GetPostgresContext();
 }
