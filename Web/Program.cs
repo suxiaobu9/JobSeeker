@@ -9,7 +9,7 @@ builder.Configuration.AddNacosV2Configuration(builder.Configuration.GetSection("
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddScoped<IJobSeekerService, JobSeeker104Service>();
+builder.Services.AddScoped<IJobSeekerService, JobSeekerService>();
 
 
 builder.Services.AddDbContext<postgresContext>(option =>

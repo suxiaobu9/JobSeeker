@@ -5,47 +5,43 @@ namespace Service.Web;
 public interface IJobSeekerService
 {
     /// <summary>
-    /// 取得公司列表
+    /// 取得公司資料
     /// </summary>
-    /// <param name="includeIgnore"></param>
     /// <returns></returns>
-    public Task<JobSeekerHomePageModel> GetCompanies(bool includeIgnore,int? take);
+    public Task<CompanyViewModel?> GetCompany();
 
     /// <summary>
-    /// 取得工作清單
+    /// 取得未讀公司數量
     /// </summary>
-    /// <param name="companyId"></param>
-    /// <param name="includeIgnore"></param>
     /// <returns></returns>
-    public Task<JobSeekerJobModal> GetJobs(string companyId, bool includeIgnore);
+    public Task<int> GetUnReadCompanyCount();
 
     /// <summary>
-    /// 已讀公司的所有職缺
+    /// 已讀所有工作
     /// </summary>
-    /// <param name="companyId"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    public Task ReadedAllJobs(string companyId);
+    public Task ReadAllJobs(CompanyViewModel model);
 
     /// <summary>
     /// 忽略公司
     /// </summary>
-    /// <param name="companyId"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    public Task IgnoreCompany(string companyId);
+    public Task IgnoreCompany(CompanyViewModel model);
 
     /// <summary>
-    /// 已讀職缺
+    /// 已讀公司
     /// </summary>
-    /// <param name="jobId"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    public Task ReadedJob(string jobId);
+    public Task ReadJob(JobViewModel model);
 
     /// <summary>
-    /// 忽略職缺
+    /// 忽略工作
     /// </summary>
-    /// <param name="jobId"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    public Task IgnoreJob(string jobId);
-
+    public Task IgnoreJob(JobViewModel model);
 
 }

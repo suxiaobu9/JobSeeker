@@ -1,6 +1,6 @@
 ﻿namespace Model.Web;
 
-public class CompanyModel
+public class CompanyViewModel
 {
     public string? Id { get; set; }
 
@@ -21,4 +21,6 @@ public class CompanyModel
     public int UpdateCount { get; set; }
 
     public string? SourceFrom { get; set; }
+
+    public JobViewModel[]? Jobs { get; set; }
 }

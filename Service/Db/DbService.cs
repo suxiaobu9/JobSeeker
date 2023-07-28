@@ -37,7 +37,8 @@ FROM company
 WHERE job.company_id  = company.id
 AND company.source_from  = {0}
 ";
-        var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
+        var postgresContext = GetPostgresContext();
+
         await postgresContext.Database.ExecuteSqlRawAsync(rawSql, sourceFrom);
     }
 
@@ -52,7 +53,8 @@ AND company.source_from  = {0}
 
         try
         {
-            var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
+            var postgresContext = GetPostgresContext();
+
             var company = await postgresContext.Companies.FirstOrDefaultAsync(x => x.Id == companyDto.Id);
 
             var infoUrl = CompanyInfoUrl(companyDto);
@@ -106,7 +108,8 @@ AND company.source_from  = {0}
         var now = DateTimeOffset.Now;
         try
         {
-            var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
+            var postgresContext = GetPostgresContext();
+
             var job = await postgresContext.Jobs
                         .FirstOrDefaultAsync(x => x.Id == jobDto.Id && x.CompanyId == jobDto.CompanyId);
 
@@ -172,7 +175,8 @@ AND company.source_from  = {0}
     /// <returns></returns>
     public Task<bool> CompanyExist(string companyId)
     {
-        var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
+        var postgresContext = GetPostgresContext();
+
         return postgresContext.Companies.AnyAsync(x => x.Id == companyId);
     }
 
@@ -184,7 +188,13 @@ AND company.source_from  = {0}
     /// <returns></returns>
     public Task<bool> JobExist(string companyId, string jobId)
     {
-        var postgresContext = serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
+        var postgresContext = GetPostgresContext();
+
         return postgresContext.Jobs.AnyAsync(x => x.Id == jobId && x.CompanyId == companyId);
+    }
+
+    public postgresContext GetPostgresContext()
+    {
+        return serviceScope.ServiceProvider.GetRequiredService<postgresContext>();
     }
 }

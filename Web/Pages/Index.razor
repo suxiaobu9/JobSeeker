@@ -7,161 +7,99 @@
 @page "/"
 @inject IJobSeekerService jobSeekerService
 @inject IJSRuntime jsRuntime
+@inject ILogger<Index> logger
 
 <PageTitle>職缺</PageTitle>
-
-@*<SurveyPrompt Title="How is Blazor working for you?" />*@
-<div style="max-width:95vw">
-
-    <div class="row">
-        @if (CompanyInfos != null && CompanyInfos.Companies != null && CompanyInfos.Companies.Any())
-        {
-            foreach (var company in CompanyInfos.Companies)
+<div class="row m-2" style="min-height:98vh">
+    @if (Company != null && Company.Jobs != null)
+    {
+        <div class="col-6 border border-1 p-2">
+            <div>
+                <a class="btn btn-outline-primary" href="@Company.CompanyPageUrl" target="_blank">@Company.Name</a>
+                <button class="btn btn-outline-dark disabled">@Company.SourceFrom</button>
+                <button class="btn btn-outline-info disabled">更新次數 : @Company.UpdateCount</button>
+            </div>
+            <div class="mt-2">
+                @if (Company.NeedToRead)
+                {
+                    <button class="btn btn-outline-success" @onclick=@ReadAllJobs>已讀</button>
+                }
+                @if (!Company.IsIgnore)
+                {
+                    <button class="btn btn-danger ms-1" @onclick=@IgnoreCompany>Ignore</button>
+                }
+            </div>
+            <div class="mt-2">
+                <h3>介紹</h3>
+                <p>@Company.Profile</p>
+            </div>
+            <div class="mt-2">
+                <h3>主要服務</h3>
+                <p>@Company.Product</p>
+            </div>
+            <div class="mt-2">
+                <h3>福利</h3>
+                <p>@Company.Welfare</p>
+            </div>
+        </div>
+        <div class="col-6">
+            @foreach (var job in Company.Jobs)
             {
-                <div class="col-12 p-1">
-                    <div class="border border-1 p-2" style="min-height:100px">
-                        <div class="d-flex">
-                            <a class="btn btn-outline-primary" target="_blank" href="@company.CompanyPageUrl">@company.Name</a>
-                            <p class="btn btn-outline-dark m-0 ms-2 disabled">@company.SourceFrom</p>
-                            <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @company.UpdateCount</p>
-                        </div>
-                        <div class="mt-2">
-                            <button id="btn-jobs" class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#jobsModal" @onclick=@(()=>GetJobs(company))>職缺</button>
-                            @if (company.NeedToRead)
-                            {
-                                <button id="read-comp" class="btn btn-outline-success ms-2" @onclick=@(()=>ReadedAllJobs(company))>已讀</button>
-                            }
-                            @if (!company.IsIgnore)
-                            {
-                                <button id="ignore-comp" class="btn btn-danger ms-2" @onclick=@(()=> IgnoreCompany(company))>Ignore</button>
-                            }
 
-                        </div>
-                        <div class="mt-2">
-                            <h3>介紹</h3>
-                            <p>@company.Profile</p>
-                        </div>
-                        <div class="mt-2">
-                            <h3>主要服務</h3>
-                            <p>@company.Product</p>
-                        </div>
-                        <div class="mt-2">
-                            <h3>福利</h3>
-                            <p>@company.Welfare</p>
-                        </div>
+                <div class="border border-1 p-2">
+
+                    <div>
+                        <a class="btn btn-primary" target="_blank" href="@job.JobUrl">@job.Name</a>
+                        <button class="btn btn-outline-info disabled">更新次數 : @job.UpdateCount</button>
+                    </div>
+                    <div class="mt-2">
+                        <button class="btn btn-outline-danger disabled">@job.JobPlace</button>
+                        <button class="btn btn-dark disabled">@job.Salary</button>
+                    </div>
+                    <div class="mt-2">
+                        @if (!job.HaveRead)
+                        {
+                            <button class="btn btn-success" @onclick=@(()=> ReadJob(job))>已讀</button>
+                        }
+                        @if (!job.Ignore)
+                        {
+                            <button class="btn btn-danger ms-1" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
+                        }
+                    </div>
+                    <div class="mt-2">
+                        <p>@((MarkupString)(job.WorkContent ?? ""))</p>
+                        <p>@((MarkupString)(job.OtherRequirement ?? ""))</p>
                     </div>
                 </div>
             }
-        }
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="jobsModal" tabindex="-1" aria-labelledby="jobsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div>
-                        <div>
-                            <a href="@ModalCompany?.CompanyPageUrl" target="_blank" class="btn btn-outline-primary">@ModalCompany?.Name</a>
-                            <p class="btn btn-outline-dark m-0 ms-2 disabled">@ModalCompany?.SourceFrom</p>
-
-                        </div>
-                        <div class="mt-2">
-
-                            @if (ModalCompany != null)
-                            {
-                                <button type="button" class="ms-1 btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                                <button type="button" class="ms-1 btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
-                            }
-
-                            <p class="btn btn-outline-info m-0 ms-1 disabled">更新次數 : @ModalCompany?.UpdateCount</p>
-                        </div>
-                    </div>
-
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    @if (JobInfos != null && JobInfos.Jobs != null)
-                    {
-                        foreach (var job in JobInfos.Jobs)
-                        {
-                            <div class="d-flex align-items-center">
-                                <h3>
-                                    <a href="@job.JobUrl" target="_blank" class="btn btn-primary">@job.Name</a>
-                                </h3>
-                                <div class="ms-2">
-                                    @job.JobPlace
-                                </div>
-                            </div>
-                            <div>
-                                @if (!job.HaveRead)
-                                {
-                                    <button id="read-job" class="btn btn-outline-success ms-2" @onclick=@(()=> ReadedJob(job))>已讀</button>
-                                }
-                                @if (!job.Ignore)
-                                {
-                                    <button id="ignore-job" class="btn btn-danger ms-2" @onclick=@(()=> IgnoreJob(job))>Ignore</button>
-                                }
-                                <p class="btn btn-outline-info m-0 ms-2 disabled">更新次數 : @job.UpdateCount</p>
-                                <div class="m-2">
-                                    <span>
-                                        @job.LatestUpdateDate
-                                    </span>
-                                    <span class="ms-2">
-                                        @job.Salary
-                                    </span>
-                                </div>
-                            </div>
-                            <p>@((MarkupString)(job.WorkContent ?? ""))</p>
-                            <p>@((MarkupString)(job.OtherRequirement ?? ""))</p>
-                            <hr />
-                        }
-                    }
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal" @onclick=@(()=> ReadedAllJobs(ModalCompany))>已讀</button>
-                    <a href="@ModalCompany?.CompanyPageUrl" target="_blank" class="btn btn-outline-primary">公司</a>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick=@(()=> IgnoreCompany(ModalCompany))>Ignore</button>
-                </div>
-            </div>
         </div>
-    </div>
+    }
 </div>
 
 @code {
-    private JobSeekerHomePageModel? CompanyInfos;
-    private JobSeekerJobModal? JobInfos;
-    private CompanyModel? ModalCompany;
-
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public int? Take { get; set; }
+    private CompanyViewModel? Company;
+    private int UnReadCompanyCount;
 
     protected override async Task OnInitializedAsync()
     {
-        CompanyInfos = await jobSeekerService.GetCompanies(false, Take ?? 100);
+        await GetCompanAndJobs();
 
         await base.OnInitializedAsync();
     }
 
-    private async Task GetJobs(CompanyModel? company)
+    /// <summary>
+    /// 取得一筆公司資訊以及職缺
+    /// </summary>
+    /// <returns></returns>
+    private async Task GetCompanAndJobs()
     {
-        JobInfos = null;
+        Company = await jobSeekerService.GetCompany();
+        UnReadCompanyCount = await jobSeekerService.GetUnReadCompanyCount();
 
-        if (company == null || company.Id == null)
+        if (Company?.Jobs == null)
             return;
 
-        ModalCompany = company;
-
-        JobInfos = await jobSeekerService.GetJobs(company.Id, false);
-
-        if (JobInfos == null || JobInfos.Jobs == null)
-        {
-            return;
-        }
-
-        foreach (var job in JobInfos.Jobs)
+        foreach (var job in Company.Jobs)
         {
             foreach (var key in Parameters.KeywordsFilters)
             {
@@ -171,96 +109,134 @@
                 job.OtherRequirement = job.OtherRequirement?.Replace(key, replacementText, StringComparison.OrdinalIgnoreCase);
             }
         }
+        StateHasChanged();
+
     }
 
-    private void ReadedAllJobs(CompanyModel? company)
+    /// <summary>
+    /// 已讀所有工作
+    /// </summary>
+    [JSInvokable]
+    public async Task ReadAllJobs()
     {
-        IgnoreOrReadedCompany(company, readedCompany: true);
+        if (Company == null)
+        {
+            logger.LogWarning($"{nameof(Index)} ReadAllJobs Company get null.");
+            return;
+        }
+        Company.NeedToRead = false;
+        await jobSeekerService.ReadAllJobs(Company);
+        await GetCompanAndJobs();
     }
 
-    private void IgnoreCompany(CompanyModel? company)
+    /// <summary>
+    /// 忽略公司
+    /// </summary>
+    [JSInvokable]
+    public async Task IgnoreCompany()
     {
-        IgnoreOrReadedCompany(company, ignoreCompany: true);
+        if (Company == null)
+        {
+            logger.LogWarning($"{nameof(Index)} ReadAllJobs Company get null.");
+            return;
+        }
+        Company.IsIgnore = true;
+        await jobSeekerService.IgnoreCompany(Company);
+        await GetCompanAndJobs();
     }
 
-    private void IgnoreOrReadedCompany(CompanyModel? company, bool readedCompany = false, bool ignoreCompany = false)
+    /// <summary>
+    /// 已讀工作
+    /// </summary>
+    /// <param name="job"></param>
+    /// <returns></returns>
+    private async Task ReadJob(JobViewModel job)
     {
+        job.HaveRead = true;
+        await jobSeekerService.ReadJob(job);
+        SortJob(job);
+        if (NeedToReload())
+            await GetCompanAndJobs();
+    }
 
-        if (company == null || string.IsNullOrWhiteSpace(company.Id))
+    /// <summary>
+    /// 忽略工作
+    /// </summary>
+    /// <param name="job"></param>
+    /// <returns></returns>
+    private async Task IgnoreJob(JobViewModel job)
+    {
+        job.Ignore = true;
+        await jobSeekerService.IgnoreJob(job);
+        SortJob(job);
+        if (NeedToReload())
+            await GetCompanAndJobs();
+    }
+
+    /// <summary>
+    /// 排序工作
+    /// </summary>
+    /// <param name="job"></param>
+    private void SortJob(JobViewModel job)
+    {
+        if (Company?.Jobs == null)
             return;
 
-        if (readedCompany)
-        {
-            company.NeedToRead = false;
-            _ = jobSeekerService.ReadedAllJobs(company.Id);
-        }
-
-        if (ignoreCompany)
-        {
-            company.IsIgnore = true;
-            _ = jobSeekerService.IgnoreCompany(company.Id);
-        }
-        if (JobInfos != null && JobInfos.Jobs != null)
-        {
-            foreach (var item in JobInfos.Jobs)
-                item.HaveRead = true;
-        }
-
-        SortCompany();
-    }
-
-    private void SortCompany()
-    {
-        if (CompanyInfos == null || CompanyInfos.Companies == null || ModalCompany == null)
-            return;
-
-        var tmp = new CompanyModel[CompanyInfos.Companies.Length];
+        var tmp = new JobViewModel[Company.Jobs.Length];
 
         var i = 0;
-
-        foreach (var company in CompanyInfos.Companies)
+        foreach (var item in Company.Jobs)
         {
-            if (company.Id == ModalCompany?.Id)
+            if (item.JobId == job.JobId)
+            {
+                tmp[Company.Jobs.Length - 1] = item;
                 continue;
+            }
 
-            tmp[i++] = company;
+            tmp[i++] = item;
         }
-
-        tmp[i] = ModalCompany;
-
-        CompanyInfos.Companies = tmp;
+        Company.Jobs = tmp;
+        StateHasChanged();
     }
 
-    private void SortJobs()
+    /// <summary>
+    /// 是否需要重新取得公司與職缺
+    /// </summary>
+    /// <returns></returns>
+    private bool NeedToReload()
     {
-        if (JobInfos == null || JobInfos.Jobs == null)
-            return;
+        if (Company?.Jobs == null)
+            return true;
 
-        JobInfos.Jobs = JobInfos.Jobs.OrderBy(x => x.Ignore)
-            .ThenBy(x => x.HaveRead)
-            .ThenBy(x => x.JobId)
-            .ToArray();
+        if (Company.Jobs.Any(x => !x.Ignore && !x.HaveRead))
+            return false;
 
+        return true;
     }
 
-    private void ReadedJob(JobModel? job)
+    /// <summary>
+    /// 已讀第一筆工作
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task ReadFirstJob()
     {
-        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
+        if (Company?.Jobs == null || Company.Jobs.Length == 0)
             return;
 
-        job.HaveRead = true;
-        SortJobs();
-        _ = jobSeekerService.ReadedJob(job.JobId);
+        await ReadJob(Company.Jobs[0]);
     }
 
-    private void IgnoreJob(JobModel? job)
+    /// <summary>
+    /// 忽略第一筆工作
+    /// </summary>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task IgnoreFirstJob()
     {
-        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
+        if (Company?.Jobs == null || Company.Jobs.Length == 0)
             return;
-
-        job.Ignore = true;
-        SortJobs();
-        _ = jobSeekerService.IgnoreJob(job.JobId);
+        await IgnoreJob(Company.Jobs[0]);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -269,114 +245,5 @@
             await jsRuntime.InvokeVoidAsync("registerShortcut", DotNetObjectReference.Create(this));
 
         await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private async Task AutoGetNewCompAndJobData()
-    {
-        if (JobInfos == null || JobInfos.Jobs == null)
-            return;
-
-        if (JobInfos.Jobs.Any(x => !x.Ignore && !x.HaveRead))
-            return;
-
-        foreach (var job in JobInfos.Jobs)
-        {
-            job.HaveRead = true;
-            job.Ignore = true;
-        }
-
-        var company = CompanyInfos?.Companies?.FirstOrDefault(x => x.Id == JobInfos.CompanyId);
-
-        if (company == null)
-            return;
-
-        company.NeedToRead = false;
-
-        SortCompany();
-
-        ModalCompany = CompanyInfos?.Companies?.FirstOrDefault();
-        await GetJobs(ModalCompany);
-    }
-
-    [JSInvokable]
-    public async Task ReloadJobs()
-    {
-        await GetJobs(CompanyInfos?.Companies?[0]);
-    }
-
-    [JSInvokable]
-    public async Task ReadFirstJob()
-    {
-        var job = JobInfos?.Jobs?.FirstOrDefault();
-        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
-            return;
-
-        await jobSeekerService.ReadedJob(job.JobId);
-        job.HaveRead = true;
-        SortJobs();
-
-        await AutoGetNewCompAndJobData();
-        StateHasChanged();
-
-    }
-
-    [JSInvokable]
-    public async Task IgnoreFirstJob()
-    {
-        var job = JobInfos?.Jobs?.FirstOrDefault();
-        if (job == null || string.IsNullOrWhiteSpace(job.JobId))
-            return;
-
-        await jobSeekerService.IgnoreJob(job.JobId);
-        job.Ignore = true;
-        SortJobs();
-
-        await AutoGetNewCompAndJobData();
-        StateHasChanged();
-
-    }
-
-    [JSInvokable]
-    public async Task ReadCompany()
-    {
-        if (ModalCompany != null)
-        {
-            ModalCompany.NeedToRead = false;
-            if (!string.IsNullOrWhiteSpace(ModalCompany.Id))
-            {
-                await jobSeekerService.ReadedAllJobs(ModalCompany.Id);
-            }
-        }
-
-        if (JobInfos != null && JobInfos.Jobs != null)
-        {
-            foreach (var job in JobInfos.Jobs)
-                job.HaveRead = true;
-        }
-        SortCompany();
-        await AutoGetNewCompAndJobData();
-        StateHasChanged();
-    }
-
-    [JSInvokable]
-    public async Task IgnoreCompany()
-    {
-        if (ModalCompany != null)
-        {
-            ModalCompany.IsIgnore = true;
-            if (!string.IsNullOrWhiteSpace(ModalCompany.Id))
-            {
-                await jobSeekerService.IgnoreCompany(ModalCompany.Id);
-            }
-        }
-
-        if (JobInfos != null && JobInfos.Jobs != null)
-        {
-            foreach (var job in JobInfos.Jobs)
-                job.HaveRead = true;
-        }
-        SortCompany();
-        await AutoGetNewCompAndJobData();
-        StateHasChanged();
     }
 }

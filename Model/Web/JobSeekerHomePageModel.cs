@@ -2,5 +2,5 @@
 
 public class JobSeekerHomePageModel
 {
-    public CompanyModel[]? Companies { get; set; }
+    public CompanyViewModel[]? Companies { get; set; }
 }

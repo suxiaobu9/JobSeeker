@@ -29,8 +29,4 @@
 	  <ProjectReference Include="..\Model\Model.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Web\" />
-	</ItemGroup>
-
 </Project>
