@@ -18,6 +18,7 @@
                 <a class="btn btn-outline-primary" href="@Company.CompanyPageUrl" target="_blank">@Company.Name</a>
                 <button class="btn btn-outline-dark disabled">@Company.SourceFrom</button>
                 <button class="btn btn-outline-info disabled">更新次數 : @Company.UpdateCount</button>
+                <button class="btn btn-outline-danger disabled">未讀公司 : @UnReadCompanyCount</button>
             </div>
             <div class="mt-2">
                 @if (Company.NeedToRead)
