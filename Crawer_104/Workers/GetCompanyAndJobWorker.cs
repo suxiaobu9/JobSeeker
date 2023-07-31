@@ -32,6 +32,8 @@ public class GetCompanyAndJobWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            var delayTask = Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+
             logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync start.");
 
             // 刪除所有已存在的 company 與 job 的 Redis 資料
@@ -80,7 +82,7 @@ public class GetCompanyAndJobWorker : BackgroundService
             }
 
             logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync end.");
-            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+            await delayTask;
         }
     }
 }

@@ -33,6 +33,7 @@ public class CakeResumeWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            var delayTask = Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             try
             {
                 logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");
@@ -51,7 +52,7 @@ public class CakeResumeWorker : BackgroundService
             }
 
             logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync end.");
-            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+            await delayTask;
         }
     }
 
