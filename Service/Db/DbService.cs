@@ -139,7 +139,9 @@ AND company.source_from  = {0}
             }
             else
             {
-                if (job.LatestUpdateDate != jobDto.LatestUpdateDate)
+                if (job.JobPlace != jobDto.JobPlace || job.Name != jobDto.Name ||
+                    job.OtherRequirement != jobDto.OtherRequirement || job.Salary != jobDto.Salary ||
+                    job.WorkContent != jobDto.WorkContent)
                     job.HaveRead = false;
 
                 job.IsDeleted = false;

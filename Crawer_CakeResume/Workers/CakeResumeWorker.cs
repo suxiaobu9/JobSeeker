@@ -1,6 +1,7 @@
 ﻿using Model;
 using Model.Dto;
 using Model.DtoCakeResume;
+using Service;
 using Service.Cache;
 using Service.Db;
 using Service.Http;
@@ -31,6 +32,7 @@ public class CakeResumeWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await CommonService.FirstWait();
         while (!stoppingToken.IsCancellationRequested)
         {
             var delayTask = Task.Delay(TimeSpan.FromDays(1), stoppingToken);

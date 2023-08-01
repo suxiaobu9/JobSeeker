@@ -1,5 +1,6 @@
 ﻿using Model.Dto;
 using Model.Dto104;
+using Service;
 using Service.Cache;
 using Service.Db;
 using Service.Http;
@@ -30,6 +31,7 @@ public class GetCompanyAndJobWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await CommonService.FirstWait();
         while (!stoppingToken.IsCancellationRequested)
         {
             var delayTask = Task.Delay(TimeSpan.FromDays(1), stoppingToken);

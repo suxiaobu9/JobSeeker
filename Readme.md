@@ -35,12 +35,12 @@ docker compose -f docker-compose.yaml up -d
 - build docker image
 
   ```ps1
-    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.12 -t arisuokay/job-seeker-crawer-104:latest .
-    docker push arisuokay/job-seeker-crawer-104:v2.12
+    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.13 -t arisuokay/job-seeker-crawer-104:latest .
+    docker push arisuokay/job-seeker-crawer-104:v2.13
     docker push arisuokay/job-seeker-crawer-104:latest
 
-    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.11 -t arisuokay/job-seeker-crawer-cakeresume:latest .
-    docker push arisuokay/job-seeker-crawer-cakeresume:v2.11
+    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.12 -t arisuokay/job-seeker-crawer-cakeresume:latest .
+    docker push arisuokay/job-seeker-crawer-cakeresume:v2.12
     docker push arisuokay/job-seeker-crawer-cakeresume:latest
 
     docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.11 -t arisuokay/job-seeker-web:latest .
@@ -55,6 +55,67 @@ docker compose -f docker-compose.yaml up -d
   ```ps1
   docker compose -f ./DockerService/docker-compose-setup.yaml up -d
   ```
+
+### 利用 azure cli 建立 azure service bus 服務並取得連線字串，再更新到 nacos
+
+```ps1
+# Azure Active Directory 中應用程式註冊的 憑證及秘密
+$Password = 'p*********************~'
+
+# Azure Active Directory 中應用程式註冊的 應用程式 (用戶端) 識別碼
+$ApplicationId = '{GUID}'
+
+# Azure Active Directory 概觀畫面的 租用戶識別碼
+$TenantId = '{GUID}'
+az login --service-principal -u $ApplicationId -p $Password --tenant $TenantId
+
+# 需要將 應用程式 加入到 資源群組 存取控制 (IAM) 的角色指派，並給參與者 (在 具有特殊權限的系統管理員角色 頁簽下)
+$QueueName = 'JobSeekerCrawer-dev'
+$SourceGroupName = 'Demo'
+$AuthorizationRule = 'ReadWrite'
+
+# 建立 Service Bus
+az servicebus namespace create --resource-group $SourceGroupName --name $QueueName --location eastasia --sku Basic
+az servicebus namespace authorization-rule create --resource-group $SourceGroupName --namespace-name $QueueName --name $AuthorizationRule --rights Send Listen
+
+# 建立 Queue
+az servicebus queue create --name queue_company_id_for_104 --namespace-name $QueueName --resource-group $SourceGroupName
+az servicebus queue create --name queue_job_id_for_104 --namespace-name $QueueName --resource-group $SourceGroupName
+
+$ServiceBusConnectionString = az servicebus namespace authorization-rule keys list --resource-group $SourceGroupName --namespace-name $QueueName --name $AuthorizationRule --query primaryConnectionString --output tsv
+
+
+$nacosResponse = Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/auth/login' -Body @{
+    username = 'nacos'
+    password = 'nacos'
+}
+
+$token = $nacosResponse.accessToken
+
+
+# 建立 PowerShell 物件
+$azureServiceBusData = @{
+    AzureServiceBus = @{
+        ConnectionString = $ServiceBusConnectionString
+    }
+}
+
+# 將物件轉換為 JSON 字串
+$jsonContent = $azureServiceBusData | ConvertTo-Json
+
+# 使用 JSON 字串送出 HTTP POST 請求
+Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
+    dataId      = 'azure-service-bus'
+    group       = 'DEFAULT_GROUP'
+    tenant      = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
+    content     = $jsonContent
+    type        = 'json'
+    accessToken = $token
+}
+
+# 移除 Service Bus
+# az servicebus namespace delete --resource-group $SourceGroupName --name $QueueName
+```
 
 ### 設定 nacos 參數
 
