@@ -95,11 +95,6 @@ namespace Model.JobSeekerDb
 
                 entity.ToTable("job", "jobseeker");
 
-                entity.HasIndex(e => e.CompanyId, "IX_job_company_id");
-
-                entity.HasIndex(e => e.Id, "job_id_idx")
-                    .IsUnique();
-
                 entity.Property(e => e.Id)
                     .HasColumnType("character varying")
                     .HasColumnName("id");
