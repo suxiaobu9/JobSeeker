@@ -74,35 +74,44 @@ internal class Http104Service : BaseHttpService, IHttpService
     /// <returns></returns>
     public async Task<T?> GetJobInfo<T>(string jobId, string companyId, string url) where T : JobDto
     {
-        var content = await GetDataFromHttpRequest(url);
-
-        if (string.IsNullOrWhiteSpace(content))
+        var content = "";
+        try
         {
-            logger.LogWarning($"{nameof(Http104Service)} Job info content get null.{{url}}", url);
-            return null;
+            content = await GetDataFromHttpRequest(url);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                logger.LogWarning($"{nameof(Http104Service)} Job info content get null.{{url}}", url);
+                return null;
+            }
+
+            var jobInfo = JsonSerializer.Deserialize<JobInfo104Model>(content);
+
+            if (jobInfo == null)
+            {
+                logger.LogWarning($"{nameof(Http104Service)} Job info data Deserialize get null.{{url}} {{content}}", url, content);
+                return null;
+            }
+
+            var result = new JobDto
+            {
+                Id = jobId,
+                Name = jobInfo.Data.Header.JobName,
+                CompanyId = companyId,
+                JobPlace = jobInfo.Data.JobDetail.AddressRegion,
+                OtherRequirement = jobInfo.Data.Condition.Other,
+                Salary = jobInfo.Data.JobDetail.Salary,
+                WorkContent = jobInfo.Data.JobDetail.JobDescription,
+                LatestUpdateDate = jobInfo.Data.Header.AppearDate
+            };
+
+            return result as T;
         }
-
-        var jobInfo = JsonSerializer.Deserialize<JobInfo104Model>(content);
-
-        if (jobInfo == null)
+        catch (Exception ex)
         {
-            logger.LogWarning($"{nameof(Http104Service)} Job info data Deserialize get null.{{url}} {{content}}", url, content);
-            return null;
+            logger.LogError(ex, $"{nameof(Http104Service)} get exception.{{content}}", content);
+            throw;
         }
-
-        var result = new JobDto
-        {
-            Id = jobId,
-            Name = jobInfo.Data.Header.JobName,
-            CompanyId = companyId,
-            JobPlace = jobInfo.Data.JobDetail.AddressRegion,
-            OtherRequirement = jobInfo.Data.Condition.Other,
-            Salary = jobInfo.Data.JobDetail.Salary,
-            WorkContent = jobInfo.Data.JobDetail.JobDescription,
-            LatestUpdateDate = jobInfo.Data.Header.AppearDate
-        };
-
-        return result as T;
 
     }
 

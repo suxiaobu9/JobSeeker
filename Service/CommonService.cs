@@ -2,7 +2,7 @@
 
 public class CommonService
 {
-    public static async Task FirstWait()
+    public static async Task WaitUntilMidnight()
     {
 #if DEBUG
         return;

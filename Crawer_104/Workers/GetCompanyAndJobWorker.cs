@@ -31,10 +31,9 @@ public class GetCompanyAndJobWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await CommonService.FirstWait();
         while (!stoppingToken.IsCancellationRequested)
         {
-            var delayTask = Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+            var delayTask = CommonService.WaitUntilMidnight();
 
             logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync start.");
 

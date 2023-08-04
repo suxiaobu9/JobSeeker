@@ -27,10 +27,10 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
     {
 
         Task? delayTask = null;
-
+        var content = "";
         try
         {
-            var content = await GetDataFromHttpRequest(url);
+            content = await GetDataFromHttpRequest(url);
 
             delayTask = Task.Delay(TimeSpan.FromSeconds(2));
 
@@ -113,7 +113,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(HttpCakeResumeService)} get exception.");
+            logger.LogError(ex, $"{nameof(HttpCakeResumeService)} get exception.{{content}}", content);
             return null;
         }
         finally
