@@ -35,12 +35,12 @@ docker compose -f docker-compose.yaml up -d
 - build docker image
 
   ```ps1
-    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.16 -t arisuokay/job-seeker-crawer-104:latest .
-    docker push arisuokay/job-seeker-crawer-104:v2.16
+    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.17 -t arisuokay/job-seeker-crawer-104:latest .
+    docker push arisuokay/job-seeker-crawer-104:v2.17
     docker push arisuokay/job-seeker-crawer-104:latest
 
-    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.16 -t arisuokay/job-seeker-crawer-cakeresume:latest .
-    docker push arisuokay/job-seeker-crawer-cakeresume:v2.16
+    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.17 -t arisuokay/job-seeker-crawer-cakeresume:latest .
+    docker push arisuokay/job-seeker-crawer-cakeresume:v2.17
     docker push arisuokay/job-seeker-crawer-cakeresume:latest
 
     docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.11 -t arisuokay/job-seeker-web:latest .

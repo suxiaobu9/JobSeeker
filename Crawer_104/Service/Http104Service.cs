@@ -109,7 +109,7 @@ internal class Http104Service : BaseHttpService, IHttpService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(Http104Service)} get exception.{{content}}", content);
+            logger.LogError(ex, $"{nameof(Http104Service)} GetJobInfo get exception.{{content}}", content);
             throw;
         }
 
@@ -123,37 +123,46 @@ internal class Http104Service : BaseHttpService, IHttpService
     /// <returns></returns>
     public async Task<T?> GetJobList<T>(string url) where T : JobListDto<SimpleJobInfoDto>
     {
-        var content = await GetDataFromHttpRequest(url);
-
-        if (string.IsNullOrWhiteSpace(content))
+        var content = "";
+        try
         {
-            logger.LogWarning($"{nameof(Http104Service)} Job list content get null.{{url}}", url);
-            return null;
-        }
+            content = await GetDataFromHttpRequest(url);
 
-        var data = JsonSerializer.Deserialize<JobList104Model>(content);
-
-        if (data == null)
-        {
-            logger.LogWarning($"{nameof(Http104Service)} Job list data Deserialize get null.{{url}} {{content}}", url, content);
-            return null;
-        }
-
-        var result = new JobListWithPageDto
-        {
-            TotalPage = data.Data.TotalPage,
-            JobList = data.Data.List.Select(x =>
+            if (string.IsNullOrWhiteSpace(content))
             {
-                string jobId = new Uri("https:" + x.Link.Job).Segments.LastOrDefault() ?? "";
-                string companyId = new Uri("https:" + x.Link.Cust).Segments.LastOrDefault() ?? "";
+                logger.LogWarning($"{nameof(Http104Service)} Job list content get null.{{url}}", url);
+                return null;
+            }
 
-                return new SimpleJobInfoDto
+            var data = JsonSerializer.Deserialize<JobList104Model>(content);
+
+            if (data == null)
+            {
+                logger.LogWarning($"{nameof(Http104Service)} Job list data Deserialize get null.{{url}} {{content}}", url, content);
+                return null;
+            }
+
+            var result = new JobListWithPageDto
+            {
+                TotalPage = data.Data.TotalPage,
+                JobList = data.Data.List.Select(x =>
                 {
-                    JobId = jobId,
-                    CompanyId = companyId
-                };
-            }).Where(x => !string.IsNullOrWhiteSpace(x.CompanyId) && !string.IsNullOrWhiteSpace(x.JobId))
-        };
-        return result as T;
+                    string jobId = new Uri("https:" + x.Link.Job).Segments.LastOrDefault() ?? "";
+                    string companyId = new Uri("https:" + x.Link.Cust).Segments.LastOrDefault() ?? "";
+
+                    return new SimpleJobInfoDto
+                    {
+                        JobId = jobId,
+                        CompanyId = companyId
+                    };
+                }).Where(x => !string.IsNullOrWhiteSpace(x.CompanyId) && !string.IsNullOrWhiteSpace(x.JobId))
+            };
+            return result as T;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"{nameof(Http104Service)} GetJobList get exception.{{content}}", content);
+            throw;
+        }
     }
 }
