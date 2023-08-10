@@ -33,7 +33,7 @@ public class GetCompanyAndJobWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var delayTask = CommonService.WaitUntilMidnight();
+            var delayTask = CommonService.WorkerWaiting();
 
             logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync start.");
 

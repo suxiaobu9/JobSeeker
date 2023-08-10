@@ -34,7 +34,7 @@ public class CakeResumeWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var delayTask = CommonService.WaitUntilMidnight();
+            var delayTask = CommonService.WorkerWaiting();
             try
             {
                 logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");
