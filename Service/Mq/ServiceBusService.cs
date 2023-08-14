@@ -41,9 +41,6 @@ public class ServiceBusService : IMqService
         await processor.StartProcessingAsync();
 
         logger.LogInformation($"{nameof(ServiceBusClient)} ProcessMessageFromMq get start.");
-
-        while (true)
-            await Task.Delay(TimeSpan.FromDays(1));
     }
 
     /// <summary>

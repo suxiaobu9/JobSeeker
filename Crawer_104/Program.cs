@@ -42,9 +42,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IMqService, ServiceBusService>();
         services.AddSingleton<IDbService, Db104Service>();
 
-        services.AddHostedService<GetCompanyAndJobWorker>();
-        services.AddHostedService<CompanyToDbWorker>();
-        services.AddHostedService<JobInfoToDbWorker>();
+        services.AddHostedService<OneZeroFourWorker>();
 
         // ServiceBusClient 
         string serviceBusConnectionString = hostContext.Configuration.GetSection("AzureServiceBus:ConnectionString").Value;
