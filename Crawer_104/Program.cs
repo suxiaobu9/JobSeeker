@@ -43,8 +43,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDbService, Db104Service>();
 
         services.AddHostedService<OneZeroFourWorker>();
-        services.AddHostedService<CompanyToDbWorker>();
-        services.AddHostedService<JobInfoToDbWorker>();
 
         // ServiceBusClient 
         string serviceBusConnectionString = hostContext.Configuration.GetSection("AzureServiceBus:ConnectionString").Value;
