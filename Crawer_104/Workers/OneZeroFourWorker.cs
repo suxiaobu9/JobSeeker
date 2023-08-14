@@ -8,15 +8,15 @@ using Service.Mq;
 
 namespace Crawer_104.Workers;
 
-public class GetCompanyAndJobWorker : BackgroundService
+public class OneZeroFourWorker : BackgroundService
 {
-    private readonly ILogger<GetCompanyAndJobWorker> logger;
+    private readonly ILogger<OneZeroFourWorker> logger;
     private readonly ICacheService cacheService;
     private readonly IHttpService httpService;
     private readonly IMqService mqService;
     private readonly IDbService dbService;
 
-    public GetCompanyAndJobWorker(ILogger<GetCompanyAndJobWorker> logger,
+    public OneZeroFourWorker(ILogger<OneZeroFourWorker> logger,
         ICacheService cacheService,
         IHttpService httpService,
         IMqService mqService,
@@ -35,7 +35,7 @@ public class GetCompanyAndJobWorker : BackgroundService
         {
             var delayTask = CommonService.WorkerWaiting();
 
-            logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync start.");
+            logger.LogInformation($"{nameof(OneZeroFourWorker)} ExecuteAsync start.");
 
             // 刪除所有已存在的 company 與 job 的 Redis 資料
             await cacheService.ResetExistCompanyAndJob();
@@ -77,12 +77,12 @@ public class GetCompanyAndJobWorker : BackgroundService
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, $"{nameof(GetCompanyAndJobWorker)} ExecuteAsync get exception.{{url}}", url);
+                        logger.LogError(ex, $"{nameof(OneZeroFourWorker)} ExecuteAsync get exception.{{url}}", url);
                     }
                 }
             }
 
-            logger.LogInformation($"{nameof(GetCompanyAndJobWorker)} ExecuteAsync end.");
+            logger.LogInformation($"{nameof(OneZeroFourWorker)} ExecuteAsync end.");
             await delayTask;
         }
     }
