@@ -39,7 +39,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
-        services.AddSingleton<IMqService, ServiceBusService>();
+        services.AddSingleton<IMqService, ServiceBus104Service>();
         services.AddSingleton<IDbService, Db104Service>();
 
         services.AddHostedService<OneZeroFourWorker>();

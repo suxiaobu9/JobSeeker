@@ -6,7 +6,7 @@ public interface ICacheService
     /// 重置已存在的公司與工作
     /// </summary>
     /// <returns></returns>
-    public Task ResetExistCompanyAndJob();
+    public abstract Task ResetExistCompanyAndJob();
 
     /// <summary>
     /// 公司存在

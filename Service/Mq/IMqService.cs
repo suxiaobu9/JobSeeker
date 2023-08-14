@@ -1,6 +1,4 @@
-﻿using Azure.Messaging.ServiceBus;
-
-namespace Service.Mq;
+﻿namespace Service.Mq;
 
 public interface IMqService
 {
@@ -25,4 +23,20 @@ public interface IMqService
     /// <param name="queueName"></param>
     /// <param name="message"></param>
     public Task ProcessMessageFromMq<T>(string queueName, Func<T, Task> messageHandler);
+
+    /// <summary>
+    /// 處理 Company mq 訊息
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    public abstract Task CompanyMessageHandler<T>(T args);
+
+    /// <summary>
+    /// 處理 Jobinfo mq 訊息
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    public abstract Task JobInfoMessageHandler<T>(T args);
 }

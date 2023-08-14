@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Service.Mq;
 
-public class ServiceBusService : IMqService
+public abstract class ServiceBusService : IMqService
 {
     private readonly ILogger<ServiceBusService> logger;
     private readonly ServiceBusClient mqClient;
@@ -18,6 +18,22 @@ public class ServiceBusService : IMqService
         this.mqClient = mqClient;
         this.diSenders = diSenders;
     }
+
+    /// <summary>
+    /// 處理 Company mq 訊息
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    public abstract Task CompanyMessageHandler<T>(T args);
+
+    /// <summary>
+    /// 處理 Jobinfo mq 訊息
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    public abstract Task JobInfoMessageHandler<T>(T args);
 
     /// <summary>
     /// 處理 MQ 來的訊息
