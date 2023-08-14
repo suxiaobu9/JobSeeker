@@ -33,9 +33,8 @@ public class OneZeroFourWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-
-        _ = mqService.ProcessMessageFromMq(Parameters104.QueueNameForCompanyId, CompanyMessageHandler);
-        _ = mqService.ProcessMessageFromMq(Parameters104.QueueNameForJobId, JobInfoMessageHandler);
+        _ = mqService.ProcessMessageFromMq<ProcessMessageEventArgs>(Parameters104.QueueNameForCompanyId, CompanyMessageHandler);
+        _ = mqService.ProcessMessageFromMq<ProcessMessageEventArgs>(Parameters104.QueueNameForJobId, JobInfoMessageHandler);
 
         while (!stoppingToken.IsCancellationRequested)
         {

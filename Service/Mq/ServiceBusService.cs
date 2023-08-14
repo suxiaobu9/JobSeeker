@@ -24,19 +24,16 @@ public class ServiceBusService : IMqService
     /// </summary>
     /// <param name="queueName"></param>
     /// <param name="message"></param>
-    public async Task ProcessMessageFromMq(string queueName, Func<ProcessMessageEventArgs, Task> messageHandler, Func<ProcessErrorEventArgs, Task>? errorHandler = null)
+    public async Task ProcessMessageFromMq<T>(string queueName, Func<T, Task> messageHandler)
     {
         var processor = mqClient.CreateProcessor(queueName, new ServiceBusProcessorOptions
         {
             AutoCompleteMessages = false,
         });
 
-        processor.ProcessMessageAsync += messageHandler;
+        processor.ProcessMessageAsync += messageHandler as Func<ProcessMessageEventArgs, Task>;
 
-        if (errorHandler == null)
-            processor.ProcessErrorAsync += BasicErrorHandler;
-        else
-            processor.ProcessErrorAsync += errorHandler;
+        processor.ProcessErrorAsync += BasicErrorHandler;
 
         await processor.StartProcessingAsync();
 

@@ -24,5 +24,5 @@ public interface IMqService
     /// </summary>
     /// <param name="queueName"></param>
     /// <param name="message"></param>
-    public Task ProcessMessageFromMq(string queueName, Func<ProcessMessageEventArgs, Task> messageHandler, Func<ProcessErrorEventArgs, Task>? errorHandler = null);
+    public Task ProcessMessageFromMq<T>(string queueName, Func<T, Task> messageHandler);
 }
