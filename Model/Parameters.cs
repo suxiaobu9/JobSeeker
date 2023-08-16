@@ -17,4 +17,5 @@ public static class Parameters
         "net",
         "c#"
     };
+    public static string RabbitMqExchangeName => "rabbit_mq_exchange";
 }

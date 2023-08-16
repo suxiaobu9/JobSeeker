@@ -1,54 +1,54 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Model.Dto;
 using Model.Dto104;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using Service.Cache;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
+using System.Text;
 using System.Text.Json;
 
 namespace Crawer_104.Service;
 
-public class ServiceBus104Service : ServiceBusService
+public class RabbitMq104Service : RabbitMqService
 {
-    private readonly ILogger<ServiceBusService> logger;
-    private readonly ICacheService cacheService;
+    private readonly ILogger<RabbitMqService> logger;
+    private readonly IConnection connection;
     private readonly IHttpService httpService;
+    private readonly ICacheService cacheService;
     private readonly IDbService dbService;
 
-    public ServiceBus104Service(ILogger<ServiceBusService> logger,
-        ServiceBusClient mqClient,
-        Dictionary<string, ServiceBusSender> diSenders,
-        ICacheService cacheService,
+    public RabbitMq104Service(ILogger<RabbitMqService> logger,
+        IConnection connection,
         IHttpService httpService,
-        IDbService dbService) : base(logger, mqClient, diSenders)
+        ICacheService cacheService,
+        IDbService dbService) : base(logger, connection)
     {
         this.logger = logger;
-        this.cacheService = cacheService;
+        this.connection = connection;
         this.httpService = httpService;
+        this.cacheService = cacheService;
         this.dbService = dbService;
     }
 
-    /// <summary>
-    /// 處理 Company mq 訊息
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="args"></param>
-    /// <returns></returns>
     public override async Task CompanyMessageHandler<T>(T args)
     {
-        logger.LogInformation($"{nameof(ServiceBus104Service)} CompanyMessageHandler start.");
+        logger.LogInformation($"{nameof(RabbitMq104Service)} CompanyMessageHandler start.");
 
-        if (args is not ProcessMessageEventArgs processMessageEventArgs)
+        if (args is not BasicDeliverEventArgs basicDeliverEventArgs)
         {
-            logger.LogError($"{nameof(ServiceBus104Service)} CompanyMessageHandler processMessageEventArgs is null.");
+            logger.LogError($"{nameof(RabbitMq104Service)} CompanyMessageHandler basicDeliverEventArgs is null.");
             return;
         }
 
         try
         {
             // get mq (comp_id_for_104)
-            string? companyId = processMessageEventArgs.Message.Body.ToString();
+            var body = basicDeliverEventArgs.Body.ToArray();
+            var companyId = Encoding.UTF8.GetString(body);
+
             if (string.IsNullOrWhiteSpace(companyId))
             {
                 logger.LogError($"{nameof(ServiceBus104Service)} CompanyMessageHandler companyId is null.");
@@ -61,7 +61,6 @@ public class ServiceBus104Service : ServiceBusService
             if (companyDto == null)
             {
                 logger.LogWarning($"{nameof(ServiceBus104Service)} CompanyMessageHandler get null companyDto.{{companyId}}", companyId);
-                await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
                 return;
             }
 
@@ -71,46 +70,39 @@ public class ServiceBus104Service : ServiceBusService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(ServiceBus104Service)} CompanyMessageHandler error.");
+            logger.LogError(ex, $"{nameof(RabbitMq104Service)} CompanyMessageHandler error.");
         }
-
-        await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
 
     }
 
-    /// <summary>
-    /// 處理 Jobinfo mq 訊息
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="args"></param>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     public override async Task JobInfoMessageHandler<T>(T args)
     {
-        logger.LogInformation($"{nameof(ServiceBus104Service)} JobInfoMessageHandler start.");
 
-        if (args is not ProcessMessageEventArgs processMessageEventArgs)
+        logger.LogInformation($"{nameof(RabbitMq104Service)} JobInfoMessageHandler start.");
+
+        if (args is not BasicDeliverEventArgs basicDeliverEventArgs)
         {
-            logger.LogError($"{nameof(ServiceBus104Service)} CompanyMessageHandler processMessageEventArgs is null.");
+            logger.LogError($"{nameof(RabbitMq104Service)} JobInfoMessageHandler basicDeliverEventArgs is null.");
             return;
         }
 
         try
         {
-            string? message = processMessageEventArgs.Message.Body.ToString();
+            var body = basicDeliverEventArgs.Body.ToArray();
 
-            if (string.IsNullOrWhiteSpace(message))
+            if (body.Length == 0)
             {
-                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler message is null.");
+                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler body is null.");
                 return;
             }
+
+            var message = Encoding.UTF8.GetString(body);
 
             var simpleJobInfo = JsonSerializer.Deserialize<SimpleJobInfoDto>(message);
 
             if (simpleJobInfo == null || string.IsNullOrWhiteSpace(simpleJobInfo.JobId) || string.IsNullOrWhiteSpace(simpleJobInfo.CompanyId))
             {
                 logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler MessageHandler get null simpleJobInfo.{{message}}", message);
-                await processMessageEventArgs.DeadLetterMessageAsync(processMessageEventArgs.Message);
                 return;
             }
 
@@ -119,11 +111,11 @@ public class ServiceBus104Service : ServiceBusService
             {
                 logger.LogInformation($"{nameof(ServiceBus104Service)} JobInfoMessageHandler company not exist, renew message.{{message}}", message);
 
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                //await Task.Delay(TimeSpan.FromSeconds(10));
 
-                // 把 Message 推回 MQ
-                await processMessageEventArgs.AbandonMessageAsync(processMessageEventArgs.Message);
-
+                // todo: 把 Message 推回 MQ retry 10 次
+               // await processMessageEventArgs.AbandonMessageAsync(processMessageEventArgs.Message);
+                
                 return;
             }
 
@@ -133,25 +125,23 @@ public class ServiceBus104Service : ServiceBusService
             if (jobDto == null)
             {
                 logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler MessageHandler get null jobDto.{{jobId}}", simpleJobInfo.JobId);
-                await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
                 return;
             }
 
             if (!jobDto.FilterPassed)
             {
                 //logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler JobDto filter failed.{{jobId}}", jobId);
-                await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
                 return;
             }
 
             // save to db
             await dbService.UpsertJob(jobDto);
+
+
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(ServiceBus104Service)} JobInfoMessageHandler error.");
+            logger.LogError(ex, $"{nameof(RabbitMq104Service)} JobInfoMessageHandler error.");
         }
-
-        await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
     }
 }

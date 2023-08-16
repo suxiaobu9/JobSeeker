@@ -4,6 +4,7 @@ using Crawer_104.Workers;
 using Microsoft.EntityFrameworkCore;
 using Model.Dto104;
 using Model.JobSeekerDb;
+using RabbitMQ.Client;
 using Serilog;
 using Service.Cache;
 using Service.Db;
@@ -35,7 +36,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         string redisConnectionString = hostContext.Configuration.GetSection("redis:Host").Value;
         string redisSecret = hostContext.Configuration.GetSection("redis:Secret").Value;
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString + ",password=" + redisSecret));
-        services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
+        services.AddSingleton(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
@@ -52,8 +53,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         });
         services.AddSingleton(serviceProvider =>
         {
-            var scope = services.BuildServiceProvider().CreateScope();
-            var serviceBusClient = scope.ServiceProvider.GetRequiredService<ServiceBusClient>();
+            var serviceBusClient = serviceProvider.GetRequiredService<ServiceBusClient>();
             var companySender = serviceBusClient.CreateSender(Parameters104.QueueNameForCompanyId);
             var jobSender = serviceBusClient.CreateSender(Parameters104.QueueNameForJobId);
 
@@ -62,6 +62,18 @@ IHost host = Host.CreateDefaultBuilder(args)
                 { Parameters104.QueueNameForCompanyId, companySender },
                 { Parameters104.QueueNameForJobId, jobSender },
             };
+        });
+
+        // RabbitMq
+        services.AddSingleton(serviceProvider =>
+        {
+            return new ConnectionFactory
+            {
+                HostName = hostContext.Configuration.GetSection("RabbitMq:Host").Value,
+                UserName = hostContext.Configuration.GetSection("RabbitMq:Name").Value,
+                Password = hostContext.Configuration.GetSection("RabbitMq:Password").Value,
+                DispatchConsumersAsync = true,
+            }.CreateConnection();
         });
 
         // db migration
