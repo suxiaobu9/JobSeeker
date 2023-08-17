@@ -32,7 +32,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         string redisConnectionString = hostContext.Configuration.GetSection("redis:Host").Value;
         string redisSecret = hostContext.Configuration.GetSection("redis:Secret").Value;
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString + ",password=" + redisSecret));
-        services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
+        services.AddSingleton(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
         services.AddSingleton<IHttpService, HttpCakeResumeService>();
         services.AddSingleton<ICacheService, RedisCakeResumeService>();

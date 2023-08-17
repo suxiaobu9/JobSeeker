@@ -1,11 +1,12 @@
-using Azure.Messaging.ServiceBus;
 using Crawer_104.Service;
 using Crawer_104.Workers;
 using Microsoft.EntityFrameworkCore;
 using Model.Dto104;
 using Model.JobSeekerDb;
+using RabbitMQ.Client;
 using Serilog;
 using Service.Cache;
+using Service.Data;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
@@ -35,33 +36,27 @@ IHost host = Host.CreateDefaultBuilder(args)
         string redisConnectionString = hostContext.Configuration.GetSection("redis:Host").Value;
         string redisSecret = hostContext.Configuration.GetSection("redis:Secret").Value;
         services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString + ",password=" + redisSecret));
-        services.AddSingleton<IDatabase>(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
+        services.AddSingleton(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
 
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
-        services.AddSingleton<IMqService, ServiceBusService>();
+        services.AddSingleton<IMqService, RabbitMq104Service>();
         services.AddSingleton<IDbService, Db104Service>();
+        services.AddSingleton<IDataService, DataService>();
 
         services.AddHostedService<OneZeroFourWorker>();
 
-        // ServiceBusClient 
-        string serviceBusConnectionString = hostContext.Configuration.GetSection("AzureServiceBus:ConnectionString").Value;
-        services.AddSingleton(serviceProvider =>
-        {
-            return new ServiceBusClient(serviceBusConnectionString);
-        });
-        services.AddSingleton(serviceProvider =>
-        {
-            var scope = services.BuildServiceProvider().CreateScope();
-            var serviceBusClient = scope.ServiceProvider.GetRequiredService<ServiceBusClient>();
-            var companySender = serviceBusClient.CreateSender(Parameters104.QueueNameForCompanyId);
-            var jobSender = serviceBusClient.CreateSender(Parameters104.QueueNameForJobId);
 
-            return new Dictionary<string, ServiceBusSender>
+        // RabbitMq
+        services.AddSingleton(serviceProvider =>
+        {
+            return new ConnectionFactory
             {
-                { Parameters104.QueueNameForCompanyId, companySender },
-                { Parameters104.QueueNameForJobId, jobSender },
-            };
+                HostName = hostContext.Configuration.GetSection("RabbitMq:Host").Value,
+                UserName = hostContext.Configuration.GetSection("RabbitMq:Name").Value,
+                Password = hostContext.Configuration.GetSection("RabbitMq:Password").Value,
+                DispatchConsumersAsync = true,
+            }.CreateConnection();
         });
 
         // db migration

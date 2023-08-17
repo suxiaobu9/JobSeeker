@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model.Dto;
 
-public class JobListDto<T> where T:SimpleJobInfoDto
+public class JobListDto<T> where T : SimpleJobInfoDto
 {
     public IEnumerable<T>? JobList { get; set; }
 }

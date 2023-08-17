@@ -35,8 +35,8 @@ docker compose -f docker-compose.yaml up -d
 - build docker image
 
   ```ps1
-    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.20 -t arisuokay/job-seeker-crawer-104:latest .
-    docker push arisuokay/job-seeker-crawer-104:v2.20
+    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.21 -t arisuokay/job-seeker-crawer-104:latest .
+    docker push arisuokay/job-seeker-crawer-104:v2.21
     docker push arisuokay/job-seeker-crawer-104:latest
 
     docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.18 -t arisuokay/job-seeker-crawer-cakeresume:latest .
@@ -172,6 +172,18 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
         }
         ```
 
+     5. Data Id = `rabbit-mq`
+
+        ```json
+        {
+          "RabbitMq": {
+            "Host": "172.20.0.3",
+            "Name": "guest",
+            "Password": "guest"
+          }
+        }
+        ```
+
 - 利用指令新增
 
   ```bash
@@ -181,6 +193,7 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
 
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=seq&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"SeqLogServerAddress\":\"http://172.20.0.2:5341/\"}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=azure-service-bus&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"AzureServiceBus\":{\"ConnectionString\":\"<your connection string>\"}}&accessToken=$token"
+  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=rabbit-mq&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"RabbitMq\":{\"Host\":\"172.20.0.3\",\"Name\":\"guest\",\"Password\":\"guest\"}}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=postgresql&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"ConnectionStrings\":{\"NpgsqlConnection\":\"Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker\"}}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=redis&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"Redis\":{\"Host\":\"172.20.0.9:6379\",\"Secret\":\"jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc\"}}&accessToken=$token"
 
@@ -188,6 +201,7 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=redis&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
 
   ```
 
@@ -226,6 +240,15 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
   }
 
   Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
+      dataId = 'rabbit-mq'
+      group = 'DEFAULT_GROUP'
+      tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
+      content = '{"RabbitMq":{"Host":"172.20.0.3","Name":"guest","Password":"guest"}}'
+      type = 'json'
+      accessToken = $token
+  }
+
+  Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
       dataId = 'postgresql'
       group = 'DEFAULT_GROUP'
       tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
@@ -245,6 +268,7 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
 
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=redis&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
 

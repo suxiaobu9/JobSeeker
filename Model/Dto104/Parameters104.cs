@@ -70,4 +70,7 @@ public static class Parameters104
     /// 104
     /// </summary>
     public static string SourceFrom => "104";
+
+    public static string RabbitMq104ExchangeName => "rabbit_mq_104_exchange";
+
 }
