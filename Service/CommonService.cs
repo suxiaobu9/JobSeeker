@@ -19,9 +19,13 @@ public class CommonService
         var timeTo6 = new TimeSpan(6, 0, 0) - now.TimeOfDay;
         var timeTo18 = new TimeSpan(18, 0, 0) - now.TimeOfDay;
 
-        if (timeTo6 < TimeSpan.Zero || timeTo18 < TimeSpan.Zero)
-            return timeTo6 > TimeSpan.Zero ? timeTo6 : timeTo18;
+        // 處理跨日的情況
+        if (timeTo6 < TimeSpan.Zero && timeTo18 < TimeSpan.Zero)
+            return timeTo18 + TimeSpan.FromHours(12);
 
-        return timeTo6 < timeTo18 ? timeTo6 : timeTo18;
+        if (timeTo6 < TimeSpan.Zero)
+            return timeTo18;
+
+        return timeTo18;
     }
 }
