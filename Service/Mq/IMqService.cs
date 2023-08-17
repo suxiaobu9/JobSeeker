@@ -1,4 +1,6 @@
-﻿namespace Service.Mq;
+﻿using Model;
+
+namespace Service.Mq;
 
 public interface IMqService
 {
@@ -22,7 +24,7 @@ public interface IMqService
     /// </summary>
     /// <param name="queueName"></param>
     /// <param name="message"></param>
-    public Task ProcessMessageFromMq<T>(string queueName, Func<T, Task> messageHandler);
+    public Task ProcessMessageFromMq<T>(string queueName, Func<T, Task<ReturnStatus>> messageHandler);
 
     /// <summary>
     /// 處理 Company mq 訊息
@@ -30,7 +32,7 @@ public interface IMqService
     /// <typeparam name="T"></typeparam>
     /// <param name="args"></param>
     /// <returns></returns>
-    public abstract Task CompanyMessageHandler<T>(T args);
+    public abstract Task<ReturnStatus> CompanyMessageHandler<T>(T args);
 
     /// <summary>
     /// 處理 Jobinfo mq 訊息
@@ -38,5 +40,5 @@ public interface IMqService
     /// <typeparam name="T"></typeparam>
     /// <param name="args"></param>
     /// <returns></returns>
-    public abstract Task JobInfoMessageHandler<T>(T args);
+    public abstract Task<ReturnStatus> JobInfoMessageHandler<T>(T args);
 }

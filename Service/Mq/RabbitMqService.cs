@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using Model;
+using Model.Dto104;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -20,15 +20,15 @@ public abstract class RabbitMqService : IMqService
         this.connection = connection;
     }
 
-    public abstract Task CompanyMessageHandler<T>(T args);
+    public abstract Task<ReturnStatus> CompanyMessageHandler<T>(T args);
 
-    public abstract Task JobInfoMessageHandler<T>(T args);
+    public abstract Task<ReturnStatus> JobInfoMessageHandler<T>(T args);
 
-    public Task ProcessMessageFromMq<T>(string queueName, Func<T, Task> messageHandler)
+    public Task ProcessMessageFromMq<T>(string queueName, Func<T, Task<ReturnStatus>> messageHandler)
     {
         logger.LogInformation("ProcessMessageFromMq start.");
 
-        if (messageHandler is not Func<BasicDeliverEventArgs, Task> basicDeliverEventArgs)
+        if (messageHandler is not Func<BasicDeliverEventArgs, Task<ReturnStatus>> basicDeliverEventArgs)
         {
             logger.BeginScope("ProcessMessageFromMq messageHandler is not Func<BasicDeliverEventArgs, Task>.");
             return Task.CompletedTask;
@@ -37,9 +37,11 @@ public abstract class RabbitMqService : IMqService
         var channel = connection.CreateModel();
         channel.BasicQos(0, 10, false);
 
-        channel.ExchangeDeclare(exchange: Parameters.RabbitMqExchangeName, type: ExchangeType.Direct, durable: false, autoDelete: false, arguments: null);
+        channel.ExchangeDeclare(exchange: Parameters104.RabbitMq104ExchangeName, type: ExchangeType.Direct);
 
-        channel.QueueBind(queue: channel.QueueDeclare().QueueName, exchange: "direct_exchange", routingKey: queueName);
+        channel.QueueDeclare(queueName, false, false, false, null);
+
+        channel.QueueBind(queue: queueName, exchange: Parameters104.RabbitMq104ExchangeName, routingKey: queueName);
 
         var consumer = new AsyncEventingBasicConsumer(channel);
 
@@ -47,14 +49,28 @@ public abstract class RabbitMqService : IMqService
 
         consumer.Received += async (sender, ea) =>
         {
-            await basicDeliverEventArgs(ea);
-            //var body = ea.Body.ToArray();
-            //var message = Encoding.UTF8.GetString(body);
+            var result = await basicDeliverEventArgs(ea);
 
-            //logger.LogInformation($"Received message from mq: {message}");
+            if (result == ReturnStatus.Retry)
+            {
+                var properties = channel.CreateBasicProperties();
+                var retryCount = 0;
 
-            //await messageHandler(JsonConvert.DeserializeObject<T>(message));
-            
+                if (ea.BasicProperties.Headers != null &&
+                    ea.BasicProperties.Headers.ContainsKey("retry-count"))
+                    retryCount = (int)ea.BasicProperties.Headers["retry-count"];
+
+                retryCount++;
+
+                if (retryCount < 10)
+                {
+                    // 設置新的重試計數並重新發送消息
+                    properties.Headers = new Dictionary<string, object> { { "retry-count", retryCount } };
+                    channel.BasicPublish(Parameters104.RabbitMq104ExchangeName, queueName, properties, ea.Body);
+                }
+
+            }
+
             channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
         };
 
@@ -75,9 +91,9 @@ public abstract class RabbitMqService : IMqService
         {
             var body = Encoding.UTF8.GetBytes(message);
             using var channel = connection.CreateModel();
-            channel.ExchangeDeclare(exchange: Parameters.RabbitMqExchangeName, type: ExchangeType.Direct, durable: false, autoDelete: false, arguments: null);
+            channel.ExchangeDeclare(exchange: Parameters104.RabbitMq104ExchangeName, type: ExchangeType.Direct, durable: false, autoDelete: false, arguments: null);
 
-            channel.BasicPublish(exchange: Parameters.RabbitMqExchangeName, routingKey: queueName, basicProperties: null, body: body);
+            channel.BasicPublish(exchange: Parameters104.RabbitMq104ExchangeName, routingKey: queueName, basicProperties: null, body: body);
         }
         catch (Exception ex)
         {

@@ -1,5 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
+using Model;
+using RabbitMQ.Client.Events;
 using System.Text.Json;
 
 namespace Service.Mq;
@@ -25,7 +27,7 @@ public abstract class ServiceBusService : IMqService
     /// <typeparam name="T"></typeparam>
     /// <param name="args"></param>
     /// <returns></returns>
-    public abstract Task CompanyMessageHandler<T>(T args);
+    public abstract Task<ReturnStatus> CompanyMessageHandler<T>(T args);
 
     /// <summary>
     /// 處理 Jobinfo mq 訊息
@@ -33,21 +35,40 @@ public abstract class ServiceBusService : IMqService
     /// <typeparam name="T"></typeparam>
     /// <param name="args"></param>
     /// <returns></returns>
-    public abstract Task JobInfoMessageHandler<T>(T args);
+    public abstract Task<ReturnStatus> JobInfoMessageHandler<T>(T args);
 
     /// <summary>
     /// 處理 MQ 來的訊息
     /// </summary>
     /// <param name="queueName"></param>
     /// <param name="message"></param>
-    public async Task ProcessMessageFromMq<T>(string queueName, Func<T, Task> messageHandler)
+    public async Task ProcessMessageFromMq<T>(string queueName, Func<T, Task<ReturnStatus>> messageHandler)
     {
         var processor = mqClient.CreateProcessor(queueName, new ServiceBusProcessorOptions
         {
             AutoCompleteMessages = false,
         });
 
-        processor.ProcessMessageAsync += messageHandler as Func<ProcessMessageEventArgs, Task>;
+
+        if (messageHandler is not Func<ProcessMessageEventArgs, Task<ReturnStatus>> processMessageEventArgs)
+        {
+            logger.BeginScope("ProcessMessageFromMq messageHandler is not Func<BasicDeliverEventArgs, Task>.");
+            return;
+        }
+
+        processor.ProcessMessageAsync += async args =>
+        {
+            var result = await processMessageEventArgs(args);
+
+            if (result == ReturnStatus.Retry)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10));
+                await args.AbandonMessageAsync(args.Message);
+                return;
+            }
+
+            await args.CompleteMessageAsync(args.Message);
+        };
 
         processor.ProcessErrorAsync += BasicErrorHandler;
 

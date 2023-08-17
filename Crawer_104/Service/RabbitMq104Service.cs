@@ -1,9 +1,9 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Model;
 using Model.Dto;
-using Model.Dto104;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Service.Cache;
+using Service.Data;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
@@ -19,28 +19,31 @@ public class RabbitMq104Service : RabbitMqService
     private readonly IHttpService httpService;
     private readonly ICacheService cacheService;
     private readonly IDbService dbService;
+    private readonly IDataService dataService;
 
     public RabbitMq104Service(ILogger<RabbitMqService> logger,
         IConnection connection,
         IHttpService httpService,
         ICacheService cacheService,
-        IDbService dbService) : base(logger, connection)
+        IDbService dbService,
+        IDataService dataService) : base(logger, connection)
     {
         this.logger = logger;
         this.connection = connection;
         this.httpService = httpService;
         this.cacheService = cacheService;
         this.dbService = dbService;
+        this.dataService = dataService;
     }
 
-    public override async Task CompanyMessageHandler<T>(T args)
+    public override async Task<ReturnStatus> CompanyMessageHandler<T>(T args)
     {
         logger.LogInformation($"{nameof(RabbitMq104Service)} CompanyMessageHandler start.");
 
         if (args is not BasicDeliverEventArgs basicDeliverEventArgs)
         {
             logger.LogError($"{nameof(RabbitMq104Service)} CompanyMessageHandler basicDeliverEventArgs is null.");
-            return;
+            return ReturnStatus.Fail;
         }
 
         try
@@ -52,30 +55,22 @@ public class RabbitMq104Service : RabbitMqService
             if (string.IsNullOrWhiteSpace(companyId))
             {
                 logger.LogError($"{nameof(ServiceBus104Service)} CompanyMessageHandler companyId is null.");
-                return;
+                return ReturnStatus.Fail;
             }
 
-            // get company dto
-            var companyDto = await httpService.GetCompanyInfo<CompanyDto>(companyId, Parameters104.Get104CompanyInfoUrl(companyId));
-
-            if (companyDto == null)
-            {
-                logger.LogWarning($"{nameof(ServiceBus104Service)} CompanyMessageHandler get null companyDto.{{companyId}}", companyId);
-                return;
-            }
-
-            // save to db
-            await dbService.UpsertCompany(companyDto);
+            await dataService.GetCompanyDataAndUpsert(companyId);
+            return ReturnStatus.Success;
 
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(RabbitMq104Service)} CompanyMessageHandler error.");
+            return ReturnStatus.Exception;
         }
 
     }
 
-    public override async Task JobInfoMessageHandler<T>(T args)
+    public override async Task<ReturnStatus> JobInfoMessageHandler<T>(T args)
     {
 
         logger.LogInformation($"{nameof(RabbitMq104Service)} JobInfoMessageHandler start.");
@@ -83,7 +78,7 @@ public class RabbitMq104Service : RabbitMqService
         if (args is not BasicDeliverEventArgs basicDeliverEventArgs)
         {
             logger.LogError($"{nameof(RabbitMq104Service)} JobInfoMessageHandler basicDeliverEventArgs is null.");
-            return;
+            return ReturnStatus.Fail;
         }
 
         try
@@ -93,55 +88,21 @@ public class RabbitMq104Service : RabbitMqService
             if (body.Length == 0)
             {
                 logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler body is null.");
-                return;
+                return ReturnStatus.Fail;
             }
 
             var message = Encoding.UTF8.GetString(body);
 
             var simpleJobInfo = JsonSerializer.Deserialize<SimpleJobInfoDto>(message);
 
-            if (simpleJobInfo == null || string.IsNullOrWhiteSpace(simpleJobInfo.JobId) || string.IsNullOrWhiteSpace(simpleJobInfo.CompanyId))
-            {
-                logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler MessageHandler get null simpleJobInfo.{{message}}", message);
-                return;
-            }
-
-            // 確定公司資訊是否新增了
-            if (!await cacheService.CompanyExist(Parameters104.RedisKeyForCompanyUpdated, simpleJobInfo.CompanyId))
-            {
-                logger.LogInformation($"{nameof(ServiceBus104Service)} JobInfoMessageHandler company not exist, renew message.{{message}}", message);
-
-                //await Task.Delay(TimeSpan.FromSeconds(10));
-
-                // todo: 把 Message 推回 MQ retry 10 次
-               // await processMessageEventArgs.AbandonMessageAsync(processMessageEventArgs.Message);
-                
-                return;
-            }
-
-            // get job dto
-            var jobDto = await httpService.GetJobInfo<JobDto>(simpleJobInfo.JobId, simpleJobInfo.CompanyId, Parameters104.Get104JobInfoUrl(simpleJobInfo.JobId));
-
-            if (jobDto == null)
-            {
-                logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler MessageHandler get null jobDto.{{jobId}}", simpleJobInfo.JobId);
-                return;
-            }
-
-            if (!jobDto.FilterPassed)
-            {
-                //logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler JobDto filter failed.{{jobId}}", jobId);
-                return;
-            }
-
-            // save to db
-            await dbService.UpsertJob(jobDto);
-
+            await dataService.GetJobDataAndUpsert(simpleJobInfo);
+            return ReturnStatus.Success;
 
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(RabbitMq104Service)} JobInfoMessageHandler error.");
+            return ReturnStatus.Exception;
         }
     }
 }

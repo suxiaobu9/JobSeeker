@@ -1,7 +1,8 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Model;
 using Model.Dto;
-using Model.Dto104;
 using Service.Cache;
+using Service.Data;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
@@ -15,18 +16,21 @@ public class ServiceBus104Service : ServiceBusService
     private readonly ICacheService cacheService;
     private readonly IHttpService httpService;
     private readonly IDbService dbService;
+    private readonly IDataService dataService;
 
     public ServiceBus104Service(ILogger<ServiceBusService> logger,
         ServiceBusClient mqClient,
         Dictionary<string, ServiceBusSender> diSenders,
         ICacheService cacheService,
         IHttpService httpService,
-        IDbService dbService) : base(logger, mqClient, diSenders)
+        IDbService dbService,
+        IDataService dataService) : base(logger, mqClient, diSenders)
     {
         this.logger = logger;
         this.cacheService = cacheService;
         this.httpService = httpService;
         this.dbService = dbService;
+        this.dataService = dataService;
     }
 
     /// <summary>
@@ -35,14 +39,14 @@ public class ServiceBus104Service : ServiceBusService
     /// <typeparam name="T"></typeparam>
     /// <param name="args"></param>
     /// <returns></returns>
-    public override async Task CompanyMessageHandler<T>(T args)
+    public override async Task<ReturnStatus> CompanyMessageHandler<T>(T args)
     {
         logger.LogInformation($"{nameof(ServiceBus104Service)} CompanyMessageHandler start.");
 
         if (args is not ProcessMessageEventArgs processMessageEventArgs)
         {
             logger.LogError($"{nameof(ServiceBus104Service)} CompanyMessageHandler processMessageEventArgs is null.");
-            return;
+            return ReturnStatus.Fail;
         }
 
         try
@@ -52,29 +56,21 @@ public class ServiceBus104Service : ServiceBusService
             if (string.IsNullOrWhiteSpace(companyId))
             {
                 logger.LogError($"{nameof(ServiceBus104Service)} CompanyMessageHandler companyId is null.");
-                return;
+                return ReturnStatus.Fail;
             }
 
-            // get company dto
-            var companyDto = await httpService.GetCompanyInfo<CompanyDto>(companyId, Parameters104.Get104CompanyInfoUrl(companyId));
-
-            if (companyDto == null)
-            {
-                logger.LogWarning($"{nameof(ServiceBus104Service)} CompanyMessageHandler get null companyDto.{{companyId}}", companyId);
-                await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
-                return;
-            }
-
-            // save to db
-            await dbService.UpsertCompany(companyDto);
+            await dataService.GetCompanyDataAndUpsert(companyId);
 
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(ServiceBus104Service)} CompanyMessageHandler error.");
+            return ReturnStatus.Exception;
         }
 
         await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
+
+        return ReturnStatus.Success;
 
     }
 
@@ -85,14 +81,14 @@ public class ServiceBus104Service : ServiceBusService
     /// <param name="args"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public override async Task JobInfoMessageHandler<T>(T args)
+    public override async Task<ReturnStatus> JobInfoMessageHandler<T>(T args)
     {
         logger.LogInformation($"{nameof(ServiceBus104Service)} JobInfoMessageHandler start.");
 
         if (args is not ProcessMessageEventArgs processMessageEventArgs)
         {
             logger.LogError($"{nameof(ServiceBus104Service)} CompanyMessageHandler processMessageEventArgs is null.");
-            return;
+            return ReturnStatus.Fail;
         }
 
         try
@@ -102,56 +98,21 @@ public class ServiceBus104Service : ServiceBusService
             if (string.IsNullOrWhiteSpace(message))
             {
                 logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler message is null.");
-                return;
+                return ReturnStatus.Fail;
             }
 
             var simpleJobInfo = JsonSerializer.Deserialize<SimpleJobInfoDto>(message);
 
-            if (simpleJobInfo == null || string.IsNullOrWhiteSpace(simpleJobInfo.JobId) || string.IsNullOrWhiteSpace(simpleJobInfo.CompanyId))
-            {
-                logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler MessageHandler get null simpleJobInfo.{{message}}", message);
-                await processMessageEventArgs.DeadLetterMessageAsync(processMessageEventArgs.Message);
-                return;
-            }
+            var result = await dataService.GetJobDataAndUpsert(simpleJobInfo);
 
-            // 確定公司資訊是否新增了
-            if (!await cacheService.CompanyExist(Parameters104.RedisKeyForCompanyUpdated, simpleJobInfo.CompanyId))
-            {
-                logger.LogInformation($"{nameof(ServiceBus104Service)} JobInfoMessageHandler company not exist, renew message.{{message}}", message);
-
-                await Task.Delay(TimeSpan.FromSeconds(10));
-
-                // 把 Message 推回 MQ
-                await processMessageEventArgs.AbandonMessageAsync(processMessageEventArgs.Message);
-
-                return;
-            }
-
-            // get job dto
-            var jobDto = await httpService.GetJobInfo<JobDto>(simpleJobInfo.JobId, simpleJobInfo.CompanyId, Parameters104.Get104JobInfoUrl(simpleJobInfo.JobId));
-
-            if (jobDto == null)
-            {
-                logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler MessageHandler get null jobDto.{{jobId}}", simpleJobInfo.JobId);
-                await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
-                return;
-            }
-
-            if (!jobDto.FilterPassed)
-            {
-                //logger.LogWarning($"{nameof(ServiceBus104Service)} JobInfoMessageHandler JobDto filter failed.{{jobId}}", jobId);
-                await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
-                return;
-            }
-
-            // save to db
-            await dbService.UpsertJob(jobDto);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(ServiceBus104Service)} JobInfoMessageHandler error.");
+            return ReturnStatus.Fail;
         }
 
         await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
+        return ReturnStatus.Success;
     }
 }

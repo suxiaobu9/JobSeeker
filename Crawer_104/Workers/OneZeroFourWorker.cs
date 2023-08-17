@@ -1,12 +1,11 @@
-﻿using Azure.Messaging.ServiceBus;
-using Model.Dto;
+﻿using Model.Dto;
 using Model.Dto104;
+using RabbitMQ.Client.Events;
 using Service;
 using Service.Cache;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
-using System.Text.Json;
 
 namespace Crawer_104.Workers;
 
@@ -33,8 +32,8 @@ public class OneZeroFourWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _ = mqService.ProcessMessageFromMq<ProcessMessageEventArgs>(Parameters104.QueueNameForCompanyId, mqService.CompanyMessageHandler);
-        _ = mqService.ProcessMessageFromMq<ProcessMessageEventArgs>(Parameters104.QueueNameForJobId, mqService.JobInfoMessageHandler);
+        _ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(Parameters104.QueueNameForCompanyId, mqService.CompanyMessageHandler);
+        _ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(Parameters104.QueueNameForJobId, mqService.JobInfoMessageHandler);
 
         while (!stoppingToken.IsCancellationRequested)
         {

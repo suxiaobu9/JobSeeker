@@ -1,4 +1,3 @@
-using Azure.Messaging.ServiceBus;
 using Crawer_104.Service;
 using Crawer_104.Workers;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +6,7 @@ using Model.JobSeekerDb;
 using RabbitMQ.Client;
 using Serilog;
 using Service.Cache;
+using Service.Data;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
@@ -40,29 +40,12 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
-        services.AddSingleton<IMqService, ServiceBus104Service>();
+        services.AddSingleton<IMqService, RabbitMq104Service>();
         services.AddSingleton<IDbService, Db104Service>();
+        services.AddSingleton<IDataService, DataService>();
 
         services.AddHostedService<OneZeroFourWorker>();
 
-        // ServiceBusClient 
-        string serviceBusConnectionString = hostContext.Configuration.GetSection("AzureServiceBus:ConnectionString").Value;
-        services.AddSingleton(serviceProvider =>
-        {
-            return new ServiceBusClient(serviceBusConnectionString);
-        });
-        services.AddSingleton(serviceProvider =>
-        {
-            var serviceBusClient = serviceProvider.GetRequiredService<ServiceBusClient>();
-            var companySender = serviceBusClient.CreateSender(Parameters104.QueueNameForCompanyId);
-            var jobSender = serviceBusClient.CreateSender(Parameters104.QueueNameForJobId);
-
-            return new Dictionary<string, ServiceBusSender>
-            {
-                { Parameters104.QueueNameForCompanyId, companySender },
-                { Parameters104.QueueNameForJobId, jobSender },
-            };
-        });
 
         // RabbitMq
         services.AddSingleton(serviceProvider =>
