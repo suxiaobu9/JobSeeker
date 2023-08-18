@@ -44,6 +44,6 @@ public class Parameter104Service : IParameterService
     /// <returns></returns>
     public string JobPageUrl(GetJobInfoDto dto)
     {
-        return $"{Parameters104.Referer} /job/ {dto.JobId}";
+        return $"{Parameters104.Referer}/job/{dto.JobId}";
     }
 }
