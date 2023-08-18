@@ -26,7 +26,15 @@ services:
       - 5672:5672
       - 15672:15672
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "-u",
+          "guest:guest",
+          "http://localhost:15672/api/healthchecks/node",
+        ]
       interval: 60s
       timeout: 10s
       retries: 10
