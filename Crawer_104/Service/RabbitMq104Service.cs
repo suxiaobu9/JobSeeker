@@ -58,7 +58,12 @@ public class RabbitMq104Service : RabbitMqService
                 return ReturnStatus.Fail;
             }
 
-            await dataService.GetCompanyDataAndUpsert(companyId);
+            var getCompanyInfoDto = new GetCompanyInfoDto
+            {
+                CompanyId= companyId,
+            };
+
+            await dataService.GetCompanyDataAndUpsert(getCompanyInfoDto);
             return ReturnStatus.Success;
 
         }
@@ -95,7 +100,19 @@ public class RabbitMq104Service : RabbitMqService
 
             var simpleJobInfo = JsonSerializer.Deserialize<SimpleJobInfoDto>(message);
 
-            await dataService.GetJobDataAndUpsert(simpleJobInfo);
+            if(simpleJobInfo == null)
+            {
+                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler SimpleJobInfoDto is null.");
+                return ReturnStatus.Fail;
+            }
+
+            var getJobInfoDto = new GetJobInfoDto
+            {
+                CompanyId = simpleJobInfo.CompanyId,
+                JobId = simpleJobInfo.JobId,
+            };
+
+            await dataService.GetJobDataAndUpsert(getJobInfoDto);
             return ReturnStatus.Success;
 
         }

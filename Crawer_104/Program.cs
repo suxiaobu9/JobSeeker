@@ -10,6 +10,7 @@ using Service.Data;
 using Service.Db;
 using Service.Http;
 using Service.Mq;
+using Service.Parameter;
 using StackExchange.Redis;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -41,8 +42,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IHttpService, Http104Service>();
         services.AddSingleton<ICacheService, Redis104Service>();
         services.AddSingleton<IMqService, RabbitMq104Service>();
-        services.AddSingleton<IDbService, Db104Service>();
+        services.AddSingleton<IDbService, DbService>();
         services.AddSingleton<IDataService, DataService>();
+        services.AddSingleton<IParameterService, Parameter104Service>();
 
         services.AddHostedService<OneZeroFourWorker>();
 

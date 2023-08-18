@@ -3,22 +3,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model.Dto;
 using Model.JobSeekerDb;
+using Service.Parameter;
 using StackExchange.Redis;
 using System.Text.Json;
 
 namespace Service.Db;
 
-public abstract class DbService : IDbService
+public class DbService : IDbService
 {
     private readonly ILogger<DbService> logger;
+    private readonly IParameterService parameterService;
     private readonly IServiceScope serviceScope;
     private readonly IDatabase redisDb;
 
     public DbService(ILogger<DbService> logger,
         IServiceScopeFactory serviceScopeFactory,
+        IParameterService parameterService,
         IDatabase redisDb)
     {
         this.logger = logger;
+        this.parameterService = parameterService;
         this.serviceScope = serviceScopeFactory.CreateScope();
         this.redisDb = redisDb;
     }
@@ -57,8 +61,13 @@ AND company.source_from  = {0}
 
             var company = await postgresContext.Companies.FirstOrDefaultAsync(x => x.Id == companyDto.Id);
 
-            var infoUrl = CompanyInfoUrl(companyDto);
-            var pageUrl = CompanyPageUrl(companyDto);
+            var getCompanyInfoDto = new GetCompanyInfoDto
+            {
+                CompanyId = companyDto.Id,
+            };
+
+            var infoUrl = parameterService.CompanyInfoUrl(getCompanyInfoDto);
+            var pageUrl = parameterService.CompanyPageUrl(getCompanyInfoDto);
 
             if (company == null)
             {
@@ -113,8 +122,14 @@ AND company.source_from  = {0}
             var job = await postgresContext.Jobs
                         .FirstOrDefaultAsync(x => x.Id == jobDto.Id && x.CompanyId == jobDto.CompanyId);
 
-            var infoUrl = JobInfoUrl(jobDto);
-            var pageUrl = JobPageUrl(jobDto);
+            var getJobInfoDto = new GetJobInfoDto
+            {
+                CompanyId = jobDto.CompanyId,
+                JobId = jobDto.Id
+            };
+
+            var infoUrl = parameterService.JobInfoUrl(getJobInfoDto);
+            var pageUrl = parameterService.JobPageUrl(getJobInfoDto);
 
             if (job == null)
             {
@@ -164,11 +179,6 @@ AND company.source_from  = {0}
             logger.LogError(ex, $"{nameof(DbService)} UpsertJob get exception.{{json}}", JsonSerializer.Serialize(jobDto));
         }
     }
-
-    public abstract string CompanyInfoUrl(CompanyDto dto);
-    public abstract string CompanyPageUrl(CompanyDto dto);
-    public abstract string JobInfoUrl(JobDto dto);
-    public abstract string JobPageUrl(JobDto dto);
 
     /// <summary>
     /// 公司資訊存在

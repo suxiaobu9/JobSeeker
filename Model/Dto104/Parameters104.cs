@@ -35,12 +35,6 @@ public static class Parameters104
         return $@"{Referer}/jobs/search/list?ro=1&jobcat=2007001000&kwop=7&keyword={keyword}&area={jobArea}&order=15&asc=0&page={page}&mode=l&jobsource=2018indexpoc&searchTempExclude=2&langFlag=0&langStatus=0&recommendJob=1&hotJob=1";
     }
 
-    public static string Get104JobInfoUrl(string jobId) => $@"{Referer}/job/ajax/content/{jobId}";
-    public static string Get104JobPageUrl(string jobId) => $@"{Referer}/job/{jobId}";
-
-    public static string Get104CompanyInfoUrl(string companyId) => $@"{Referer}/company/ajax/content/{companyId}";
-    public static string Get104CompanyPageUrl(string companyId) => $@"{Referer}/company/{companyId}";
-
     /// <summary>
     /// queue_company_id_for_104
     /// </summary>

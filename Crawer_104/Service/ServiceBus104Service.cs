@@ -59,7 +59,12 @@ public class ServiceBus104Service : ServiceBusService
                 return ReturnStatus.Fail;
             }
 
-            await dataService.GetCompanyDataAndUpsert(companyId);
+            var getCompanyInfoDto = new GetCompanyInfoDto
+            {
+                CompanyId= companyId,
+            };
+
+            await dataService.GetCompanyDataAndUpsert(getCompanyInfoDto);
 
         }
         catch (Exception ex)
@@ -103,7 +108,19 @@ public class ServiceBus104Service : ServiceBusService
 
             var simpleJobInfo = JsonSerializer.Deserialize<SimpleJobInfoDto>(message);
 
-            var result = await dataService.GetJobDataAndUpsert(simpleJobInfo);
+            if(simpleJobInfo == null)
+            {
+                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler SimpleJobInfoDto is null.");
+                return ReturnStatus.Fail;
+            }
+
+            var getJobInfoDto = new GetJobInfoDto
+            {
+                CompanyId = simpleJobInfo.CompanyId,
+                JobId = simpleJobInfo.JobId,
+            };
+
+            var result = await dataService.GetJobDataAndUpsert(getJobInfoDto);
 
         }
         catch (Exception ex)

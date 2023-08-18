@@ -3,6 +3,7 @@ using Model.Dto;
 using Model.DtoCakeResume;
 using Service;
 using Service.Cache;
+using Service.Data;
 using Service.Db;
 using Service.Http;
 using StackExchange.Redis;
@@ -16,18 +17,21 @@ public class CakeResumeWorker : BackgroundService
     private readonly IDbService dbService;
     private readonly ICacheService cacheService;
     private readonly IDatabase redisDb;
+    private readonly IDataService dataService;
 
     public CakeResumeWorker(ILogger<CakeResumeWorker> logger,
         IHttpService httpService,
         IDbService dbService,
         ICacheService cacheService,
-        IDatabase redisDb)
+        IDatabase redisDb,
+        IDataService dataService)
     {
         this.logger = logger;
         this.httpService = httpService;
         this.dbService = dbService;
         this.cacheService = cacheService;
         this.redisDb = redisDb;
+        this.dataService = dataService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,9 +47,9 @@ public class CakeResumeWorker : BackgroundService
 
                 var jobInfoList = await GetJobIdAndCompIdAry();
 
-                await UpsertCompanies(GetCompanyDtoTaskAry(jobInfoList));
+                await UpsertCompanies(jobInfoList);
 
-                await UpsertJobs(GetJobDtoAry(jobInfoList));
+                await UpsertJobs(jobInfoList);
             }
             catch (Exception ex)
             {
@@ -61,7 +65,7 @@ public class CakeResumeWorker : BackgroundService
     /// 取得職缺 id 與公司 id 的陣列
     /// </summary>
     /// <returns></returns>
-    private async Task<List<SimpleJobInfoDto>> GetJobIdAndCompIdAry()
+    private async Task<SimpleJobInfoDto[]> GetJobIdAndCompIdAry()
     {
         var result = new List<SimpleJobInfoDto>();
 
@@ -80,28 +84,7 @@ public class CakeResumeWorker : BackgroundService
             }
         }
 
-        return result;
-    }
-
-    /// <summary>
-    /// 取得公司資訊的陣列
-    /// </summary>
-    /// <param name="jobInfoList"></param>
-    /// <returns></returns>
-    private IEnumerable<Task<CompanyDto?>> GetCompanyDtoTaskAry(List<SimpleJobInfoDto> jobInfoList)
-    {
-        var result = jobInfoList.Select(async jobInfo =>
-        {
-            var companyId = jobInfo.CompanyId;
-
-            if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.RedisKeyForCompanyAlreadyGet, companyId))
-                return null;
-
-            var url = ParametersCakeResume.GetCompanyUrl(companyId);
-            return await httpService.GetCompanyInfo<CompanyDto>(companyId, url);
-        });
-
-        return result;
+        return result.ToArray();
     }
 
     /// <summary>
@@ -109,45 +92,18 @@ public class CakeResumeWorker : BackgroundService
     /// </summary>
     /// <param name="companyDtoTaskAry"></param>
     /// <returns></returns>
-    public async Task UpsertCompanies(IEnumerable<Task<CompanyDto?>?> companyDtoTaskAry)
+    public async Task UpsertCompanies(SimpleJobInfoDto[] jobInfoList)
     {
-        foreach (var dtoTask in companyDtoTaskAry)
+        var companyIdAry = jobInfoList.Select(x => x.CompanyId).Distinct().ToArray();
+
+        foreach (var companyId in companyIdAry)
         {
-            if (dtoTask == null)
-                continue;
-
-            var dto = await dtoTask;
-
-            if (dto == null)
-                continue;
-
-            await dbService.UpsertCompany(dto);
-
-        }
-    }
-
-    /// <summary>
-    /// 取得職缺資訊的陣列
-    /// </summary>
-    /// <param name="jobInfoList"></param>
-    /// <returns></returns>
-    private IEnumerable<Task<JobDto?>?> GetJobDtoAry(List<SimpleJobInfoDto> jobInfoList)
-    {
-        return jobInfoList.Select(async jobInfo =>
-        {
-            if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.RedisKeyForJobAlreadyGet, jobInfo.CompanyId + jobInfo.JobId))
-                return null;
-
-            if (!await cacheService.CompanyExist(ParametersCakeResume.RedisKeyForCompanyUpdated, jobInfo.CompanyId))
+            var dto = new GetCompanyInfoDto
             {
-                logger.LogWarning($"{nameof(CakeResumeWorker)} GetJobDtoAry company not exist.{{compId}} {{jobId}}", jobInfo.CompanyId, jobInfo.JobId);
-                return null;
-            }
-
-            var url = ParametersCakeResume.GetJobUrl(jobInfo.CompanyId, jobInfo.JobId);
-
-            return await httpService.GetJobInfo<JobDto>(jobInfo.JobId, jobInfo.CompanyId, url);
-        });
+                CompanyId = companyId,
+            };
+            await dataService.GetCompanyDataAndUpsert(dto);
+        }
     }
 
     /// <summary>
@@ -155,23 +111,20 @@ public class CakeResumeWorker : BackgroundService
     /// </summary>
     /// <param name="jobDtoTaskAry"></param>
     /// <returns></returns>
-    private async Task UpsertJobs(IEnumerable<Task<JobDto?>?> jobDtoTaskAry)
+    private async Task UpsertJobs(SimpleJobInfoDto[] jobInfoList)
     {
-        foreach (var dtoTask in jobDtoTaskAry)
+        foreach (var jobInfo in jobInfoList)
         {
-            if (dtoTask == null)
+            if (await cacheService.IsKeyFieldExistsInCache(ParametersCakeResume.RedisKeyForJobUpdated, jobInfo.CompanyId + jobInfo.JobId))
                 continue;
 
-            var dto = await dtoTask;
+            var dto = new GetJobInfoDto
+            {
+                CompanyId = jobInfo.CompanyId,
+                JobId = jobInfo.JobId,
+            };
 
-            if (dto == null)
-                continue;
-
-            if (!dto.FilterPassed)
-                continue;
-
-            await dbService.UpsertJob(dto);
-
+            await dataService.GetJobDataAndUpsert(dto);
         }
     }
 }

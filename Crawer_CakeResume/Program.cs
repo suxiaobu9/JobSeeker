@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Model.JobSeekerDb;
 using Serilog;
 using Service.Cache;
+using Service.Data;
 using Service.Db;
 using Service.Http;
+using Service.Parameter;
 using StackExchange.Redis;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -36,7 +38,9 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IHttpService, HttpCakeResumeService>();
         services.AddSingleton<ICacheService, RedisCakeResumeService>();
-        services.AddSingleton<IDbService, DbCakeResumeService>();
+        services.AddSingleton<IDbService, DbService>();
+        services.AddSingleton<IDataService, DataService>();
+        services.AddSingleton<IParameterService, ParameterCakeResumeService>();
 
         services.AddHostedService<CakeResumeWorker>();
 
