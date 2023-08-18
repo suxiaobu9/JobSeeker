@@ -17,6 +17,6 @@ public interface IDataService
     /// </summary>
     /// <param name="companyId"></param>
     /// <returns></returns>
-    public Task GetCompanyDataAndUpsert(GetCompanyInfoDto dto);
+    public Task<ReturnStatus> GetCompanyDataAndUpsert(GetCompanyInfoDto dto);
 
 }
