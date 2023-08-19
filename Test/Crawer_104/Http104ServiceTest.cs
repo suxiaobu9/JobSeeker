@@ -61,7 +61,7 @@ public class Http104ServiceTest
 
         var result = await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto);
 
-        Assert.That(result, Is.EqualTo(null));
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -71,7 +71,7 @@ public class Http104ServiceTest
 
         var result = await service.GetJobInfo<JobDto>(getJobInfoDto);
 
-        Assert.That(result, Is.EqualTo(null));
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class Http104ServiceTest
 
         var result = await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto);
 
-        Assert.That(result, Is.EqualTo(null));
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class Http104ServiceTest
 
         var result = await service.GetJobInfo<JobDto>(getJobInfoDto);
 
-        Assert.That(result, Is.EqualTo(null));
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class Http104ServiceTest
 
         var result = await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto);
 
-        Assert.That(result, Is.EqualTo(null));
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -111,7 +111,7 @@ public class Http104ServiceTest
 
         var result = await service.GetJobInfo<JobDto>(getJobInfoDto);
 
-        Assert.That(result, Is.EqualTo(null));
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -121,7 +121,7 @@ public class Http104ServiceTest
 
         var result = await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto);
 
-        Assert.That(result, Is.Not.EqualTo(null));
+        Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
             Assert.That(result.Id, Is.EqualTo("TestCompanyId"));
@@ -140,7 +140,7 @@ public class Http104ServiceTest
 
         var result = await service.GetJobInfo<JobDto>(getJobInfoDto);
 
-        Assert.That(result, Is.Not.EqualTo(null));
+        Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
             Assert.That(result.Id, Is.EqualTo("TestJobId"));
