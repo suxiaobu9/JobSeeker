@@ -2,17 +2,22 @@
 using Model.Dto;
 using Model.DtoCakeResume;
 using Service.Http;
+using Service.Parameter;
 
 namespace Crawer_CakeResume.Service;
 
 public class HttpCakeResumeService : BaseHttpService, IHttpService
 {
     private readonly HttpClient httpClient;
+    private readonly IParameterService parameterService;
     private readonly ILogger<BaseHttpService> logger;
 
-    public HttpCakeResumeService(HttpClient httpClient, ILogger<BaseHttpService> logger) : base(httpClient, logger)
+    public HttpCakeResumeService(HttpClient httpClient, 
+        IParameterService parameterService,
+        ILogger<BaseHttpService> logger) : base(httpClient, logger)
     {
         this.httpClient = httpClient;
+        this.parameterService = parameterService;
         this.logger = logger;
     }
 
@@ -23,13 +28,14 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
     /// <param name="companyId"></param>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<T?> GetCompanyInfo<T>(string companyId, string url) where T : CompanyDto
+    public async Task<T?> GetCompanyInfo<T>(GetCompanyInfoDto dto) where T : CompanyDto
     {
 
         Task? delayTask = null;
         var content = "";
         try
         {
+            var url = parameterService.CompanyInfoUrl(dto);
             content = await GetDataFromHttpRequest(url);
 
             delayTask = Task.Delay(TimeSpan.FromSeconds(2));
@@ -53,7 +59,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
 
             var result = new CompanyDto
             {
-                Id = companyId,
+                Id = dto.CompanyId,
                 SourceFrom = ParametersCakeResume.SourceFrom,
                 Name = compTitle,
                 Product = "N/A",
@@ -131,12 +137,13 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
     /// <param name="companyId"></param>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<T?> GetJobInfo<T>(string jobId, string companyId, string url) where T : JobDto
+    public async Task<T?> GetJobInfo<T>(GetJobInfoDto dto) where T : JobDto
     {
         Task? delayTask = null;
         var content = "";
         try
         {
+            var url = parameterService.JobInfoUrl(dto);
             content = await GetDataFromHttpRequest(url);
 
             delayTask = Task.Delay(TimeSpan.FromSeconds(2));
@@ -161,8 +168,8 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
 
             var result = new JobDto
             {
-                CompanyId = companyId,
-                Id = jobId,
+                CompanyId = dto.CompanyId,
+                Id = dto.JobId,
                 WorkContent = "N/A",
                 JobPlace = htmlDoc.DocumentNode.SelectSingleNode("//a[@class='CompanyInfoItem_link__E841d']")?.InnerText ?? "N/A",
                 Name = jobTitle,

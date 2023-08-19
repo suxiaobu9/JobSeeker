@@ -41,7 +41,7 @@ public class DataService : IDataService
         try
         {
             // get company dto
-            var companyDto = await httpService.GetCompanyInfo<CompanyDto>(dto.CompanyId, parameterService.CompanyInfoUrl(dto));
+            var companyDto = await httpService.GetCompanyInfo<CompanyDto>(dto);
 
             if (companyDto == null)
             {
@@ -79,7 +79,7 @@ public class DataService : IDataService
             }
 
             // get job dto
-            var jobDto = await httpService.GetJobInfo<JobDto>(dto.JobId, dto.CompanyId, parameterService.JobInfoUrl(dto));
+            var jobDto = await httpService.GetJobInfo<JobDto>(dto);
 
             if (jobDto == null)
             {
