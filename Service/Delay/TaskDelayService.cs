@@ -14,12 +14,6 @@ public class TaskDelayService : ITaskDelayService
 
     private static TimeSpan GetWaitTime_6_18()
     {
-#pragma warning disable CS0162 // Unreachable code detected
-
-#if DEBUG
-        return TimeSpan.Zero;
-#endif
-
         var now = DateTime.UtcNow.AddHours(8);
 
         var timeTo6 = new TimeSpan(6, 0, 0) - now.TimeOfDay;
@@ -33,6 +27,5 @@ public class TaskDelayService : ITaskDelayService
             return timeTo18;
 
         return timeTo18;
-#pragma warning restore CS0162 // Unreachable code detected
     }
 }
