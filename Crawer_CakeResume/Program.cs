@@ -1,4 +1,5 @@
 using Crawer_CakeResume.Service;
+using Crawer_CakeResume.Service.Interface;
 using Crawer_CakeResume.Workers;
 using Microsoft.EntityFrameworkCore;
 using Model.JobSeekerDb;
@@ -43,6 +44,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDataService, DataService>();
         services.AddSingleton<IParameterService, ParameterCakeResumeService>();
         services.AddSingleton<ITaskDelayService, TaskDelayService>();
+        services.AddSingleton<IHtmlAnalyzeService, HtmlAnalyzeService>();
 
         services.AddHostedService<CakeResumeWorker>();
 

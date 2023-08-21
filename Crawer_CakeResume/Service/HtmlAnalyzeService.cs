@@ -1,10 +1,11 @@
-﻿using HtmlAgilityPack;
+﻿using Crawer_CakeResume.Service.Interface;
+using HtmlAgilityPack;
 using Model.DtoCakeResume;
 using System;
 
 namespace Crawer_CakeResume.Service;
 
-public class HtmlAnalyzeService
+public class HtmlAnalyzeService : IHtmlAnalyzeService
 {
     private readonly ILogger<HtmlAnalyzeService> logger;
 
@@ -111,7 +112,7 @@ public class HtmlAnalyzeService
     /// <summary>
     /// 取得最後更新時間
     /// </summary>
-    public string? GetJobLastUpdateTime(HtmlDocument htmlDoc) => 
+    public string? GetJobLastUpdateTime(HtmlDocument htmlDoc) =>
         htmlDoc.DocumentNode.SelectNodes($"//div[@class='{ParametersCakeResume.LatestUpdateDateOuterDivClass}']")?[0]
                             .SelectNodes($"//div[@class='{ParametersCakeResume.LatestUpdateDateDivClass}']")?[0].InnerText;
 

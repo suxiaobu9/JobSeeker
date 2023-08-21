@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using Crawer_CakeResume.Service.Interface;
+using HtmlAgilityPack;
 using Model.Dto;
 using Model.DtoCakeResume;
 using Service.Delay;
@@ -12,13 +13,13 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
     private readonly HttpClient httpClient;
     private readonly IParameterService parameterService;
     private readonly ITaskDelayService taskDelayService;
-    private readonly HtmlAnalyzeService htmlAnalyzeService;
+    private readonly IHtmlAnalyzeService htmlAnalyzeService;
     private readonly ILogger<BaseHttpService> logger;
 
     public HttpCakeResumeService(HttpClient httpClient,
         IParameterService parameterService,
         ITaskDelayService taskDelayService,
-        HtmlAnalyzeService htmlAnalyzeService,
+        IHtmlAnalyzeService htmlAnalyzeService,
         ILogger<BaseHttpService> logger) : base(httpClient, logger)
     {
         this.httpClient = httpClient;
@@ -255,7 +256,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             // 職缺內容
             var cardContentNodes = htmlAnalyzeService.GetJobListCardContentNode(doc);
 
-            if (cardContentNodes == null)
+            if (cardContentNodes == null || cardContentNodes.Count == 0)
                 return null;
 
             var jobList = new List<SimpleJobInfoDto>();
