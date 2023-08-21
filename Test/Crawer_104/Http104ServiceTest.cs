@@ -32,12 +32,12 @@ public class Http104ServiceTest
         CompanyId = CompanyId
     };
 
-    private Http104Service GetService(string? content)
+    private Http104Service GetService(string content)
     {
         var httpMessageHandler = new FakeHttpMessageHandler(new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(content ?? "")
+            Content = new StringContent(content)
         });
 
         var httpClient = new HttpClient(httpMessageHandler);
@@ -75,23 +75,19 @@ public class Http104ServiceTest
     }
 
     [Test]
-    public async Task GetCompanyInfo_從HttpResponse取回null_回傳null()
+    public Task GetCompanyInfo_從HttpResponse取回html_拋出例外錯誤()
     {
-        var service = GetService(null);
-
-        var result = await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto);
-
-        Assert.That(result, Is.Null);
+        var service = GetService("<html></html>");
+        Assert.ThrowsAsync<JsonException>(async () => await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto));
+        return Task.CompletedTask;
     }
 
     [Test]
-    public async Task GetJobInfo_從HttpResponse取回null_回傳null()
+    public Task GetJobInfo_從HttpResponse取回html_拋出例外錯誤()
     {
-        var service = GetService(null);
-
-        var result = await service.GetJobInfo<JobDto>(getJobInfoDto);
-
-        Assert.That(result, Is.Null);
+        var service = GetService("<html></html>");
+        Assert.ThrowsAsync<JsonException>(async () => await service.GetJobInfo<JobDto>(getJobInfoDto));
+        return Task.CompletedTask;
     }
 
     [Test]
@@ -128,7 +124,7 @@ public class Http104ServiceTest
             Assert.That(result.Name, Is.EqualTo("科技股份有限公司"));
             Assert.That(result.Product, Is.EqualTo("網頁平台製作站建置"));
             Assert.That(result.Profile, Is.EqualTo("股份有限公司"));
-            Assert.That(result.SourceFrom, Is.EqualTo("104"));
+            Assert.That(result.SourceFrom, Is.EqualTo(Parameters104.SourceFrom));
             Assert.That(result.Welfare, Is.EqualTo("彈性上下班時間"));
         });
     }

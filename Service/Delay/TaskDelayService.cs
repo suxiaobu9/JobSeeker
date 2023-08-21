@@ -1,19 +1,25 @@
-﻿namespace Service;
+﻿namespace Service.Delay;
 
-public class CommonService
+public class TaskDelayService : ITaskDelayService
 {
-    public static async Task WorkerWaiting()
+    public Task Delay(TimeSpan delayTime)
     {
-#if DEBUG
-        return;
-#endif
-        var delay = GetWaitTime_6_18();
+        return Task.Delay(delayTime);
+    }
 
-        await Task.Delay(delay);
+    public Task WorkerWaiting()
+    {
+        return Delay(GetWaitTime_6_18());
     }
 
     private static TimeSpan GetWaitTime_6_18()
     {
+#pragma warning disable CS0162 // Unreachable code detected
+
+#if DEBUG
+        return TimeSpan.Zero;
+#endif
+
         var now = DateTime.UtcNow.AddHours(8);
 
         var timeTo6 = new TimeSpan(6, 0, 0) - now.TimeOfDay;
@@ -27,5 +33,6 @@ public class CommonService
             return timeTo18;
 
         return timeTo18;
+#pragma warning restore CS0162 // Unreachable code detected
     }
 }
