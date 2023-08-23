@@ -7,7 +7,6 @@ public static class Parameters
         ".net%20core",
         "asp.net",
         ".net",
-        "net",
         "C%20sharp",
         "C%23"
     };
