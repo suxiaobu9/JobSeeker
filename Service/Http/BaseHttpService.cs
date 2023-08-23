@@ -29,7 +29,7 @@ public class BaseHttpService
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
-    protected async Task<string?> GetDataFromHttpRequest(string url)
+    public async Task<string?> GetDataFromHttpRequest(string url)
     {
         var currentMethod = "BaseHttpService.GetDataFromHttpRequest";
         var response = await httpClient.GetAsync(url);

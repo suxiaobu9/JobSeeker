@@ -4,6 +4,7 @@ using RabbitMQ.Client.Events;
 using Service;
 using Service.Cache;
 using Service.Db;
+using Service.Delay;
 using Service.Http;
 using Service.Mq;
 
@@ -15,18 +16,21 @@ public class OneZeroFourWorker : BackgroundService
     private readonly ICacheService cacheService;
     private readonly IHttpService httpService;
     private readonly IMqService mqService;
+    private readonly ITaskDelayService taskDelayService;
     private readonly IDbService dbService;
 
     public OneZeroFourWorker(ILogger<OneZeroFourWorker> logger,
         ICacheService cacheService,
         IHttpService httpService,
         IMqService mqService,
+        ITaskDelayService taskDelayService,
         IDbService dbService)
     {
         this.logger = logger;
         this.cacheService = cacheService;
         this.httpService = httpService;
         this.mqService = mqService;
+        this.taskDelayService = taskDelayService;
         this.dbService = dbService;
     }
 
@@ -39,7 +43,7 @@ public class OneZeroFourWorker : BackgroundService
         {
             logger.LogInformation($"{nameof(OneZeroFourWorker)} ExecuteAsync start.");
 
-            var delayTask = CommonService.WorkerWaiting();
+            var delayTask = taskDelayService.WorkerWaiting();
 
             // 刪除所有已存在的 company 與 job 的 Redis 資料
             await cacheService.ResetExistCompanyAndJob();

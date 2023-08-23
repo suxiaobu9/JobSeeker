@@ -5,6 +5,7 @@ using Service;
 using Service.Cache;
 using Service.Data;
 using Service.Db;
+using Service.Delay;
 using Service.Http;
 using StackExchange.Redis;
 
@@ -17,6 +18,7 @@ public class CakeResumeWorker : BackgroundService
     private readonly IDbService dbService;
     private readonly ICacheService cacheService;
     private readonly IDatabase redisDb;
+    private readonly ITaskDelayService taskDelayService;
     private readonly IDataService dataService;
 
     public CakeResumeWorker(ILogger<CakeResumeWorker> logger,
@@ -24,6 +26,7 @@ public class CakeResumeWorker : BackgroundService
         IDbService dbService,
         ICacheService cacheService,
         IDatabase redisDb,
+        ITaskDelayService taskDelayService,
         IDataService dataService)
     {
         this.logger = logger;
@@ -31,6 +34,7 @@ public class CakeResumeWorker : BackgroundService
         this.dbService = dbService;
         this.cacheService = cacheService;
         this.redisDb = redisDb;
+        this.taskDelayService = taskDelayService;
         this.dataService = dataService;
     }
 
@@ -38,7 +42,7 @@ public class CakeResumeWorker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var delayTask = CommonService.WorkerWaiting();
+            var delayTask = taskDelayService.WorkerWaiting();
             try
             {
                 logger.LogInformation($"{nameof(CakeResumeWorker)} ExecuteAsync start.");

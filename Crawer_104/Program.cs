@@ -8,6 +8,7 @@ using Serilog;
 using Service.Cache;
 using Service.Data;
 using Service.Db;
+using Service.Delay;
 using Service.Http;
 using Service.Mq;
 using Service.Parameter;
@@ -45,6 +46,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDbService, DbService>();
         services.AddSingleton<IDataService, DataService>();
         services.AddSingleton<IParameterService, Parameter104Service>();
+        services.AddSingleton<ITaskDelayService, TaskDelayService>();
 
         services.AddHostedService<OneZeroFourWorker>();
 

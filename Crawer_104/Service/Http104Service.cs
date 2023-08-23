@@ -1,20 +1,25 @@
 ﻿using Model.Dto;
 using Model.Dto104;
 using Service.Http;
+using Service.Parameter;
 using System.Text.Json;
 
 namespace Crawer_104.Service;
 
-internal class Http104Service : BaseHttpService, IHttpService
+public class Http104Service : BaseHttpService, IHttpService
 {
     private readonly HttpClient httpClient;
     private readonly ILogger<BaseHttpService> logger;
+    private readonly IParameterService parameterService;
 
-    public Http104Service(ILogger<BaseHttpService> logger, IHttpClientFactory httpClientFactory) : base(httpClientFactory, Parameters104.Referer, logger)
+    public Http104Service(ILogger<BaseHttpService> logger,
+        IParameterService parameterService,
+        IHttpClientFactory httpClientFactory) : base(httpClientFactory, Parameters104.Referer, logger)
     {
         this.httpClient = httpClientFactory.CreateClient(Parameters104.Referer);
 
         this.logger = logger;
+        this.parameterService = parameterService;
     }
     /// <summary>
     /// 取得公司資訊
@@ -23,12 +28,12 @@ internal class Http104Service : BaseHttpService, IHttpService
     /// <param name="companyId"></param>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<T?> GetCompanyInfo<T>(string companyId, string url) where T : CompanyDto
+    public async Task<T?> GetCompanyInfo<T>(GetCompanyInfoDto dto) where T : CompanyDto
     {
         string? content = null;
         try
         {
-
+            var url = parameterService.CompanyInfoUrl(dto);
             content = await GetDataFromHttpRequest(url);
 
             if (string.IsNullOrWhiteSpace(content))
@@ -39,7 +44,7 @@ internal class Http104Service : BaseHttpService, IHttpService
 
             var companyInfo = JsonSerializer.Deserialize<CompanyInfo104Model>(content);
 
-            if (companyInfo == null)
+            if (companyInfo == null || companyInfo.Data == null)
             {
                 logger.LogWarning($"{nameof(Http104Service)} Company info data Deserialize get null.{{url}} {{content}}", url, content);
                 return null;
@@ -47,7 +52,7 @@ internal class Http104Service : BaseHttpService, IHttpService
 
             var result = new CompanyDto
             {
-                Id = companyId,
+                Id = dto.CompanyId,
                 Name = companyInfo.Data.CustName,
                 Product = companyInfo.Data.Product,
                 Profile = companyInfo.Data.Profile,
@@ -72,11 +77,12 @@ internal class Http104Service : BaseHttpService, IHttpService
     /// <param name="companyId"></param>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<T?> GetJobInfo<T>(string jobId, string companyId, string url) where T : JobDto
+    public async Task<T?> GetJobInfo<T>(GetJobInfoDto dto) where T : JobDto
     {
         var content = "";
         try
         {
+            var url = parameterService.JobInfoUrl(dto);
             content = await GetDataFromHttpRequest(url);
 
             if (string.IsNullOrWhiteSpace(content))
@@ -87,7 +93,7 @@ internal class Http104Service : BaseHttpService, IHttpService
 
             var jobInfo = JsonSerializer.Deserialize<JobInfo104Model>(content);
 
-            if (jobInfo == null)
+            if (jobInfo == null || jobInfo.Data == null)
             {
                 logger.LogWarning($"{nameof(Http104Service)} Job info data Deserialize get null.{{url}} {{content}}", url, content);
                 return null;
@@ -95,9 +101,9 @@ internal class Http104Service : BaseHttpService, IHttpService
 
             var result = new JobDto
             {
-                Id = jobId,
+                Id = dto.JobId,
                 Name = jobInfo.Data.Header.JobName,
-                CompanyId = companyId,
+                CompanyId = dto.CompanyId,
                 JobPlace = jobInfo.Data.JobDetail.AddressRegion,
                 OtherRequirement = jobInfo.Data.Condition.Other,
                 Salary = jobInfo.Data.JobDetail.Salary,

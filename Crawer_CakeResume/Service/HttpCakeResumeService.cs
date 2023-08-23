@@ -1,18 +1,31 @@
-﻿using HtmlAgilityPack;
+﻿using Crawer_CakeResume.Service.Interface;
+using HtmlAgilityPack;
 using Model.Dto;
 using Model.DtoCakeResume;
+using Service.Delay;
 using Service.Http;
+using Service.Parameter;
 
 namespace Crawer_CakeResume.Service;
 
 public class HttpCakeResumeService : BaseHttpService, IHttpService
 {
     private readonly HttpClient httpClient;
+    private readonly IParameterService parameterService;
+    private readonly ITaskDelayService taskDelayService;
+    private readonly IHtmlAnalyzeService htmlAnalyzeService;
     private readonly ILogger<BaseHttpService> logger;
 
-    public HttpCakeResumeService(HttpClient httpClient, ILogger<BaseHttpService> logger) : base(httpClient, logger)
+    public HttpCakeResumeService(HttpClient httpClient,
+        IParameterService parameterService,
+        ITaskDelayService taskDelayService,
+        IHtmlAnalyzeService htmlAnalyzeService,
+        ILogger<BaseHttpService> logger) : base(httpClient, logger)
     {
         this.httpClient = httpClient;
+        this.parameterService = parameterService;
+        this.taskDelayService = taskDelayService;
+        this.htmlAnalyzeService = htmlAnalyzeService;
         this.logger = logger;
     }
 
@@ -23,16 +36,17 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
     /// <param name="companyId"></param>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<T?> GetCompanyInfo<T>(string companyId, string url) where T : CompanyDto
+    public async Task<T?> GetCompanyInfo<T>(GetCompanyInfoDto dto) where T : CompanyDto
     {
 
         Task? delayTask = null;
         var content = "";
         try
         {
+            var url = parameterService.CompanyInfoUrl(dto);
             content = await GetDataFromHttpRequest(url);
 
-            delayTask = Task.Delay(TimeSpan.FromSeconds(2));
+            delayTask = taskDelayService.Delay(TimeSpan.FromSeconds(2));
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -44,7 +58,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             htmlDoc.LoadHtml(content);
 
             // 公司名稱
-            var compTitle = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='CompanyHeader_companyName__Glj9i']").InnerText.Trim();
+            var compTitle = htmlAnalyzeService.GetCompanyName(htmlDoc);
             if (string.IsNullOrWhiteSpace(compTitle))
             {
                 logger.LogWarning($"{nameof(HttpCakeResumeService)} Get Company title fail.{{url}}", url);
@@ -53,7 +67,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
 
             var result = new CompanyDto
             {
-                Id = companyId,
+                Id = dto.CompanyId,
                 SourceFrom = ParametersCakeResume.SourceFrom,
                 Name = compTitle,
                 Product = "N/A",
@@ -62,37 +76,26 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             };
 
             // 公司介紹內容
-            var cardContentNodes = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'Card_container__PERSv')]");
+            var cardContentNodes = htmlAnalyzeService.GetCompanyCardContentNodes(htmlDoc);
 
             if (cardContentNodes == null)
                 return result as T;
 
-            var contentFilter = new Dictionary<string, string[]>
-            {
-                { nameof(CompanyDto.Product), new string[]{ "產品或服務", "Products or services" }},
-                { nameof(CompanyDto.Profile), new string[]{ "公司介紹", "Company summary" }},
-                { nameof(CompanyDto.Welfare), new string[]{ "員工福利", "Employee benefits" }},
-            };
-
             foreach (var cardContentNode in cardContentNodes)
             {
-                // 內文的標題
-                var cardTitle = cardContentNode.SelectSingleNode(".//h2[contains(@class, 'Card_title__4iRRv')]").InnerText.Trim();
+                var companyCardContent = htmlAnalyzeService.GetCompanyCardContent(cardContentNode);
 
-                if (string.IsNullOrWhiteSpace(cardTitle))
+                if (companyCardContent == null)
                     continue;
 
-                var filterKey = contentFilter.FirstOrDefault(x => x.Value.Any(y => cardTitle.Contains(y))).Key;
+                var cardKey = companyCardContent.Value.Key;
 
-                if (string.IsNullOrWhiteSpace(filterKey))
-                    continue;
-                // 內文的內容
-                var cardContent = cardContentNode.SelectSingleNode(".//div[contains(@class, 'RailsHtml_container__VVQ7u')]").InnerText;
-
-                if (string.IsNullOrWhiteSpace(cardContent))
+                if (!ParametersCakeResume.CompanyContentFilter.ContainsKey(cardKey))
                     continue;
 
-                switch (filterKey)
+                var cardContent = companyCardContent?.Value;
+
+                switch (cardKey)
                 {
                     case nameof(CompanyDto.Product):
                         result.Product = cardContent;
@@ -131,15 +134,16 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
     /// <param name="companyId"></param>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<T?> GetJobInfo<T>(string jobId, string companyId, string url) where T : JobDto
+    public async Task<T?> GetJobInfo<T>(GetJobInfoDto dto) where T : JobDto
     {
         Task? delayTask = null;
         var content = "";
         try
         {
+            var url = parameterService.JobInfoUrl(dto);
             content = await GetDataFromHttpRequest(url);
 
-            delayTask = Task.Delay(TimeSpan.FromSeconds(2));
+            delayTask = taskDelayService.Delay(TimeSpan.FromSeconds(2));
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -151,7 +155,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             htmlDoc.LoadHtml(content);
 
             // 抓取職缺名稱
-            var jobTitle = htmlDoc.DocumentNode.SelectSingleNode("//h2[@class='JobDescriptionLeftColumn_title__heKvX']")?.InnerText.Trim();
+            var jobTitle = htmlAnalyzeService.GetJobName(htmlDoc);
 
             if (string.IsNullOrWhiteSpace(jobTitle))
             {
@@ -161,42 +165,36 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
 
             var result = new JobDto
             {
-                CompanyId = companyId,
-                Id = jobId,
+                CompanyId = dto.CompanyId,
+                Id = dto.JobId,
                 WorkContent = "N/A",
-                JobPlace = htmlDoc.DocumentNode.SelectSingleNode("//a[@class='CompanyInfoItem_link__E841d']")?.InnerText ?? "N/A",
+                JobPlace = htmlAnalyzeService.GetJobPlace(htmlDoc) ?? "N/A",
                 Name = jobTitle,
                 OtherRequirement = "N/A",
-                Salary = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='JobDescriptionRightColumn_salaryWrapper__mYzNx']")?.InnerText ?? "N/A",
-                LatestUpdateDate = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='JobDescriptionLeftColumn_inlineJobMeta__2t1il']")?.SelectSingleNode("//div[@class='InlineMessage_label__hP3Fk']").InnerText ?? "N/A",
+                Salary = htmlAnalyzeService.GetSalary(htmlDoc) ?? "N/A",
+                LatestUpdateDate = htmlAnalyzeService.GetJobLastUpdateTime(htmlDoc) ?? "N/A",
             };
 
             // 職缺內容
-            var cardContentNodes = htmlDoc.DocumentNode.SelectNodes("//div[contains(@class, 'ContentSection_contentSection__k5CRR')]");
+            var cardContentNodes = htmlAnalyzeService.GetJobCardContentNodes(htmlDoc);
 
             if (cardContentNodes == null)
                 return result as T;
 
-            var contentFilter = new Dictionary<string, string[]>
-            {
-                { nameof(JobDto.WorkContent), new string[]{ "職缺描述", "Job Description" }},
-                { nameof(JobDto.OtherRequirement), new string[]{ "職務需求", "Requirements" }},
-            };
-
             foreach (var cardContentNode in cardContentNodes)
             {
                 // 內文標題
-                var cardTitle = cardContentNode.SelectSingleNode(".//h3[contains(@class, 'ContentSection_title__Ox8_s')]")?.InnerText.Trim();
+                var cardTitle = htmlAnalyzeService.GetJobCardTitle(cardContentNode);
                 if (string.IsNullOrWhiteSpace(cardTitle))
                     continue;
 
-                var filterKey = contentFilter.FirstOrDefault(x => x.Value.Any(y => cardTitle.Contains(y))).Key;
+                var filterKey = ParametersCakeResume.JobContentFilter.FirstOrDefault(x => x.Value.Any(y => cardTitle.Contains(y))).Key;
 
                 if (string.IsNullOrWhiteSpace(filterKey))
                     continue;
 
                 // 內文內容
-                var cardContent = cardContentNode.SelectSingleNode(".//div[contains(@class, 'RailsHtml_container__VVQ7u')]")?.InnerText;
+                var cardContent = htmlAnalyzeService.GetJobCardContent(cardContentNode);
 
                 if (string.IsNullOrWhiteSpace(cardContent))
                     continue;
@@ -244,7 +242,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
         {
             content = await GetDataFromHttpRequest(url);
 
-            delayTask = Task.Delay(TimeSpan.FromSeconds(2));
+            delayTask = taskDelayService.Delay(TimeSpan.FromSeconds(2));
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -256,17 +254,17 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             doc.LoadHtml(content);
 
             // 職缺內容
-            var cardContentNodes = doc.DocumentNode.SelectNodes("//div[contains(@class, 'JobSearchItem_headerContent__Ka56W')]");
+            var cardContentNodes = htmlAnalyzeService.GetJobListCardContentNode(doc);
 
-            if (cardContentNodes == null)
+            if (cardContentNodes == null || cardContentNodes.Count == 0)
                 return null;
 
             var jobList = new List<SimpleJobInfoDto>();
 
             foreach (var cardContentNode in cardContentNodes)
             {
-                HtmlNode jobNode = cardContentNode.SelectSingleNode(".//a[contains(@class, 'JobSearchItem_jobTitle__Fjzv2')]");
-                HtmlNode companyNode = cardContentNode.SelectSingleNode(".//a[contains(@class, 'JobSearchItem_companyName__QKkj5')]");
+                HtmlNode? jobNode = htmlAnalyzeService.GetJobListJobNode(cardContentNode);
+                HtmlNode? companyNode = htmlAnalyzeService.GetJobListCompanyNode(cardContentNode);
 
                 if (jobNode == null || companyNode == null)
                     continue;

@@ -36,20 +36,29 @@ public class DataService : IDataService
     /// <param name="companyId"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public async Task GetCompanyDataAndUpsert(GetCompanyInfoDto dto)
+    public async Task<ReturnStatus> GetCompanyDataAndUpsert(GetCompanyInfoDto dto)
     {
-
-        // get company dto
-        var companyDto = await httpService.GetCompanyInfo<CompanyDto>(dto.CompanyId, parameterService.CompanyInfoUrl(dto));
-
-        if (companyDto == null)
+        try
         {
-            logger.LogWarning($"{nameof(DataService)} GetCompanyDataAndUpsert get null companyDto.{{companyId}}", dto.CompanyId);
-            return;
-        }
+            // get company dto
+            var companyDto = await httpService.GetCompanyInfo<CompanyDto>(dto);
 
-        // save to db
-        await dbService.UpsertCompany(companyDto);
+            if (companyDto == null)
+            {
+                logger.LogWarning($"{nameof(DataService)} GetCompanyDataAndUpsert get null companyDto.{{companyId}}", dto.CompanyId);
+                return ReturnStatus.Fail;
+            }
+
+            // save to db
+            await dbService.UpsertCompany(companyDto);
+
+            return ReturnStatus.Success;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"{nameof(DataService)} GetCompanyDataAndUpsert error.");
+            throw;
+        }
     }
 
     /// <summary>
@@ -66,13 +75,11 @@ public class DataService : IDataService
             {
                 logger.LogInformation($"{nameof(DataService)} GetJobDataAndUpsert company not exist, renew message.");
 
-                await Task.Delay(TimeSpan.FromSeconds(10));
-
                 return ReturnStatus.Retry;
             }
 
             // get job dto
-            var jobDto = await httpService.GetJobInfo<JobDto>(dto.JobId, dto.CompanyId, parameterService.JobInfoUrl(dto));
+            var jobDto = await httpService.GetJobInfo<JobDto>(dto);
 
             if (jobDto == null)
             {
@@ -91,7 +98,7 @@ public class DataService : IDataService
         catch (Exception ex)
         {
             logger.LogError(ex, $"{nameof(DataService)} GetJobDataAndUpsert error.");
-            return ReturnStatus.Exception;
+            throw;
         }
     }
 }
