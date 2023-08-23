@@ -15,4 +15,9 @@ public interface ITaskDelayService
     /// <returns></returns>
     public Task Delay(TimeSpan delayTime);
 
+    /// <summary>
+    /// 取得等待時間，等到 6 點或 18 點
+    /// </summary>
+    /// <returns></returns>
+    public TimeSpan GetWaitTime_6_18(DateTime dateTime);
 }
