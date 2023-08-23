@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Job-Seeker-CI
 
 on:
   push:
