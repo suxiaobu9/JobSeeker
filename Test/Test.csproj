@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Crawer_104\Crawer_104.csproj" />
     <ProjectReference Include="..\Crawer_CakeResume\Crawer_CakeResume.csproj" />
+    <ProjectReference Include="..\Crawer_Yourator\Crawer_Yourator.csproj" />
   </ItemGroup>
 
 </Project>

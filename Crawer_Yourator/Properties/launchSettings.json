@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Crawer_Yourator": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "DockerfileRunArguments": "--network job-seeker_job_seeker_network"
+    }
+  }
+}
