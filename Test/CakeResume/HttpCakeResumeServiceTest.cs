@@ -72,7 +72,7 @@ public class HttpCakeResumeServiceTest
     [Test]
     public async Task GetCompanyInfo_從HttpResponse取回json_回傳null()
     {
-        var service = GetService("{\"TestProperty\":\"TestValue\"}");
+        var service = GetService(TestValue.NotValidJsonContent);
         var result = await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto);
         Assert.That(result, Is.Null);
     }
@@ -192,7 +192,7 @@ public class HttpCakeResumeServiceTest
     [Test]
     public async Task GetJobInfo_從HttpResponse取回Json_回傳null()
     {
-        var service = GetService("{\"TestProperty\":\"TestValue\"}");
+        var service = GetService(TestValue.NotValidJsonContent);
         var result = await service.GetJobInfo<JobDto>(getJobInfoDto);
         Assert.That(result, Is.Null);
     }
@@ -342,7 +342,7 @@ public class HttpCakeResumeServiceTest
     [Test]
     public async Task GetJobList_從HttpResponse取回Json_回傳null()
     {
-        var service = GetService("{\"TestProperty\":\"TestValue\"}");
+        var service = GetService(TestValue.NotValidJsonContent);
         var result = await service.GetJobList<JobListDto<SimpleJobInfoDto>>(GetJobListUrl);
         Assert.That(result, Is.Null);
     }
@@ -400,20 +400,5 @@ public class HttpCakeResumeServiceTest
             Assert.That(result.JobList.First().JobId, Is.EqualTo(JobId));
             Assert.That(result.JobList.First().CompanyId, Is.EqualTo(CompanyId));
         });
-    }
-}
-
-public class FakeHttpMessageHandler : HttpMessageHandler
-{
-    private readonly HttpResponseMessage _response;
-
-    public FakeHttpMessageHandler(HttpResponseMessage response)
-    {
-        _response = response;
-    }
-
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(_response);
     }
 }

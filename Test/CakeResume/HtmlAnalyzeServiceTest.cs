@@ -27,7 +27,7 @@ public class HtmlAnalyzeServiceTest
     public void GetCompanyName_Content取得Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 
@@ -80,7 +80,7 @@ public class HtmlAnalyzeServiceTest
     public void GetCompanyCardContentNodes_Content取得Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 
@@ -236,7 +236,7 @@ public class HtmlAnalyzeServiceTest
     public void GetJobName_Content為Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 
@@ -289,7 +289,7 @@ public class HtmlAnalyzeServiceTest
     public void GetJobPlace_Content為Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 
@@ -342,7 +342,7 @@ public class HtmlAnalyzeServiceTest
     public void GetSalary_Content為Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 
@@ -395,7 +395,7 @@ public class HtmlAnalyzeServiceTest
     public void GetJobLastUpdateTime_Content為Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 
@@ -448,7 +448,7 @@ public class HtmlAnalyzeServiceTest
     public void GetJobCardContentNodes_Content為Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 
@@ -501,7 +501,7 @@ public class HtmlAnalyzeServiceTest
     public void GetJobListCardContentNode_Content為Json()
     {
         var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml("{\"TestProperty\":\"TestValue\"}");
+        htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
         var service = new HtmlAnalyzeService(logger);
 

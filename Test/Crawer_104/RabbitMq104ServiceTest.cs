@@ -152,7 +152,7 @@ public class RabbitMq104ServiceTest
 
         BasicDeliverEventArgs args = new()
         {
-            Body = Encoding.UTF8.GetBytes("{\"TestProperty\":\"TestValue\"}")
+            Body = Encoding.UTF8.GetBytes(TestValue.NotValidJsonContent)
         };
 
         var result = await service.JobInfoMessageHandler(args);
