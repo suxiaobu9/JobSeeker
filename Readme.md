@@ -56,72 +56,9 @@ docker compose -f docker-compose.yaml up -d
   docker compose -f ./DockerService/docker-compose-setup.yaml up -d
   ```
 
-### 利用 azure cli 建立 azure service bus 服務並取得連線字串，再更新到 nacos
-
-```ps1
-# Azure Active Directory 中應用程式註冊的 憑證及秘密
-$Password = 'p*********************~'
-
-# Azure Active Directory 中應用程式註冊的 應用程式 (用戶端) 識別碼
-$ApplicationId = '{GUID}'
-
-# Azure Active Directory 概觀畫面的 租用戶識別碼
-$TenantId = '{GUID}'
-az login --service-principal -u $ApplicationId -p $Password --tenant $TenantId
-
-# 需要將 應用程式 加入到 資源群組 存取控制 (IAM) 的角色指派，並給參與者 (在 具有特殊權限的系統管理員角色 頁簽下)
-$QueueName = 'JobSeekerCrawer-dev'
-$SourceGroupName = 'Demo'
-$AuthorizationRule = 'ReadWrite'
-
-# 建立 Service Bus
-az servicebus namespace create --resource-group $SourceGroupName --name $QueueName --location eastasia --sku Basic
-az servicebus namespace authorization-rule create --resource-group $SourceGroupName --namespace-name $QueueName --name $AuthorizationRule --rights Send Listen
-
-# 建立 Queue
-az servicebus queue create --name queue_company_id_for_104 --namespace-name $QueueName --resource-group $SourceGroupName
-az servicebus queue create --name queue_job_id_for_104 --namespace-name $QueueName --resource-group $SourceGroupName
-
-$ServiceBusConnectionString = az servicebus namespace authorization-rule keys list --resource-group $SourceGroupName --namespace-name $QueueName --name $AuthorizationRule --query primaryConnectionString --output tsv
-
-
-$nacosResponse = Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/auth/login' -Body @{
-    username = 'nacos'
-    password = 'nacos'
-}
-
-$token = $nacosResponse.accessToken
-
-
-# 建立 PowerShell 物件
-$azureServiceBusData = @{
-    AzureServiceBus = @{
-        ConnectionString = $ServiceBusConnectionString
-    }
-}
-
-# 將物件轉換為 JSON 字串
-$jsonContent = $azureServiceBusData | ConvertTo-Json
-
-# 使用 JSON 字串送出 HTTP POST 請求
-Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
-    dataId      = 'azure-service-bus'
-    group       = 'DEFAULT_GROUP'
-    tenant      = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
-    content     = $jsonContent
-    type        = 'json'
-    accessToken = $token
-}
-
-# 移除 Service Bus
-# az servicebus namespace delete --resource-group $SourceGroupName --name $QueueName
-```
-
 ### 設定 nacos 參數
 
-- 需要先變更 `AzureServiceBus` 的 ConnectionString
-
-  > ConnectionString 如果有 `+` 號要換成 `%2B`
+- ConnectionString 如果有 `+` 號要換成 `%2B`
 
 - 開啟網站 `http://localhost:8848/nacos`，預設帳密 nacos/nacos
 
@@ -141,17 +78,7 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
         }
         ```
 
-     2. Data Id = `azure-service-bus`
-
-        ```json
-        {
-          "AzureServiceBus": {
-            "ConnectionString": "<your connection string>"
-          }
-        }
-        ```
-
-     3. Data Id = `postgresql`
+     2. Data Id = `postgresql`
 
         ```json
         {
@@ -161,7 +88,7 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
         }
         ```
 
-     4. Data Id = `redis`
+     3. Data Id = `redis`
 
         ```json
         {
@@ -172,7 +99,7 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
         }
         ```
 
-     5. Data Id = `rabbit-mq`
+     4. Data Id = `rabbit-mq`
 
         ```json
         {
@@ -192,13 +119,11 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/console/namespaces' -d "customNamespaceId=608369bd-2a9e-4a62-bdc2-b023c0d720a4&namespaceName=JobSeeker&namespaceDesc=JobSeeker&accessToken=$token"
 
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=seq&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"SeqLogServerAddress\":\"http://172.20.0.2:5341/\"}&accessToken=$token"
-  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=azure-service-bus&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"AzureServiceBus\":{\"ConnectionString\":\"<your connection string>\"}}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=rabbit-mq&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"RabbitMq\":{\"Host\":\"172.20.0.3\",\"Name\":\"guest\",\"Password\":\"guest\"}}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=postgresql&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"ConnectionStrings\":{\"NpgsqlConnection\":\"Server=172.20.0.4;Port=5432;Database=postgres;User Id=jobseeker;Password=jobseeker\"}}&accessToken=$token"
   curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=redis&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"Redis\":{\"Host\":\"172.20.0.9:6379\",\"Secret\":\"jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc\"}}&accessToken=$token"
 
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
-  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=redis&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
@@ -231,15 +156,6 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
   }
 
   Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
-      dataId = 'azure-service-bus'
-      group = 'DEFAULT_GROUP'
-      tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
-      content = '{"AzureServiceBus":{"ConnectionString":"<your connection string>"}}'
-      type = 'json'
-      accessToken = $token
-  }
-
-  Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
       dataId = 'rabbit-mq'
       group = 'DEFAULT_GROUP'
       tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
@@ -267,7 +183,6 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
   }
 
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=seq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
-  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=rabbit-mq&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=postgresql&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
   Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=redis&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
@@ -278,4 +193,73 @@ Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' 
 
 ```ps1
 docker compose -f ./DockerService/docker-compose.yaml up -d
+```
+
+## 封存區
+
+### 利用 azure cli 建立 azure service bus 服務並取得連線字串，再更新到 nacos
+
+```ps1
+# Azure Active Directory 中應用程式註冊的 憑證及秘密
+$Password = 'p*********************~'
+
+# Azure Active Directory 中應用程式註冊的 應用程式 (用戶端) 識別碼
+$ApplicationId = '{GUID}'
+
+# Azure Active Directory 概觀畫面的 租用戶識別碼
+$TenantId = '{GUID}'
+az login --service-principal -u $ApplicationId -p $Password --tenant $TenantId
+
+# 需要將 應用程式 加入到 資源群組 存取控制 (IAM) 的角色指派，並給參與者 (在 具有特殊權限的系統管理員角色 頁簽下)
+$QueueName = 'JobSeekerCrawer-dev'
+$SourceGroupName = 'Demo'
+$AuthorizationRule = 'ReadWrite'
+
+# 建立 Service Bus
+az servicebus namespace create --resource-group $SourceGroupName --name $QueueName --location eastasia --sku Basic
+az servicebus namespace authorization-rule create --resource-group $SourceGroupName --namespace-name $QueueName --name $AuthorizationRule --rights Send Listen
+
+# 建立 Queue
+az servicebus queue create --name queue_company_id_for_104 --namespace-name $QueueName --resource-group $SourceGroupName
+az servicebus queue create --name queue_job_id_for_104 --namespace-name $QueueName --resource-group $SourceGroupName
+
+$ServiceBusConnectionString = az servicebus namespace authorization-rule keys list --resource-group $SourceGroupName --namespace-name $QueueName --name $AuthorizationRule --query primaryConnectionString --output tsv
+
+# 移除 Service Bus
+# az servicebus namespace delete --resource-group $SourceGroupName --name $QueueName
+```
+
+### 利用指令將 Azure Service Bus 的連線字串新增到 nacos
+
+- 需要先變更 `AzureServiceBus` 的 ConnectionString
+
+- Data Id = `azure-service-bus`
+
+  ```json
+  {
+    "AzureServiceBus": {
+      "ConnectionString": "<your connection string>"
+    }
+  }
+  ```
+
+```bash
+  curl -X POST 'http://127.0.0.1:8848/nacos/v1/cs/configs' -d "dataId=azure-service-bus&group=DEFAULT_GROUP&type=json&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&content={\"AzureServiceBus\":{\"ConnectionString\":\"<your connection string>\"}}&accessToken=$token"
+
+
+  curl -X GET "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
+
+```
+
+```ps1
+  Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:8848/nacos/v1/cs/configs' -Body @{
+      dataId = 'azure-service-bus'
+      group = 'DEFAULT_GROUP'
+      tenant = '608369bd-2a9e-4a62-bdc2-b023c0d720a4'
+      content = '{"AzureServiceBus":{"ConnectionString":"<your connection string>"}}'
+      type = 'json'
+      accessToken = $token
+  }
+
+  Invoke-RestMethod -Method GET -Uri "http://127.0.0.1:8848/nacos/v1/cs/configs?dataId=azure-service-bus&group=DEFAULT_GROUP&tenant=608369bd-2a9e-4a62-bdc2-b023c0d720a4&accessToken=$token"
 ```
