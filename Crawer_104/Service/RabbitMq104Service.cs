@@ -16,23 +16,14 @@ public class RabbitMq104Service : RabbitMqService
 {
     private readonly ILogger<RabbitMqService> logger;
     private readonly IConnection connection;
-    private readonly IHttpService httpService;
-    private readonly ICacheService cacheService;
-    private readonly IDbService dbService;
     private readonly IDataService dataService;
 
     public RabbitMq104Service(ILogger<RabbitMqService> logger,
         IConnection connection,
-        IHttpService httpService,
-        ICacheService cacheService,
-        IDbService dbService,
         IDataService dataService) : base(logger, connection)
     {
         this.logger = logger;
         this.connection = connection;
-        this.httpService = httpService;
-        this.cacheService = cacheService;
-        this.dbService = dbService;
         this.dataService = dataService;
     }
 
