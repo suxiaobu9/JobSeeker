@@ -43,6 +43,10 @@ docker compose -f docker-compose.yaml up -d
     docker push arisuokay/job-seeker-crawer-cakeresume:v2.22
     docker push arisuokay/job-seeker-crawer-cakeresume:latest
 
+    docker build -f ./Crawer_Yourator/Dockerfile -t arisuokay/job-seeker-crawer-yourator:v2.1 -t arisuokay/job-seeker-crawer-yourator:latest .
+    docker push arisuokay/job-seeker-crawer-yourator:v2.1
+    docker push arisuokay/job-seeker-crawer-yourator:latest
+
     docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.12 -t arisuokay/job-seeker-web:latest .
     docker push arisuokay/job-seeker-web:v1.12
     docker push arisuokay/job-seeker-web:latest
