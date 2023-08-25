@@ -35,7 +35,7 @@ public abstract class RabbitMqService : IMqService
         }
 
         var channel = connection.CreateModel();
-        channel.BasicQos(0, 10, false);
+        channel.BasicQos(0, 1, false);
 
         channel.ExchangeDeclare(exchange: Parameters104.RabbitMq104ExchangeName, type: ExchangeType.Direct);
 

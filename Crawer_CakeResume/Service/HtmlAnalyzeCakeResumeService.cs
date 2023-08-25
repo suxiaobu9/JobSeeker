@@ -1,15 +1,14 @@
-﻿using Crawer_CakeResume.Service.Interface;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using Model.DtoCakeResume;
-using System;
+using Service.HtmlAnalyze;
 
 namespace Crawer_CakeResume.Service;
 
-public class HtmlAnalyzeService : IHtmlAnalyzeService
+public class HtmlAnalyzeCakeResumeService : IHtmlAnalyzeService
 {
-    private readonly ILogger<HtmlAnalyzeService> logger;
+    private readonly ILogger<HtmlAnalyzeCakeResumeService> logger;
 
-    public HtmlAnalyzeService(ILogger<HtmlAnalyzeService> logger)
+    public HtmlAnalyzeCakeResumeService(ILogger<HtmlAnalyzeCakeResumeService> logger)
     {
         this.logger = logger;
     }
@@ -25,7 +24,7 @@ public class HtmlAnalyzeService : IHtmlAnalyzeService
 
         if (string.IsNullOrWhiteSpace(compTitle))
         {
-            logger.LogWarning($"{nameof(HtmlAnalyzeService)} Get company name fail.");
+            logger.LogWarning($"{nameof(HtmlAnalyzeCakeResumeService)} Get company name fail.");
             return null;
         }
 
@@ -43,7 +42,7 @@ public class HtmlAnalyzeService : IHtmlAnalyzeService
 
         if (nodes == null || nodes.Count == 0)
         {
-            logger.LogWarning($"{nameof(HtmlAnalyzeService)} GetCompanyCardContentNodes fail.");
+            logger.LogWarning($"{nameof(HtmlAnalyzeCakeResumeService)} GetCompanyCardContentNodes fail.");
             return null;
         }
 
@@ -88,7 +87,7 @@ public class HtmlAnalyzeService : IHtmlAnalyzeService
 
         if (string.IsNullOrWhiteSpace(jobName))
         {
-            logger.LogWarning($"{nameof(HtmlAnalyzeService)} Job info title get null.");
+            logger.LogWarning($"{nameof(HtmlAnalyzeCakeResumeService)} Job info title get null.");
             return null;
         }
 

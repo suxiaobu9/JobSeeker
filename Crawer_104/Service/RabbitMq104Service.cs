@@ -16,23 +16,14 @@ public class RabbitMq104Service : RabbitMqService
 {
     private readonly ILogger<RabbitMqService> logger;
     private readonly IConnection connection;
-    private readonly IHttpService httpService;
-    private readonly ICacheService cacheService;
-    private readonly IDbService dbService;
     private readonly IDataService dataService;
 
     public RabbitMq104Service(ILogger<RabbitMqService> logger,
         IConnection connection,
-        IHttpService httpService,
-        ICacheService cacheService,
-        IDbService dbService,
         IDataService dataService) : base(logger, connection)
     {
         this.logger = logger;
         this.connection = connection;
-        this.httpService = httpService;
-        this.cacheService = cacheService;
-        this.dbService = dbService;
         this.dataService = dataService;
     }
 
@@ -91,7 +82,7 @@ public class RabbitMq104Service : RabbitMqService
 
             if (body.Length == 0)
             {
-                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler body is null.");
+                logger.LogError($"{nameof(RabbitMq104Service)} JobInfoMessageHandler body is null.");
                 return ReturnStatus.Fail;
             }
 
@@ -101,7 +92,7 @@ public class RabbitMq104Service : RabbitMqService
 
             if (simpleJobInfo == null || string.IsNullOrWhiteSpace(simpleJobInfo.CompanyId) || string.IsNullOrWhiteSpace(simpleJobInfo.JobId))
             {
-                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler SimpleJobInfoDto is null.");
+                logger.LogError($"{nameof(RabbitMq104Service)} JobInfoMessageHandler SimpleJobInfoDto is null.");
                 return ReturnStatus.Fail;
             }
 

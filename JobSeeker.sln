@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crawer_CakeResume", "Crawer_CakeResume\Crawer_CakeResume.csproj", "{9BB15D6A-7C21-4B7E-9446-1A76928609ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{6F7D96D7-45DC-44F6-804E-2292E76B4975}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{6F7D96D7-45DC-44F6-804E-2292E76B4975}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawer_Yourator", "Crawer_Yourator\Crawer_Yourator.csproj", "{572472DE-511C-44B9-A746-20E24DD5A2CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{6F7D96D7-45DC-44F6-804E-2292E76B4975}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F7D96D7-45DC-44F6-804E-2292E76B4975}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F7D96D7-45DC-44F6-804E-2292E76B4975}.Release|Any CPU.Build.0 = Release|Any CPU
+		{572472DE-511C-44B9-A746-20E24DD5A2CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{572472DE-511C-44B9-A746-20E24DD5A2CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{572472DE-511C-44B9-A746-20E24DD5A2CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{572472DE-511C-44B9-A746-20E24DD5A2CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,81 +1,75 @@
 ﻿using HtmlAgilityPack;
 using Model.Dto;
+using Model.Dto104;
 using Model.DtoCakeResume;
-using Service.Delay;
+using Model.DtoYourator;
 using Service.HtmlAnalyze;
 using Service.Http;
 using Service.Parameter;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
-namespace Crawer_CakeResume.Service;
+namespace Crawer_Yourator.Service;
 
-public class HttpCakeResumeService : BaseHttpService, IHttpService
+public class HttpYouratorService : BaseHttpService, IHttpService
 {
     private readonly HttpClient httpClient;
     private readonly IParameterService parameterService;
-    private readonly ITaskDelayService taskDelayService;
     private readonly IHtmlAnalyzeService htmlAnalyzeService;
     private readonly ILogger<BaseHttpService> logger;
 
-    public HttpCakeResumeService(HttpClient httpClient,
+    public HttpYouratorService(HttpClient httpClient,
         IParameterService parameterService,
-        ITaskDelayService taskDelayService,
         IHtmlAnalyzeService htmlAnalyzeService,
         ILogger<BaseHttpService> logger) : base(httpClient, logger)
     {
         this.httpClient = httpClient;
         this.parameterService = parameterService;
-        this.taskDelayService = taskDelayService;
         this.htmlAnalyzeService = htmlAnalyzeService;
         this.logger = logger;
     }
 
-    /// <summary>
-    /// 取得公司資訊
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="companyId"></param>
-    /// <param name="url"></param>
-    /// <returns></returns>
     public async Task<T?> GetCompanyInfo<T>(GetCompanyInfoDto dto) where T : CompanyDto
     {
-
-        Task? delayTask = null;
         var content = "";
+
         try
         {
             var url = parameterService.CompanyInfoUrl(dto);
-            content = await GetDataFromHttpRequest(url);
 
-            delayTask = taskDelayService.Delay(TimeSpan.FromSeconds(2));
+            content = await GetDataFromHttpRequest(url);
 
             if (string.IsNullOrWhiteSpace(content))
             {
-                logger.LogWarning($"{nameof(HttpCakeResumeService)} Company info content get null.{{url}}", url);
+                logger.LogWarning($"{nameof(HttpYouratorService)} Company info content get null.{{url}}", url);
                 return null;
             }
 
-            HtmlDocument htmlDoc = new();
+            var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(content);
 
             // 公司名稱
             var compTitle = htmlAnalyzeService.GetCompanyName(htmlDoc);
             if (string.IsNullOrWhiteSpace(compTitle))
             {
-                logger.LogWarning($"{nameof(HttpCakeResumeService)} Get Company title fail.{{url}}", url);
+                logger.LogWarning($"{nameof(HtmlAnalyzeYouratorService)} Get Company title fail.{{url}}", url);
                 return null;
             }
 
             var result = new CompanyDto
             {
                 Id = dto.CompanyId,
-                SourceFrom = ParametersCakeResume.SourceFrom,
+                SourceFrom = ParametersYourator.SourceFrom,
                 Name = compTitle,
                 Product = "N/A",
                 Profile = "N/A",
                 Welfare = "N/A"
             };
 
-            // 公司介紹內容
             var cardContentNodes = htmlAnalyzeService.GetCompanyCardContentNodes(htmlDoc);
 
             if (cardContentNodes == null)
@@ -97,9 +91,6 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
 
                 switch (cardKey)
                 {
-                    case nameof(CompanyDto.Product):
-                        result.Product = cardContent;
-                        break;
                     case nameof(CompanyDto.Profile):
                         result.Profile = cardContent;
                         break;
@@ -112,54 +103,38 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
             }
 
             return result as T;
-
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(HttpCakeResumeService)} GetCompanyInfo get exception.{{content}}", content);
-            return null;
-        }
-        finally
-        {
-            if (delayTask != null)
-                await delayTask;
+            logger.LogError(ex, $"{nameof(HttpYouratorService)} GetCompanyInfo error.");
+            throw;
         }
     }
 
-    /// <summary>
-    /// 取得職缺資訊
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="jobId"></param>
-    /// <param name="companyId"></param>
-    /// <param name="url"></param>
-    /// <returns></returns>
     public async Task<T?> GetJobInfo<T>(GetJobInfoDto dto) where T : JobDto
     {
-        Task? delayTask = null;
         var content = "";
         try
         {
             var url = parameterService.JobInfoUrl(dto);
-            content = await GetDataFromHttpRequest(url);
 
-            delayTask = taskDelayService.Delay(TimeSpan.FromSeconds(2));
+            content = await GetDataFromHttpRequest(url);
 
             if (string.IsNullOrWhiteSpace(content))
             {
-                logger.LogWarning($"{nameof(HttpCakeResumeService)} Job info content get null.{{url}}", url);
+                logger.LogWarning($"{nameof(HttpYouratorService)} Job info content get null.{{url}}", url);
                 return null;
             }
 
-            HtmlDocument htmlDoc = new();
+            var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(content);
 
-            // 抓取職缺名稱
+            // 公司名稱
             var jobTitle = htmlAnalyzeService.GetJobName(htmlDoc);
 
             if (string.IsNullOrWhiteSpace(jobTitle))
             {
-                logger.LogWarning($"{nameof(HttpCakeResumeService)} Job info title get null.{{url}}", url);
+                logger.LogWarning($"{nameof(HttpYouratorService)} Job info title get null.{{url}}", url);
                 return null;
             }
 
@@ -171,11 +146,10 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
                 JobPlace = htmlAnalyzeService.GetJobPlace(htmlDoc) ?? "N/A",
                 Name = jobTitle,
                 OtherRequirement = "N/A",
-                Salary = htmlAnalyzeService.GetSalary(htmlDoc) ?? "N/A",
+                Salary =  "N/A",
                 LatestUpdateDate = htmlAnalyzeService.GetJobLastUpdateTime(htmlDoc) ?? "N/A",
             };
 
-            // 職缺內容
             var cardContentNodes = htmlAnalyzeService.GetJobCardContentNodes(htmlDoc);
 
             if (cardContentNodes == null)
@@ -188,7 +162,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
                 if (string.IsNullOrWhiteSpace(cardTitle))
                     continue;
 
-                var filterKey = ParametersCakeResume.JobContentFilter.FirstOrDefault(x => x.Value.Any(y => cardTitle.Contains(y))).Key;
+                var filterKey = ParametersYourator.JobContentFilter.FirstOrDefault(x => x.Value.Any(y => cardTitle.Contains(y))).Key;
 
                 if (string.IsNullOrWhiteSpace(filterKey))
                     continue;
@@ -207,94 +181,84 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
                     case nameof(JobDto.OtherRequirement):
                         result.OtherRequirement = cardContent;
                         break;
+                    case nameof(JobDto.Salary):
+                        result.Salary = cardContent;
+                        break;
                     default:
                         break;
                 }
             }
 
             return result as T;
-
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(HttpCakeResumeService)} GetJobInfo get exception.{{content}}", content);
-            return null;
-        }
-        finally
-        {
-            if (delayTask != null)
-                await delayTask;
+            logger.LogError(ex, $"{nameof(HttpYouratorService)} GetJobInfo error.");
+            throw;
         }
     }
 
-    /// <summary>
-    /// 取得職缺清單
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="url"></param>
-    /// <returns></returns>
     public async Task<T?> GetJobList<T>(string url) where T : JobListDto<SimpleJobInfoDto>
     {
-        Task? delayTask = null;
-
         var content = "";
         try
         {
             content = await GetDataFromHttpRequest(url);
 
-            delayTask = taskDelayService.Delay(TimeSpan.FromSeconds(2));
-
             if (string.IsNullOrWhiteSpace(content))
             {
-                logger.LogWarning($"{nameof(HttpCakeResumeService)} Job list content get null.{{url}}", url);
+                logger.LogWarning($"{nameof(HttpYouratorService)} Job list content get null.{{url}}", url);
                 return null;
             }
 
-            HtmlDocument doc = new();
-            doc.LoadHtml(content);
+            var data = JsonSerializer.Deserialize<JobListYouratorDto>(content);
 
-            // 職缺內容
-            var cardContentNodes = htmlAnalyzeService.GetJobListCardContentNode(doc);
+            if (data == null || data.Payload == null)
+            {
+                logger.LogWarning($"{nameof(HttpYouratorService)} Job list data Deserialize get null.{{url}} {{content}}", url, content);
+                return null;
+            }
 
-            if (cardContentNodes == null || cardContentNodes.Count == 0)
+            if (data.Payload.Jobs == null || data.Payload.Jobs.Length == 0)
                 return null;
 
             var jobList = new List<SimpleJobInfoDto>();
 
-            foreach (var cardContentNode in cardContentNodes)
+            foreach (var item in data.Payload.Jobs)
             {
-                HtmlNode? jobNode = htmlAnalyzeService.GetJobListJobNode(cardContentNode);
-                HtmlNode? companyNode = htmlAnalyzeService.GetJobListCompanyNode(cardContentNode);
-
-                if (jobNode == null || companyNode == null)
-                    continue;
-
-                var jobId = jobNode.GetAttributeValue("href", "").Split("/").LastOrDefault();
-                var companyId = companyNode.GetAttributeValue("href", "").Split("/").LastOrDefault();
-
-                if (string.IsNullOrWhiteSpace(jobId) || string.IsNullOrWhiteSpace(companyId))
-                    continue;
-
-                jobList.Add(new SimpleJobInfoDto
+                if (item?.Id == null)
                 {
-                    JobId = jobId,
-                    CompanyId = companyId
-                });
+                    logger.LogWarning($"{nameof(HttpYouratorService)} GetJobList job id null.{{url}} {{content}}", url, content);
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(item.Company?.Path))
+                {
+                    logger.LogWarning($"{nameof(HttpYouratorService)} GetJobList company data null.{{url}} {{content}}", url, content);
+                    continue;
+                }
+
+                var companyId = item.Company.Path.Split('/').LastOrDefault();
+
+                if (string.IsNullOrWhiteSpace(companyId))
+                {
+                    logger.LogWarning($"{nameof(HttpYouratorService)} GetJobList company id null.{{url}} {{content}}", url, content);
+                    continue;
+                }
+
+                jobList.Add(new SimpleJobInfoDto { CompanyId = companyId, JobId = item.Id.Value.ToString() });
             }
 
-            return new JobListDto<SimpleJobInfoDto> { JobList = jobList } as T;
+            return new JobListDto<SimpleJobInfoDto>
+            {
+                JobList = jobList,
+            } as T;
 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(HttpCakeResumeService)} GetJobList get exception.{{content}}", content);
-            return null;
+            logger.LogError(ex, $"{nameof(HttpYouratorService)} GetJobList error.{{url}} {{content}}", url, content);
+            throw;
         }
-        finally
-        {
-            if (delayTask != null)
-                await delayTask;
-        }
-
     }
 }

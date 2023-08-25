@@ -1,19 +1,16 @@
-﻿using Crawer_104.Service;
+﻿using Crawer_Yourator.Service;
 using Model;
 using Model.Dto;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Service.Cache;
 using Service.Data;
-using Service.Db;
-using Service.Http;
 using Service.Mq;
 using System.Text;
 using System.Text.Json;
 
-namespace Test.Crawer_104;
+namespace Test.Yourator;
 
-public class RabbitMq104ServiceTest
+public class RabbitMqYouratorServiceTest
 {
     private readonly ILogger<RabbitMqService> logger = A.Fake<ILogger<RabbitMqService>>();
     private readonly IConnection connection = A.Fake<IConnection>();
@@ -22,7 +19,7 @@ public class RabbitMq104ServiceTest
     [Test]
     public async Task CompanyMessageHandler_BasicDeliverEventArgs為null()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs? args = null;
 
@@ -30,14 +27,11 @@ public class RabbitMq104ServiceTest
 
         Assert.That(result, Is.EqualTo(ReturnStatus.Fail));
     }
-
     [Test]
     public async Task CompanyMessageHandler_BasicDeliverEventArgs轉型失敗()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
-
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
         JobDto args = new();
-
         var result = await service.CompanyMessageHandler(args);
 
         Assert.That(result, Is.EqualTo(ReturnStatus.Fail));
@@ -46,7 +40,7 @@ public class RabbitMq104ServiceTest
     [Test]
     public async Task CompanyMessageHandler_BasicDeliverEventArgs的Body為空()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs args = new()
         {
@@ -62,7 +56,7 @@ public class RabbitMq104ServiceTest
     public async Task CompanyMessageHandler_BasicDeliverEventArgs的Body有CompanyId_Update成功()
     {
         A.CallTo(() => dataService.GetCompanyDataAndUpsert(A<GetCompanyInfoDto>._)).Returns(ReturnStatus.Success);
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs args = new()
         {
@@ -78,7 +72,7 @@ public class RabbitMq104ServiceTest
     public async Task CompanyMessageHandler_BasicDeliverEventArgs的Body有CompanyId_Update失敗()
     {
         A.CallTo(() => dataService.GetCompanyDataAndUpsert(A<GetCompanyInfoDto>._)).Returns(ReturnStatus.Fail);
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs args = new()
         {
@@ -93,7 +87,7 @@ public class RabbitMq104ServiceTest
     [Test]
     public async Task JobInfoMessageHandler_BasicDeliverEventArgs為null()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs? args = null;
 
@@ -105,7 +99,7 @@ public class RabbitMq104ServiceTest
     [Test]
     public async Task JobInfoMessageHandler_BasicDeliverEventArgs轉型失敗()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         JobDto args = new();
 
@@ -117,7 +111,7 @@ public class RabbitMq104ServiceTest
     [Test]
     public async Task JobInfoMessageHandler_BasicDeliverEventArgs的Body為空()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs args = new()
         {
@@ -132,7 +126,7 @@ public class RabbitMq104ServiceTest
     [Test]
     public void JobInfoMessageHandler_BasicDeliverEventArgs的Body有值但不是Json()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs args = new()
         {
@@ -145,7 +139,7 @@ public class RabbitMq104ServiceTest
     [Test]
     public async Task JobInfoMessageHandler_BasicDeliverEventArgs的Body為Json但非正確的型別()
     {
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
 
         BasicDeliverEventArgs args = new()
         {
@@ -161,7 +155,7 @@ public class RabbitMq104ServiceTest
     public async Task JobInfoMessageHandler_BasicDeliverEventArgs的Body為Json的正確的型別_Update失敗()
     {
         A.CallTo(() => dataService.GetJobDataAndUpsert(A<GetJobInfoDto>._)).Returns(ReturnStatus.Fail);
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
         var sampleModel = new SimpleJobInfoDto
         {
             CompanyId = "fake company id",
@@ -182,7 +176,7 @@ public class RabbitMq104ServiceTest
     public async Task JobInfoMessageHandler_BasicDeliverEventArgs的Body為Json的正確的型別_Update成功()
     {
         A.CallTo(() => dataService.GetJobDataAndUpsert(A<GetJobInfoDto>._)).Returns(ReturnStatus.Success);
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
         var sampleModel = new SimpleJobInfoDto
         {
             CompanyId = "fake company id",
@@ -203,7 +197,7 @@ public class RabbitMq104ServiceTest
     public async Task JobInfoMessageHandler_BasicDeliverEventArgs的Body為Json的正確的型別_Update失敗_重試()
     {
         A.CallTo(() => dataService.GetJobDataAndUpsert(A<GetJobInfoDto>._)).Returns(ReturnStatus.Retry);
-        var service = new RabbitMq104Service(logger, connection, dataService);
+        var service = new RabbitMqYouratorService(logger, dataService, connection);
         var sampleModel = new SimpleJobInfoDto
         {
             CompanyId = "fake company id",

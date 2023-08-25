@@ -93,7 +93,7 @@ public class Http104ServiceTest
     [Test]
     public async Task GetCompanyInfo_從HttpResponse取回Json字串_轉型變null()
     {
-        var service = GetService("{\"TestProperty\":\"TestValue\"}");
+        var service = GetService(TestValue.NotValidJsonContent);
 
         var result = await service.GetCompanyInfo<CompanyDto>(getCompanyInfoDto);
 
@@ -103,7 +103,7 @@ public class Http104ServiceTest
     [Test]
     public async Task GetJobInfo_從HttpResponse取回Json字串_轉型變null()
     {
-        var service = GetService("{\"TestProperty\":\"TestValue\"}");
+        var service = GetService(TestValue.NotValidJsonContent);
 
         var result = await service.GetJobInfo<JobDto>(getJobInfoDto);
 
@@ -148,20 +148,5 @@ public class Http104ServiceTest
             Assert.That(result.WorkContent, Is.EqualTo("系統建置工作\n"));
             Assert.That(result.LatestUpdateDate, Is.EqualTo("2023/08/15"));
         });
-    }
-}
-
-public class FakeHttpMessageHandler : HttpMessageHandler
-{
-    private readonly HttpResponseMessage _response;
-
-    public FakeHttpMessageHandler(HttpResponseMessage response)
-    {
-        _response = response;
-    }
-
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(_response);
     }
 }
