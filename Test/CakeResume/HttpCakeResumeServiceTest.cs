@@ -1,15 +1,12 @@
 ﻿using Crawer_CakeResume.Service;
-using Crawer_CakeResume.Service.Interface;
-using FakeItEasy;
 using HtmlAgilityPack;
 using Model.Dto;
 using Model.DtoCakeResume;
-using Model.Migrations;
 using Service.Delay;
+using Service.HtmlAnalyze;
 using Service.Http;
 using Service.Parameter;
 using System.Net;
-using System.Text;
 
 namespace Test.CakeResume;
 

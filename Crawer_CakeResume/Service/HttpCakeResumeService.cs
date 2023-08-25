@@ -1,8 +1,8 @@
-﻿using Crawer_CakeResume.Service.Interface;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using Model.Dto;
 using Model.DtoCakeResume;
 using Service.Delay;
+using Service.HtmlAnalyze;
 using Service.Http;
 using Service.Parameter;
 

@@ -91,7 +91,7 @@ public class RabbitMq104Service : RabbitMqService
 
             if (body.Length == 0)
             {
-                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler body is null.");
+                logger.LogError($"{nameof(RabbitMq104Service)} JobInfoMessageHandler body is null.");
                 return ReturnStatus.Fail;
             }
 
@@ -101,7 +101,7 @@ public class RabbitMq104Service : RabbitMqService
 
             if (simpleJobInfo == null || string.IsNullOrWhiteSpace(simpleJobInfo.CompanyId) || string.IsNullOrWhiteSpace(simpleJobInfo.JobId))
             {
-                logger.LogError($"{nameof(ServiceBus104Service)} JobInfoMessageHandler SimpleJobInfoDto is null.");
+                logger.LogError($"{nameof(RabbitMq104Service)} JobInfoMessageHandler SimpleJobInfoDto is null.");
                 return ReturnStatus.Fail;
             }
 

@@ -1,7 +1,11 @@
-﻿using Model.Dto;
+﻿using HtmlAgilityPack;
+using Model.Dto;
 using Model.Dto104;
+using Model.DtoCakeResume;
 using Model.DtoYourator;
+using Service.HtmlAnalyze;
 using Service.Http;
+using Service.Parameter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,22 +18,184 @@ namespace Crawer_Yourator.Service;
 public class HttpYouratorService : BaseHttpService, IHttpService
 {
     private readonly HttpClient httpClient;
+    private readonly IParameterService parameterService;
+    private readonly IHtmlAnalyzeService htmlAnalyzeService;
     private readonly ILogger<BaseHttpService> logger;
 
-    public HttpYouratorService(HttpClient httpClient, ILogger<BaseHttpService> logger) : base(httpClient, logger)
+    public HttpYouratorService(HttpClient httpClient,
+        IParameterService parameterService,
+        IHtmlAnalyzeService htmlAnalyzeService,
+        ILogger<BaseHttpService> logger) : base(httpClient, logger)
     {
         this.httpClient = httpClient;
+        this.parameterService = parameterService;
+        this.htmlAnalyzeService = htmlAnalyzeService;
         this.logger = logger;
     }
 
-    public Task<T?> GetCompanyInfo<T>(GetCompanyInfoDto dto) where T : CompanyDto
+    public async Task<T?> GetCompanyInfo<T>(GetCompanyInfoDto dto) where T : CompanyDto
     {
-        throw new NotImplementedException();
+        var content = "";
+
+        try
+        {
+            var url = parameterService.CompanyInfoUrl(dto);
+
+            content = await GetDataFromHttpRequest(url);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                logger.LogWarning($"{nameof(HttpYouratorService)} Company info content get null.{{url}}", url);
+                return null;
+            }
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(content);
+
+            // 公司名稱
+            var compTitle = htmlAnalyzeService.GetCompanyName(htmlDoc);
+            if (string.IsNullOrWhiteSpace(compTitle))
+            {
+                logger.LogWarning($"{nameof(HtmlAnalyzeYouratorService)} Get Company title fail.{{url}}", url);
+                return null;
+            }
+
+            var result = new CompanyDto
+            {
+                Id = dto.CompanyId,
+                SourceFrom = ParametersYourator.SourceFrom,
+                Name = compTitle,
+                Product = "N/A",
+                Profile = "N/A",
+                Welfare = "N/A"
+            };
+
+            var cardContentNodes = htmlAnalyzeService.GetCompanyCardContentNodes(htmlDoc);
+
+            if (cardContentNodes == null)
+                return result as T;
+
+            foreach (var cardContentNode in cardContentNodes)
+            {
+                var companyCardContent = htmlAnalyzeService.GetCompanyCardContent(cardContentNode);
+
+                if (companyCardContent == null)
+                    continue;
+
+                var cardKey = companyCardContent.Value.Key;
+
+                if (!ParametersCakeResume.CompanyContentFilter.ContainsKey(cardKey))
+                    continue;
+
+                var cardContent = companyCardContent?.Value;
+
+                switch (cardKey)
+                {
+                    case nameof(CompanyDto.Profile):
+                        result.Profile = cardContent;
+                        break;
+                    case nameof(CompanyDto.Welfare):
+                        result.Welfare = cardContent;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result as T;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"{nameof(HttpYouratorService)} GetCompanyInfo error.");
+            throw;
+        }
     }
 
-    public Task<T?> GetJobInfo<T>(GetJobInfoDto dto) where T : JobDto
+    public async Task<T?> GetJobInfo<T>(GetJobInfoDto dto) where T : JobDto
     {
-        throw new NotImplementedException();
+        var content = "";
+        try
+        {
+            var url = parameterService.JobInfoUrl(dto);
+
+            content = await GetDataFromHttpRequest(url);
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                logger.LogWarning($"{nameof(HttpYouratorService)} Job info content get null.{{url}}", url);
+                return null;
+            }
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(content);
+
+            // 公司名稱
+            var jobTitle = htmlAnalyzeService.GetJobName(htmlDoc);
+
+            if (string.IsNullOrWhiteSpace(jobTitle))
+            {
+                logger.LogWarning($"{nameof(HttpYouratorService)} Job info title get null.{{url}}", url);
+                return null;
+            }
+
+            var result = new JobDto
+            {
+                CompanyId = dto.CompanyId,
+                Id = dto.JobId,
+                WorkContent = "N/A",
+                JobPlace = htmlAnalyzeService.GetJobPlace(htmlDoc) ?? "N/A",
+                Name = jobTitle,
+                OtherRequirement = "N/A",
+                Salary =  "N/A",
+                LatestUpdateDate = htmlAnalyzeService.GetJobLastUpdateTime(htmlDoc) ?? "N/A",
+            };
+
+            var cardContentNodes = htmlAnalyzeService.GetJobCardContentNodes(htmlDoc);
+
+            if (cardContentNodes == null)
+                return result as T;
+
+            foreach (var cardContentNode in cardContentNodes)
+            {
+                // 內文標題
+                var cardTitle = htmlAnalyzeService.GetJobCardTitle(cardContentNode);
+                if (string.IsNullOrWhiteSpace(cardTitle))
+                    continue;
+
+                var filterKey = ParametersYourator.JobContentFilter.FirstOrDefault(x => x.Value.Any(y => cardTitle.Contains(y))).Key;
+
+                if (string.IsNullOrWhiteSpace(filterKey))
+                    continue;
+
+                // 內文內容
+                var cardContent = htmlAnalyzeService.GetJobCardContent(cardContentNode);
+
+                if (string.IsNullOrWhiteSpace(cardContent))
+                    continue;
+
+                switch (filterKey)
+                {
+                    case nameof(JobDto.WorkContent):
+                        result.WorkContent = cardContent;
+                        break;
+                    case nameof(JobDto.OtherRequirement):
+                        result.OtherRequirement = cardContent;
+                        break;
+                    case nameof(JobDto.Salary):
+                        result.Salary = cardContent;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result as T;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"{nameof(HttpYouratorService)} GetJobInfo error.");
+            throw;
+        }
     }
 
     public async Task<T?> GetJobList<T>(string url) where T : JobListDto<SimpleJobInfoDto>

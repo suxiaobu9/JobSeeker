@@ -8,7 +8,7 @@ namespace Test.CakeResume;
 
 public class HtmlAnalyzeServiceTest
 {
-    private readonly ILogger<HtmlAnalyzeService> logger = A.Fake<ILogger<HtmlAnalyzeService>>();
+    private readonly ILogger<HtmlAnalyzeCakeResumeService> logger = A.Fake<ILogger<HtmlAnalyzeCakeResumeService>>();
 
     [Test]
     public void GetCompanyName_Content為空字串()
@@ -16,7 +16,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyName(htmlDoc);
 
@@ -29,7 +29,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyName(htmlDoc);
 
@@ -42,7 +42,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("<div class='FakeClassName'>Fake Data</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyName(htmlDoc);
 
@@ -56,7 +56,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml($"<div class='{ParametersCakeResume.CompanyNameDivClass}'>{content}</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyName(htmlDoc);
 
@@ -69,7 +69,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContentNodes(htmlDoc);
 
@@ -82,7 +82,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContentNodes(htmlDoc);
 
@@ -100,7 +100,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(content.ToString());
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContentNodes(htmlDoc);
 
@@ -118,7 +118,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(content.ToString());
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContentNodes(htmlDoc);
 
@@ -132,7 +132,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml("<div></div>");
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContent(htmlNode);
 
@@ -150,7 +150,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContent(htmlNode);
 
@@ -167,7 +167,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml(content.ToString());
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContent(htmlNode);
 
@@ -184,7 +184,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml(content.ToString());
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContent(htmlNode);
 
@@ -207,7 +207,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml(content.ToString());
         var htmlNode = htmlDoc.DocumentNode.SelectNodes(".//div[contains(@class, 'fake_class')]")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetCompanyCardContent(htmlNode);
 
@@ -225,7 +225,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobName(htmlDoc);
 
@@ -238,7 +238,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobName(htmlDoc);
 
@@ -251,7 +251,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("<h2 class='fake_h2_class'>Fake Data</h2>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobName(htmlDoc);
 
@@ -265,7 +265,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml($"<h2 class='{ParametersCakeResume.JobNameDivClass}'>{content}</h2>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobName(htmlDoc);
 
@@ -278,7 +278,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobPlace(htmlDoc);
 
@@ -291,7 +291,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobPlace(htmlDoc);
 
@@ -304,7 +304,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("<a class='fake_h2_class'>Fake Data</a>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobPlace(htmlDoc);
 
@@ -318,7 +318,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml($"<a class='{ParametersCakeResume.JobPlaceAClass}'>{content}</a>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobPlace(htmlDoc);
 
@@ -331,7 +331,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetSalary(htmlDoc);
 
@@ -344,7 +344,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetSalary(htmlDoc);
 
@@ -357,7 +357,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("<div class='fake_h2_class'>Fake Data</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetSalary(htmlDoc);
 
@@ -371,7 +371,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml($"<div class='{ParametersCakeResume.SalaryDivClass}'>{content}</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetSalary(htmlDoc);
 
@@ -384,7 +384,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobLastUpdateTime(htmlDoc);
 
@@ -397,7 +397,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobLastUpdateTime(htmlDoc);
 
@@ -410,7 +410,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("<div class='fake_h2_class'>Fake Data</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobLastUpdateTime(htmlDoc);
 
@@ -424,7 +424,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml($"<div class='{ParametersCakeResume.LatestUpdateDateOuterDivClass}'><div class='{ParametersCakeResume.LatestUpdateDateDivClass}'>{content}</div></div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobLastUpdateTime(htmlDoc);
 
@@ -437,7 +437,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardContentNodes(htmlDoc);
 
@@ -450,7 +450,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardContentNodes(htmlDoc);
 
@@ -463,7 +463,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("<div class='fake_h2_class'>Fake Data</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardContentNodes(htmlDoc);
 
@@ -477,7 +477,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml($"<div class='{ParametersCakeResume.JobCardContentDivClass}'>{content}</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardContentNodes(htmlDoc);
 
@@ -490,7 +490,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListCardContentNode(htmlDoc);
 
@@ -503,7 +503,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(TestValue.NotValidJsonContent);
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListCardContentNode(htmlDoc);
 
@@ -516,7 +516,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml("<div class='fake_h2_class'>Fake Data</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListCardContentNode(htmlDoc);
 
@@ -530,7 +530,7 @@ public class HtmlAnalyzeServiceTest
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml($"<div class='{ParametersCakeResume.JobListCardContentDivClassName}'>{content}</div>");
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListCardContentNode(htmlDoc);
 
@@ -544,7 +544,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml("<div></div>");
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardTitle(htmlNode);
 
@@ -562,7 +562,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardTitle(htmlNode);
 
@@ -581,7 +581,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardTitle(htmlNode);
 
@@ -595,7 +595,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml("<div></div>");
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardContent(htmlNode);
 
@@ -613,7 +613,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div[@class='fake']")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardContent(htmlNode);
 
@@ -632,7 +632,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div[@class='fake']")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobCardContent(htmlNode);
 
@@ -646,7 +646,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml("<div></div>");
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListCompanyNode(htmlNode);
 
@@ -664,7 +664,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div[@class='fake']")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListCompanyNode(htmlNode);
 
@@ -682,7 +682,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div[@class='fake']")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListCompanyNode(htmlNode);
 
@@ -696,7 +696,7 @@ public class HtmlAnalyzeServiceTest
         htmlDoc.LoadHtml("<div></div>");
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div")[0];
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListJobNode(htmlNode);
 
@@ -714,7 +714,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div[@class='fake']")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListJobNode(htmlNode);
 
@@ -732,7 +732,7 @@ public class HtmlAnalyzeServiceTest
 
         var htmlNode = htmlDoc.DocumentNode.SelectNodes("//div[@class='fake']")[0];
 
-        var service = new HtmlAnalyzeService(logger);
+        var service = new HtmlAnalyzeCakeResumeService(logger);
 
         var result = service.GetJobListJobNode(htmlNode);
 

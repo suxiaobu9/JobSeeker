@@ -1,6 +1,8 @@
 ﻿using Model;
 using Model.Dto;
+using Model.Dto104;
 using Model.DtoYourator;
+using RabbitMQ.Client.Events;
 using Service.Cache;
 using Service.Db;
 using Service.Delay;
@@ -35,6 +37,9 @@ public class YouratorWorker : BackgroundService
 
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(ParametersYourator.QueueNameForCompanyId, mqService.CompanyMessageHandler);
+        _ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(ParametersYourator.QueueNameForJobId, mqService.JobInfoMessageHandler);
+
         while (!stoppingToken.IsCancellationRequested)
         {
             logger.LogInformation($"{nameof(YouratorWorker)} ExecuteAsync start.");
@@ -66,9 +71,10 @@ public class YouratorWorker : BackgroundService
                                 await mqService.SendMessageToMq(ParametersYourator.QueueNameForCompanyId, item.CompanyId);
                             }
 
-                            if (!await cacheService.IsKeyFieldExistsInCache(ParametersYourator.RedisKeyForJobIdSendToQueue, item.JobId))
+                            if (!await cacheService.IsKeyFieldExistsInCache(ParametersYourator.RedisKeyForJobIdSendToQueue, item.CompanyId + item.JobId))
                             {
-                                await mqService.SendMessageToMq(ParametersYourator.QueueNameForJobId, item.JobId);
+                                // 送 job id 到 mq
+                                await mqService.SendMessageToMq(ParametersYourator.QueueNameForJobId, item);
                             }
                         }
                     }
@@ -77,7 +83,6 @@ public class YouratorWorker : BackgroundService
                         logger.LogError(ex, $"{nameof(YouratorWorker)} get exception.");
                         break;
                     }
-
                 }
             }
 
