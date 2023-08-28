@@ -15,8 +15,8 @@ public class FourfoldOneWorker : BackgroundService
         this.logger = logger;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 }
