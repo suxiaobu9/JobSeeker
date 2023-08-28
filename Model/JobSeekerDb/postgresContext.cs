@@ -23,14 +23,19 @@ namespace Model.JobSeekerDb
         {
             modelBuilder.Entity<Company>(entity =>
             {
-                entity.ToTable("company", "jobseeker");
+                entity.HasKey(e => new { e.Id, e.SourceFrom })
+                    .HasName("company_pk");
 
-                entity.HasIndex(e => e.Id, "company_id_idx")
-                    .IsUnique();
+                entity.ToTable("company", "jobseeker");
 
                 entity.Property(e => e.Id)
                     .HasColumnType("character varying")
                     .HasColumnName("id");
+
+                entity.Property(e => e.SourceFrom)
+                    .HasColumnType("character varying")
+                    .HasColumnName("source_from")
+                    .HasComment("來源");
 
                 entity.Property(e => e.CreateUtcAt)
                     .HasColumnName("create_utc_at")
@@ -66,11 +71,6 @@ namespace Model.JobSeekerDb
                     .HasColumnName("sort")
                     .HasComment("排序");
 
-                entity.Property(e => e.SourceFrom)
-                    .HasMaxLength(20)
-                    .HasColumnName("source_from")
-                    .HasComment("來源");
-
                 entity.Property(e => e.UpdateCount)
                     .HasColumnName("update_count")
                     .HasComment("手動更新次數");
@@ -95,6 +95,8 @@ namespace Model.JobSeekerDb
 
                 entity.ToTable("job", "jobseeker");
 
+                entity.HasIndex(e => e.CompanyId, "job_company_id_idx");
+
                 entity.Property(e => e.Id)
                     .HasColumnType("character varying")
                     .HasColumnName("id");
@@ -102,6 +104,11 @@ namespace Model.JobSeekerDb
                 entity.Property(e => e.CompanyId)
                     .HasColumnType("character varying")
                     .HasColumnName("company_id");
+
+                entity.Property(e => e.CompanySourceFrom)
+                    .HasColumnType("character varying")
+                    .HasColumnName("company_source_from")
+                    .HasComment("來源");
 
                 entity.Property(e => e.CreateUtcAt)
                     .HasColumnName("create_utc_at")
@@ -174,7 +181,7 @@ namespace Model.JobSeekerDb
 
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.Jobs)
-                    .HasForeignKey(d => d.CompanyId)
+                    .HasForeignKey(d => new { d.CompanyId, d.CompanySourceFrom })
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("job_fk");
             });

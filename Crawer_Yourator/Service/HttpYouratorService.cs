@@ -148,6 +148,7 @@ public class HttpYouratorService : BaseHttpService, IHttpService
                 OtherRequirement = "N/A",
                 Salary =  "N/A",
                 LatestUpdateDate = htmlAnalyzeService.GetJobLastUpdateTime(htmlDoc) ?? "N/A",
+                CompanySourceFrom = ParametersYourator.SourceFrom,
             };
 
             var cardContentNodes = htmlAnalyzeService.GetJobCardContentNodes(htmlDoc);

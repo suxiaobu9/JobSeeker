@@ -173,6 +173,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
                 OtherRequirement = "N/A",
                 Salary = htmlAnalyzeService.GetSalary(htmlDoc) ?? "N/A",
                 LatestUpdateDate = htmlAnalyzeService.GetJobLastUpdateTime(htmlDoc) ?? "N/A",
+                CompanySourceFrom = ParametersCakeResume.SourceFrom,
             };
 
             // 職缺內容
