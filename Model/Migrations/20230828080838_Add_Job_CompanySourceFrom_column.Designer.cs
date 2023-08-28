@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Model.JobSeekerDb;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Model.Migrations
 {
     [DbContext(typeof(postgresContext))]
-    partial class postgresContextModelSnapshot : ModelSnapshot
+    [Migration("20230828080838_Add_Job_CompanySourceFrom_column")]
+    partial class Add_Job_CompanySourceFrom_column
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,11 +29,6 @@ namespace Model.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("character varying")
                         .HasColumnName("id");
-
-                    b.Property<string>("SourceFrom")
-                        .HasColumnType("character varying")
-                        .HasColumnName("source_from")
-                        .HasComment("來源");
 
                     b.Property<DateTime>("CreateUtcAt")
                         .HasColumnType("timestamp with time zone")
@@ -78,6 +75,12 @@ namespace Model.Migrations
                         .HasColumnName("sort")
                         .HasComment("排序");
 
+                    b.Property<string>("SourceFrom")
+                        .IsRequired()
+                        .HasColumnType("character varying")
+                        .HasColumnName("source_from")
+                        .HasComment("來源");
+
                     b.Property<int>("UpdateCount")
                         .HasColumnType("integer")
                         .HasColumnName("update_count")
@@ -99,8 +102,10 @@ namespace Model.Migrations
                         .HasColumnName("welfare")
                         .HasComment("福利");
 
-                    b.HasKey("Id", "SourceFrom")
-                        .HasName("company_pk");
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Id" }, "company_id_idx")
+                        .IsUnique();
 
                     b.ToTable("company", "jobseeker");
                 });
@@ -116,10 +121,8 @@ namespace Model.Migrations
                         .HasColumnName("company_id");
 
                     b.Property<string>("CompanySourceFrom")
-                        .IsRequired()
                         .HasColumnType("character varying")
-                        .HasColumnName("company_source_from")
-                        .HasComment("來源");
+                        .HasColumnName("company_source_from");
 
                     b.Property<DateTime>("CreateUtcAt")
                         .HasColumnType("timestamp with time zone")
@@ -215,9 +218,7 @@ namespace Model.Migrations
                     b.HasKey("Id", "CompanyId")
                         .HasName("job_pk");
 
-                    b.HasIndex("CompanyId", "CompanySourceFrom");
-
-                    b.HasIndex(new[] { "CompanyId" }, "job_company_id_idx");
+                    b.HasIndex(new[] { "CompanyId" }, "IX_job_company_id");
 
                     b.ToTable("job", "jobseeker");
                 });
@@ -226,7 +227,7 @@ namespace Model.Migrations
                 {
                     b.HasOne("Model.JobSeekerDb.Company", "Company")
                         .WithMany("Jobs")
-                        .HasForeignKey("CompanyId", "CompanySourceFrom")
+                        .HasForeignKey("CompanyId")
                         .IsRequired()
                         .HasConstraintName("job_fk");
 

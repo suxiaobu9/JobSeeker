@@ -71,6 +71,10 @@ namespace Model.JobSeekerDb
         /// 最後更新時間
         /// </summary>
         public string? LatestUpdateDate { get; set; }
+        /// <summary>
+        /// 來源
+        /// </summary>
+        public string CompanySourceFrom { get; set; } = null!;
 
         public virtual Company Company { get; set; } = null!;
     }

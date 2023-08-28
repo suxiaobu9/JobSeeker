@@ -149,7 +149,8 @@ AND company.source_from  = {0}
                     UpdateUtcAt = now.UtcDateTime,
                     Url = pageUrl,
                     WorkContent = jobDto.WorkContent,
-                    LatestUpdateDate = jobDto.LatestUpdateDate
+                    LatestUpdateDate = jobDto.LatestUpdateDate,
+                    CompanySourceFrom = jobDto.CompanySourceFrom,
                 });
             }
             else
@@ -169,6 +170,7 @@ AND company.source_from  = {0}
                 job.Url = pageUrl;
                 job.WorkContent = jobDto.WorkContent;
                 job.LatestUpdateDate = jobDto.LatestUpdateDate;
+                job.CompanySourceFrom = jobDto.CompanySourceFrom;
             }
 
             await postgresContext.SaveChangesAsync();

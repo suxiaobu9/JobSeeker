@@ -17,6 +17,15 @@ builder.Services.AddDbContext<postgresContext>(option =>
 
 var app = builder.Build();
 
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    using (var context = serviceScope.ServiceProvider.GetService<postgresContext>())
+    {
+        if (context != null)
+            context.Database.Migrate();
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
