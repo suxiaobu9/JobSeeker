@@ -17,7 +17,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSerilog(hostContext );
         services.AddDbContext(hostContext );
         services.AddRedis(hostContext );
-        services.AddRabbitMq(hostContext );
+        services.AddRabbitMqConnection(hostContext );
 
         services.AddHttpClient();
 

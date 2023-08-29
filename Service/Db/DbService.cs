@@ -59,7 +59,9 @@ AND company.source_from  = {0}
         {
             var postgresContext = GetPostgresContext();
 
-            var company = await postgresContext.Companies.FirstOrDefaultAsync(x => x.Id == companyDto.Id);
+            var company = await postgresContext.Companies.FirstOrDefaultAsync
+                (x => x.Id == companyDto.Id &&
+                x.SourceFrom == companyDto.SourceFrom);
 
             var getCompanyInfoDto = new GetCompanyInfoDto
             {
@@ -92,7 +94,6 @@ AND company.source_from  = {0}
                 company.Name = companyDto.Name;
                 company.Product = companyDto.Product;
                 company.Profile = companyDto.Profile;
-                company.SourceFrom = companyDto.SourceFrom;
                 company.UpdateUtcAt = now.UtcDateTime;
                 company.Url = pageUrl;
                 company.Welfare = companyDto.Welfare;
@@ -119,8 +120,10 @@ AND company.source_from  = {0}
         {
             var postgresContext = GetPostgresContext();
 
-            var job = await postgresContext.Jobs
-                        .FirstOrDefaultAsync(x => x.Id == jobDto.Id && x.CompanyId == jobDto.CompanyId);
+            var job = await postgresContext.Jobs.FirstOrDefaultAsync
+                (x => x.Id == jobDto.Id &&
+                x.CompanyId == jobDto.CompanyId &&
+                x.CompanySourceFrom == jobDto.CompanySourceFrom);
 
             var getJobInfoDto = new GetJobInfoDto
             {
@@ -170,7 +173,6 @@ AND company.source_from  = {0}
                 job.Url = pageUrl;
                 job.WorkContent = jobDto.WorkContent;
                 job.LatestUpdateDate = jobDto.LatestUpdateDate;
-                job.CompanySourceFrom = jobDto.CompanySourceFrom;
             }
 
             await postgresContext.SaveChangesAsync();

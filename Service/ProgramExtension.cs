@@ -48,22 +48,21 @@ public static class ProgramExtension
         services.AddSingleton(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase(0));
     }
 
-    public static void AddRabbitMq(this IServiceCollection services, HostBuilderContext hostBuilderContext)
+    public static void AddRabbitMqConnection(this IServiceCollection services, HostBuilderContext hostBuilderContext)
     {
         var configuration = hostBuilderContext.Configuration;
 
+        var HostName = configuration.GetSection("RabbitMq:Host").Value;
+        var UserName = configuration.GetSection("RabbitMq:Name").Value;
+        var Password = configuration.GetSection("RabbitMq:Password").Value;
         // RabbitMq
         services.AddSingleton(serviceProvider =>
         {
-            var HostName = configuration.GetSection("RabbitMq:Host").Value;
-            var UserName = configuration.GetSection("RabbitMq:Name").Value;
-            var Password = configuration.GetSection("RabbitMq:Password").Value;
-
             return new ConnectionFactory
             {
-                HostName = configuration.GetSection("RabbitMq:Host").Value,
-                UserName = configuration.GetSection("RabbitMq:Name").Value,
-                Password = configuration.GetSection("RabbitMq:Password").Value,
+                HostName = HostName,
+                UserName = UserName,
+                Password = Password,
                 DispatchConsumersAsync = true,
             }.CreateConnection();
         });
