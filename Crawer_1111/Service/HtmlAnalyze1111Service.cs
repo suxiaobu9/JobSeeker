@@ -208,9 +208,12 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
         if (salaryRegion == null)
             return null;
 
-        var salary = salaryRegion.SelectNodes($"//span[contains(@class, '{Parameters1111.JobSalarySpanClass}')]")?[0].InnerText;
+        var salaryNode = salaryRegion.SelectNodes($"//span[contains(@class, '{Parameters1111.JobSalarySpanClass}')]")?[0].ChildNodes.Where(x=>x.Name == "#text");
 
-        return salary;
+        if (salaryNode == null)
+            return null;
+
+        return string.Join("", salaryNode.Select(x => x.InnerText));
     }
 
     public string? GetWorkContent(HtmlDocument htmlDoc)
