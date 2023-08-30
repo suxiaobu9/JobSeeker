@@ -53,7 +53,7 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
         if (companyContentNodes == null)
             return null;
 
-        var dic = new Dictionary<string, List<string>>();
+        var dic = new Dictionary<string, string>();
         var currentH2 = "";
 
 
@@ -71,18 +71,17 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
             {
                 if (string.IsNullOrWhiteSpace(currentH2))
                     continue;
-                if (dic.ContainsKey(currentH2))
-                    dic[currentH2].Add(node.InnerText);
-                else
-                    dic.Add(currentH2, new List<string>() { node.InnerText });
-
+                if (!dic.ContainsKey(currentH2))
+                {
+                    dic.Add(currentH2, node.InnerText);
+                }
                 continue;
             }
         }
 
         foreach (var item in dic)
         {
-            nodeCollection.Add(HtmlNode.CreateNode($"<div><h2>{item.Key}</h2><div>{string.Join("<br>", item.Value)}</div></div>"));
+            nodeCollection.Add(HtmlNode.CreateNode($"<div><h2>{item.Key}</h2><div>{item.Value}</div></div>"));
         }
 
         return nodeCollection.Count == 0 ? null : nodeCollection;

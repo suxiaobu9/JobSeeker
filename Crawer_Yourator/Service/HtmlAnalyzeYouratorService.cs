@@ -37,37 +37,71 @@ public class HtmlAnalyzeYouratorService : IHtmlAnalyzeService
 
     public HtmlNodeCollection? GetCompanyCardContentNodes(HtmlDocument htmlDoc)
     {
-        var cardContent = htmlDoc.DocumentNode.SelectNodes($"//div[{ParametersYourator.CompanyCardContentSelector}]")?[0];
-        if (cardContent == null)
+        var nodeCollection = new HtmlNodeCollection(null);
+
+        var companyContentNodes = htmlDoc.DocumentNode.SelectNodes($"//div[{ParametersYourator.CompanyCardContentSelector}]")?[0];
+
+        if (companyContentNodes == null)
         {
             logger.LogWarning($"{nameof(HtmlAnalyzeYouratorService)} Get company card content fail.");
             return null;
         }
-        var htmlNodes = new HtmlNodeCollection(null);
 
-        var h2Nodes = cardContent.SelectNodes($".//h2[not(@class='{ParametersYourator.CompanyCardContentH2NotAllowClassName}')]");
-        var sectionNodes = cardContent.SelectNodes($".//section[contains(@class, '{ParametersYourator.CardContentSectionValidClassName}')]");
+        var dic = new Dictionary<string, string>();
+        var currentH2 = "";
 
-        if (h2Nodes == null || sectionNodes == null)
+        var allChildNodes = companyContentNodes.ChildNodes.Where(x => !x.Name.Trim().StartsWith("#")).ToArray();
+
+        foreach (var node in allChildNodes)
         {
-            logger.LogWarning($"{nameof(HtmlAnalyzeYouratorService)} Get company card content fail.h2Nodes or sectionNodes is null");
-            return null;
+            if (node.Name == "h2")
+            {
+                currentH2 = node.InnerText;
+                continue;
+            }
+
+            if (node.Name == "section")
+            {
+                if (string.IsNullOrWhiteSpace(currentH2))
+                    continue;
+                if (!dic.ContainsKey(currentH2))
+                    dic.Add(currentH2, node.InnerText);
+
+                continue;
+            }
         }
 
-        if (h2Nodes.Count != sectionNodes.Count)
+        foreach (var item in dic)
         {
-            logger.LogWarning($"{nameof(HtmlAnalyzeYouratorService)} Get company card content fail.nodes count not equal");
-            return null;
+            nodeCollection.Add(HtmlNode.CreateNode($"<div><h2>{item.Key}</h2><section>{item.Value}</section></div>"));
         }
 
-        for (int i = 0; i < h2Nodes.Count; i++)
-        {
-            HtmlNode node = HtmlNode.CreateNode($"<div><h2>{h2Nodes[i].InnerText}</h2><section>{sectionNodes[i].InnerText}</section></div>");
+        return nodeCollection.Count == 0 ? null : nodeCollection;
+        //var htmlNodes = new HtmlNodeCollection(null);
 
-            htmlNodes.Add(node);
-        }
+        //var h2Nodes = cardContent.SelectNodes($".//h2[not(@class='{ParametersYourator.CompanyCardContentH2NotAllowClassName}')]");
+        //var sectionNodes = cardContent.SelectNodes($".//section[contains(@class, '{ParametersYourator.CardContentSectionValidClassName}')]");
 
-        return htmlNodes;
+        //if (h2Nodes == null || sectionNodes == null)
+        //{
+        //    logger.LogWarning($"{nameof(HtmlAnalyzeYouratorService)} Get company card content fail.h2Nodes or sectionNodes is null");
+        //    return null;
+        //}
+
+        //if (h2Nodes.Count != sectionNodes.Count)
+        //{
+        //    logger.LogWarning($"{nameof(HtmlAnalyzeYouratorService)} Get company card content fail.nodes count not equal");
+        //    return null;
+        //}
+
+        //for (int i = 0; i < h2Nodes.Count; i++)
+        //{
+        //    HtmlNode node = HtmlNode.CreateNode($"<div><h2>{h2Nodes[i].InnerText}</h2><section>{sectionNodes[i].InnerText}</section></div>");
+
+        //    htmlNodes.Add(node);
+        //}
+
+        //return htmlNodes;
     }
 
     public string? GetCompanyName(HtmlDocument htmlDoc)
