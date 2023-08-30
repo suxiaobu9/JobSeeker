@@ -156,4 +156,14 @@ public class HtmlAnalyzeCakeResumeService : IHtmlAnalyzeService
     /// <param name="htmlDoc"></param>
     /// <returns></returns>
     public HtmlNode? GetJobListJobNode(HtmlNode htmlNode) => htmlNode.SelectNodes($".//a[contains(@class, '{ParametersCakeResume.JobListJobNodeAClassName}')]")?[0];
+
+    public string? GetWorkContent(HtmlDocument htmlDoc)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string? GetOtherRequirement(HtmlDocument htmlDoc)
+    {
+        throw new NotImplementedException();
+    }
 }

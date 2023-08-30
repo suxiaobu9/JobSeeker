@@ -1,6 +1,7 @@
 ﻿using Model;
 using Model.Dto;
 using Model.Dto1111;
+using RabbitMQ.Client.Events;
 using Service.Cache;
 using Service.Db;
 using Service.Delay;
@@ -35,8 +36,8 @@ public class FourfoldOneWorker : BackgroundService
 
     protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        //_ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(Parameters1111.QueueNameForCompanyId, mqService.CompanyMessageHandler);
-        //_ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(Parameters1111.QueueNameForJobId, mqService.JobInfoMessageHandler);
+        _ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(Parameters1111.QueueNameForCompanyId, mqService.CompanyMessageHandler);
+        _ = mqService.ProcessMessageFromMq<BasicDeliverEventArgs>(Parameters1111.QueueNameForJobId, mqService.JobInfoMessageHandler);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -63,8 +64,8 @@ public class FourfoldOneWorker : BackgroundService
                             break;
 
                         currentPage++;
-                        
-                        foreach(var item in jobList.JobList)
+
+                        foreach (var item in jobList.JobList)
                         {
                             if (!await cacheService.IsKeyFieldExistsInCache(Parameters1111.RedisKeyForCompanyIdSendToQueue, item.CompanyId))
                             {

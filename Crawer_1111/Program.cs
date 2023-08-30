@@ -2,6 +2,7 @@ using Crawer_1111.Service;
 using Crawer_1111.Workers;
 using Service;
 using Service.Cache;
+using Service.Data;
 using Service.Db;
 using Service.Delay;
 using Service.HtmlAnalyze;
@@ -27,6 +28,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IParameterService, Parameter1111Service>();
         services.AddSingleton<IMqService, RabbitMq1111Service>();
         services.AddSingleton<ITaskDelayService, TaskDelayService>();
+        services.AddSingleton<IDataService, DataService>();
 
         services.AddHostedService<FourfoldOneWorker>();
 

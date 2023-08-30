@@ -14,21 +14,21 @@ public class Parameter1111Service : IParameterService
 {
     public string CompanyInfoUrl(GetCompanyInfoDto dto)
     {
-        throw new NotImplementedException();
+        return CompanyPageUrl(dto);
     }
 
     public string CompanyPageUrl(GetCompanyInfoDto dto)
     {
-        throw new NotImplementedException();
+        return $"https://www.1111.com.tw/corp/{dto.CompanyId}";
     }
 
     public string JobInfoUrl(GetJobInfoDto dto)
     {
-        throw new NotImplementedException();
+        return JobPageUrl(dto);
     }
 
     public string JobPageUrl(GetJobInfoDto dto)
     {
-        throw new NotImplementedException();
+        return $"https://www.1111.com.tw/job/{dto.JobId}";
     }
 }

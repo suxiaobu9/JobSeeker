@@ -4,6 +4,7 @@ using Model.Dto;
 using Model.Dto1111;
 using Service.HtmlAnalyze;
 using Service.Http;
+using Service.Parameter;
 using System.Net;
 using System.Text.Json;
 
@@ -13,6 +14,7 @@ public class Http1111ServiceTest
 {
     private readonly IHtmlAnalyzeService htmlAnalyzeService = A.Fake<IHtmlAnalyzeService>();
     private readonly ILogger<BaseHttpService> logger = A.Fake<ILogger<BaseHttpService>>();
+    private readonly IParameterService parameterService = A.Fake<IParameterService>();
     private readonly string TestUrl = "https://www.example.com";
     private readonly string TestUrlWithId = "https://www.example.com/testid";
 
@@ -25,7 +27,7 @@ public class Http1111ServiceTest
         });
         var httpClient = new HttpClient(httpMessageHandler);
 
-        return new Http1111Service(httpClient, htmlAnalyzeService, logger);
+        return new Http1111Service(httpClient, htmlAnalyzeService, parameterService, logger);
     }
 
     [Test]

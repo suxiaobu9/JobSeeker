@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using Model.DtoCakeResume;
 using Model.DtoYourator;
 using Service.HtmlAnalyze;
 
@@ -196,7 +195,17 @@ public class HtmlAnalyzeYouratorService : IHtmlAnalyzeService
         return string.Join(' ', result);
     }
 
+    public string? GetOtherRequirement(HtmlDocument htmlDoc)
+    {
+        throw new NotImplementedException();
+    }
+
     public string? GetSalary(HtmlDocument htmlDoc)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string? GetWorkContent(HtmlDocument htmlDoc)
     {
         throw new NotImplementedException();
     }
