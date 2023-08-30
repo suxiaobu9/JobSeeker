@@ -39,6 +39,14 @@ jobs:
         run: |
           docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:${{ env.DATE }} -t arisuokay/job-seeker-crawer-cakeresume:latest .
 
+      - name: Build Docker image - Crawer - Yourator
+        run: |
+          docker build -f ./Crawer_Yourator/Dockerfile -t arisuokay/job-seeker-crawer-yourator:${{ env.DATE }} -t arisuokay/job-seeker-crawer-yourator:latest .
+
+      - name: Build Docker image - Crawer - 1111
+        run: |
+          docker build -f ./Crawer_1111/Dockerfile -t arisuokay/job-seeker-crawer-1111:${{ env.DATE }} -t arisuokay/job-seeker-crawer-1111:latest .
+
       - name: Build Docker image - Web
         run: |
           docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:${{ env.DATE }} -t arisuokay/job-seeker-web:latest .

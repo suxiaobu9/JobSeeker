@@ -185,6 +185,21 @@ services:
       redis-stack-server:
         condition: service_healthy
 
+  crawer-1111:
+    image: arisuokay/job-seeker-crawer-1111:latest
+    container_name: crawer-1111
+    restart: unless-stopped
+    networks:
+      job_seeker_network:
+        ipv4_address: 172.20.0.12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+      redis-stack-server:
+        condition: service_healthy
+
 networks:
   job_seeker_network:
     ipam:
