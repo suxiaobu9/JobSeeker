@@ -58,7 +58,7 @@ public class FourfoldOneWorker : BackgroundService
                     {
                         var url = Parameters1111.GetJobListUrl(keyword, currentPage);
 
-                        var jobList = await httpService.GetJobList<JobListDto<SimpleJobInfoDto>>(url);
+                        var jobList = await httpService.GetJobList<JobListWithPageDto>(url);
 
                         if (jobList == null || jobList.JobList == null)
                             break;
@@ -78,6 +78,8 @@ public class FourfoldOneWorker : BackgroundService
                                 await mqService.SendMessageToMq(Parameters1111.QueueNameForJobId, item);
                             }
                         }
+                        if (jobList.TotalPage < currentPage)
+                            break;
                     }
                     catch (Exception ex)
                     {

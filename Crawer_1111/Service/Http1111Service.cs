@@ -226,8 +226,9 @@ public class Http1111Service : BaseHttpService, IHttpService
                 }
             }
 
-            return new JobListDto<SimpleJobInfoDto>
+            return new JobListWithPageDto
             {
+                TotalPage = data.Pc.Value,
                 JobList = jobList,
             } as T;
         }
