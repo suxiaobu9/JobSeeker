@@ -90,10 +90,12 @@ namespace Model.JobSeekerDb
 
             modelBuilder.Entity<Job>(entity =>
             {
-                entity.HasKey(e => new { e.Id, e.CompanyId })
+                entity.HasKey(e => new { e.Id, e.CompanyId, e.CompanySourceFrom })
                     .HasName("job_pk");
 
                 entity.ToTable("job", "jobseeker");
+
+                entity.HasIndex(e => new { e.CompanyId, e.CompanySourceFrom }, "IX_job_company_id_company_source_from");
 
                 entity.HasIndex(e => e.CompanyId, "job_company_id_idx");
 
@@ -108,6 +110,7 @@ namespace Model.JobSeekerDb
                 entity.Property(e => e.CompanySourceFrom)
                     .HasColumnType("character varying")
                     .HasColumnName("company_source_from")
+                    .HasDefaultValueSql("''::character varying")
                     .HasComment("來源");
 
                 entity.Property(e => e.CreateUtcAt)
