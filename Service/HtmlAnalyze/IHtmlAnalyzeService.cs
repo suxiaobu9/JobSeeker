@@ -94,4 +94,18 @@ public interface IHtmlAnalyzeService
     /// <param name="htmlDoc"></param>
     /// <returns></returns>
     string? GetSalary(HtmlDocument htmlDoc);
+
+    /// <summary>
+    /// 取得工作資訊
+    /// </summary>
+    /// <param name="htmlDoc"></param>
+    /// <returns></returns>
+    string? GetWorkContent(HtmlDocument htmlDoc);
+
+    /// <summary>
+    /// 取得其他條件
+    /// </summary>
+    /// <param name="htmlDoc"></param>
+    /// <returns></returns>
+    string? GetOtherRequirement(HtmlDocument htmlDoc);
 }

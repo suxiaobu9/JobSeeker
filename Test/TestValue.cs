@@ -10,4 +10,5 @@ public class TestValue
 {
     public static string NotValidJsonContent => "{\"TestProperty\":\"TestValue\"}";
 
+    public static string JustRandomComment => "This is just a random comment";
 }

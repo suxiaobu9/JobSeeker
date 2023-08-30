@@ -1,11 +1,11 @@
-using Crawer_104.Service;
-using Crawer_104.Workers;
-using Model.Dto104;
+using Crawer_1111.Service;
+using Crawer_1111.Workers;
 using Service;
 using Service.Cache;
 using Service.Data;
 using Service.Db;
 using Service.Delay;
+using Service.HtmlAnalyze;
 using Service.Http;
 using Service.Mq;
 using Service.Parameter;
@@ -18,17 +18,19 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddRedis(hostContext);
         services.AddRabbitMqConnection(hostContext);
 
-        services.AddHttpClient(Parameters104.Referer, client => client.DefaultRequestHeaders.Add("Referer", Parameters104.Referer));
+        services.AddHttpClient();
 
-        services.AddSingleton<IHttpService, Http104Service>();
-        services.AddSingleton<ICacheService, Redis104Service>();
-        services.AddSingleton<IMqService, RabbitMq104Service>();
+        services.AddSingleton<ICacheService, Redis1111Service>();
         services.AddSingleton<IDbService, DbService>();
-        services.AddSingleton<IDataService, DataService>();
-        services.AddSingleton<IParameterService, Parameter104Service>();
+        services.AddSingleton<IHttpService, Http1111Service>();
+        services.AddSingleton<IHtmlAnalyzeService, HtmlAnalyze1111Service>();
+        services.AddSingleton<ICacheService, Redis1111Service>();
+        services.AddSingleton<IParameterService, Parameter1111Service>();
+        services.AddSingleton<IMqService, RabbitMq1111Service>();
         services.AddSingleton<ITaskDelayService, TaskDelayService>();
+        services.AddSingleton<IDataService, DataService>();
 
-        services.AddHostedService<OneZeroFourWorker>();
+        services.AddHostedService<FourfoldOneWorker>();
 
         services.DbMigration();
     }).ConfigureAppConfiguration(config =>

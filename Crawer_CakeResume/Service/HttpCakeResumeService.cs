@@ -270,8 +270,8 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
                 if (jobNode == null || companyNode == null)
                     continue;
 
-                var jobId = jobNode.GetAttributeValue("href", "").Split("/").LastOrDefault();
-                var companyId = companyNode.GetAttributeValue("href", "").Split("/").LastOrDefault();
+                var jobId = jobNode.GetAttributeValue("href", "").Split("/").Where(x => !string.IsNullOrWhiteSpace(x)).LastOrDefault();
+                var companyId = companyNode.GetAttributeValue("href", "").Split("/").Where(x => !string.IsNullOrWhiteSpace(x)).LastOrDefault();
 
                 if (string.IsNullOrWhiteSpace(jobId) || string.IsNullOrWhiteSpace(companyId))
                     continue;

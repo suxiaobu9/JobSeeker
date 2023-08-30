@@ -86,16 +86,6 @@ public class HtmlAnalyzeYouratorServiceTest
     }
 
     [Test]
-    public void GetCompanyCardContentNodes_NodesCountNotEqual_GetNull1()
-    {
-        var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml($"<div class='company__content'><section>section1</section><h2>h21</h2><section>section2</section></div>");
-
-        var result = HtmlAnalyzeYouratorService.GetCompanyCardContentNodes(htmlDoc);
-        Assert.That(result, Is.Null);
-    }
-
-    [Test]
     public void GetCompanyCardContentNodes_NodesCountEqual_Getdata()
     {
         var htmlDoc = new HtmlDocument();

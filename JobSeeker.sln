@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crawer_CakeResume", "Crawer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{6F7D96D7-45DC-44F6-804E-2292E76B4975}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawer_Yourator", "Crawer_Yourator\Crawer_Yourator.csproj", "{572472DE-511C-44B9-A746-20E24DD5A2CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crawer_Yourator", "Crawer_Yourator\Crawer_Yourator.csproj", "{572472DE-511C-44B9-A746-20E24DD5A2CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawer_1111", "Crawer_1111\Crawer_1111.csproj", "{4A046D3E-3900-46E3-9B1A-27A3D0B4B9A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{572472DE-511C-44B9-A746-20E24DD5A2CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{572472DE-511C-44B9-A746-20E24DD5A2CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{572472DE-511C-44B9-A746-20E24DD5A2CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A046D3E-3900-46E3-9B1A-27A3D0B4B9A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A046D3E-3900-46E3-9B1A-27A3D0B4B9A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A046D3E-3900-46E3-9B1A-27A3D0B4B9A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A046D3E-3900-46E3-9B1A-27A3D0B4B9A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
