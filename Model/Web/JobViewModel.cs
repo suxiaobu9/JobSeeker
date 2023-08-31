@@ -4,6 +4,8 @@ public class JobViewModel
 {
     public string? JobId { get; set; }
 
+    public string? CompanyId { get; set; }
+
     public string? Name { get; set; }
 
     public string? JobUrl { get; set; }
@@ -23,4 +25,6 @@ public class JobViewModel
     public int UpdateCount { get; set; }
 
     public string? LatestUpdateDate { get; set; }
+
+    public string? CompanySourceFrom { get; set; }
 }

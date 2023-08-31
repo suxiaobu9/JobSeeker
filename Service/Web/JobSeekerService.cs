@@ -10,7 +10,7 @@ public class JobSeekerService : IJobSeekerService
     private readonly postgresContext postgresContext;
     private readonly ILogger<JobSeekerService> logger;
 
-    public JobSeekerService(postgresContext postgresContext, 
+    public JobSeekerService(postgresContext postgresContext,
         ILogger<JobSeekerService> logger)
     {
         this.postgresContext = postgresContext;
@@ -50,7 +50,9 @@ public class JobSeekerService : IJobSeekerService
                                 HaveRead = y.HaveRead,
                                 Ignore = y.Ignore,
                                 UpdateCount = y.UpdateCount,
-                                LatestUpdateDate = y.LatestUpdateDate
+                                LatestUpdateDate = y.LatestUpdateDate,
+                                CompanyId = y.CompanyId,
+                                CompanySourceFrom = y.CompanySourceFrom
                             }).ToArray(),
                 }).FirstOrDefaultAsync();
     }
@@ -71,7 +73,7 @@ public class JobSeekerService : IJobSeekerService
     /// <returns></returns>
     public async Task IgnoreCompany(CompanyViewModel model)
     {
-        var company = await postgresContext.Companies.FirstOrDefaultAsync(x => x.Id == model.Id);
+        var company = await postgresContext.Companies.FirstOrDefaultAsync(x => x.Id == model.Id && x.SourceFrom == model.SourceFrom);
 
         if (company == null)
         {
@@ -91,7 +93,7 @@ public class JobSeekerService : IJobSeekerService
     /// <returns></returns>
     public async Task IgnoreJob(JobViewModel model)
     {
-        var job = await postgresContext.Jobs.FirstOrDefaultAsync(x => x.Id == model.JobId);
+        var job = await postgresContext.Jobs.FirstOrDefaultAsync(x => x.Id == model.JobId && x.CompanyId == model.CompanyId && x.CompanySourceFrom == model.CompanySourceFrom);
 
         if (job == null)
         {
@@ -111,7 +113,7 @@ public class JobSeekerService : IJobSeekerService
     /// <returns></returns>
     public async Task ReadAllJobs(CompanyViewModel model)
     {
-        var jobs = await postgresContext.Jobs.Where(x => x.CompanyId == model.Id).ToArrayAsync();
+        var jobs = await postgresContext.Jobs.Where(x => x.CompanyId == model.Id && x.CompanySourceFrom == model.SourceFrom).ToArrayAsync();
 
         foreach (var job in jobs)
         {
@@ -128,7 +130,7 @@ public class JobSeekerService : IJobSeekerService
     /// <returns></returns>
     public async Task ReadJob(JobViewModel model)
     {
-        var job = await postgresContext.Jobs.Where(x => x.Id == model.JobId).FirstOrDefaultAsync();
+        var job = await postgresContext.Jobs.Where(x => x.Id == model.JobId && x.CompanyId == model.CompanyId && x.CompanySourceFrom == model.CompanySourceFrom).FirstOrDefaultAsync();
 
         if (job == null)
         {
