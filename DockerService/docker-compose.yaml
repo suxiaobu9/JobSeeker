@@ -16,9 +16,7 @@ services:
         ipv4_address: 172.20.0.2
 
   rabbitmq:
-    build:
-      context: .
-      dockerfile: ./image/rabbitmq/Dockerfile
+    image: rabbitmq:3.12-management
     container_name: rabbitmq
     restart: unless-stopped
     networks:
@@ -27,19 +25,6 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "-u",
-          "guest:guest",
-          "http://localhost:15672/api/healthchecks/node",
-        ]
-      interval: 10s
-      timeout: 10s
-      retries: 10
     volumes:
       - ./data/rabbitmq:/var/lib/rabbitmq
 
@@ -50,15 +35,11 @@ services:
     environment:
       - POSTGRES_USER=jobseeker
       - POSTGRES_PASSWORD=jobseeker
+      - POSTGRES_DB=db_prod
     ports:
       - 5432:5432
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.4
@@ -73,11 +54,6 @@ services:
     ports:
       - "8848:8848"
       - "9848:9848"
-    healthcheck:
-      test: curl 172.20.0.5:8848/nacos && curl 172.20.0.2:5341/health
-      interval: 10s
-      timeout: 10s
-      retries: 10
     depends_on:
       mysql:
         condition: service_healthy
@@ -114,15 +90,6 @@ services:
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.7
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nacos:
-        condition: service_healthy
-      redis-stack-server:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
 
   jobseeker-web:
      image: arisuokay/job-seeker-web:latest
@@ -133,11 +100,6 @@ services:
          ipv4_address: 172.20.0.8
      ports:
        - "80:80"
-     depends_on:
-       postgres:
-         condition: service_healthy
-       nacos:
-         condition: service_healthy
 
   redis-stack-server:
     image: redis/redis-stack-server:latest
@@ -148,11 +110,6 @@ services:
     volumes:
       - ./data/redis:/data
     command: redis-server --requirepass jobseekerredispwde412c4942391bb8c9a55c2fa66849a0954a761dc
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.9
@@ -164,15 +121,6 @@ services:
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.10
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nacos:
-        condition: service_healthy
-      redis-stack-server:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
 
   crawer-yourator:
     image: arisuokay/job-seeker-crawer-yourator:latest
@@ -181,15 +129,6 @@ services:
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.11
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nacos:
-        condition: service_healthy
-      redis-stack-server:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
 
   crawer-1111:
     image: arisuokay/job-seeker-crawer-1111:latest
@@ -198,15 +137,6 @@ services:
     networks:
       job_seeker_network:
         ipv4_address: 172.20.0.12
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nacos:
-        condition: service_healthy
-      redis-stack-server:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
 
 networks:
   job_seeker_network:
