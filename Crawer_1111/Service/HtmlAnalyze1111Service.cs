@@ -189,7 +189,7 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
         if (jobPlaceParentNode == null)
             return null;
 
-        var jobPlace = jobPlaceParentNode.SelectNodes($"//span[contains(@class, '{Parameters1111.JobPlaceSpanClass}')]")?[0].InnerText;
+        var jobPlace = jobPlaceParentNode.SelectNodes($".//span[contains(@class, '{Parameters1111.JobPlaceSpanClass}')]")?[0].InnerText;
 
         return jobPlace;
     }
