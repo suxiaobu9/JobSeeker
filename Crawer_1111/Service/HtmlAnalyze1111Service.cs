@@ -30,10 +30,16 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
         if (string.IsNullOrWhiteSpace(filterKey))
             return null;
 
-        var cardContent = divNode.SelectNodes($".//div")?[0].InnerText;
+        var cardContent = divNode.SelectNodes($".//div")?[0].InnerHtml;
 
         if (string.IsNullOrWhiteSpace(cardContent))
             return null;
+
+        cardContent = cardContent.Trim();
+        cardContent = Regex.Replace(cardContent, @"\s+", Environment.NewLine);
+        cardContent = cardContent.Replace("<br>", Environment.NewLine);
+        cardContent = cardContent.Replace("<div>", "").Replace("</div>", Environment.NewLine);
+
 
         return new KeyValuePair<string, string>(filterKey, cardContent);
     }
