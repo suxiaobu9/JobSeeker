@@ -345,9 +345,23 @@ public class HtmlAnalyze1111ServiceTest
     }
 
     [Test]
-    public void GetJobName_GetData()
+    public void GetJobName_WrongH1ClassName()
     {
         var html = $"<h1>{TestValue.JustRandomComment}</h1>";
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.LoadHtml(html);
+
+        var service = new HtmlAnalyze1111Service(logger);
+
+        var result = service.GetJobName(htmlDoc);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public void GetJobName_GetData()
+    {
+        var html = $"<h1 class='title_'>{TestValue.JustRandomComment}</h1>";
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(html);
 
@@ -373,9 +387,23 @@ public class HtmlAnalyze1111ServiceTest
     }
 
     [Test]
-    public void GetWorkContent_GetData()
+    public void GetWorkContent_NoChildDivData()
     {
         var html = $"<div class='{Parameters1111.JobWorkContentDivClass}'><div>{TestValue.JustRandomComment}</div></div>";
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.LoadHtml(html);
+
+        var service = new HtmlAnalyze1111Service(logger);
+
+        var result = service.GetWorkContent(htmlDoc);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public void GetWorkContent_GetData()
+    {
+        var html = $"<div class='{Parameters1111.JobWorkContentDivClass}'><div class='{Parameters1111.JobWorkContentChildDivClass}'>{TestValue.JustRandomComment}</div></div>";
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(html);
 
@@ -443,9 +471,23 @@ public class HtmlAnalyze1111ServiceTest
     }
 
     [Test]
+    public void GetOtherRequirement_NoContentDiv()
+    {
+        var html = $"<div class='{Parameters1111.JobOtherRequirementDivClass}'>{TestValue.JustRandomComment}</div>"; ;
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.LoadHtml(html);
+
+        var service = new HtmlAnalyze1111Service(logger);
+
+        var result = service.GetOtherRequirement(htmlDoc);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
     public void GetOtherRequirement_GetData()
     {
-        var html = $"<div class='{Parameters1111.JobOtherRequirementDivClass}'>{TestValue.JustRandomComment}</div>";
+        var html = $"<div class='{Parameters1111.JobOtherRequirementDivClass}'><div class='{Parameters1111.JobOtherRequirementContentDivClass}'>{TestValue.JustRandomComment}</div></div>";
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(html);
 

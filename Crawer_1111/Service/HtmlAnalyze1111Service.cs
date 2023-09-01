@@ -1,13 +1,7 @@
 ﻿using HtmlAgilityPack;
 using Model.Dto1111;
 using Service.HtmlAnalyze;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace Crawer_1111.Service;
 
@@ -73,7 +67,7 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
                     continue;
                 if (!dic.ContainsKey(currentH2))
                 {
-                    dic.Add(currentH2, node.InnerText);
+                    dic.Add(currentH2, node.InnerText.Trim());
                 }
                 continue;
             }
@@ -166,7 +160,7 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
 
     public string? GetJobName(HtmlDocument htmlDoc)
     {
-        var jobName = htmlDoc.DocumentNode.SelectNodes($"//h1")?[0].InnerText.Trim();
+        var jobName = htmlDoc.DocumentNode.SelectNodes($"//h1[contains(@class, '{Parameters1111.JobTitleH1ClassName}')]")?[0].InnerText.Trim();
 
         if (string.IsNullOrWhiteSpace(jobName))
         {
@@ -196,9 +190,17 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
 
     public string? GetOtherRequirement(HtmlDocument htmlDoc)
     {
-        var otherRequirement = htmlDoc.DocumentNode.SelectNodes($"//div[contains(@class, '{Parameters1111.JobOtherRequirementDivClass}')]")?[0].InnerText;
+        var otherRequirementHtml = htmlDoc.DocumentNode.SelectNodes($"//div[contains(@class, '{Parameters1111.JobOtherRequirementDivClass}')]//div[contains(@class, '{Parameters1111.JobOtherRequirementConditionDivClass}')]//div[contains(@class, '{Parameters1111.JobOtherRequirementContentDivClass}')]")?[0]?.InnerHtml;
 
-        return otherRequirement;
+        if (otherRequirementHtml == null)
+            return null;
+
+        otherRequirementHtml = otherRequirementHtml.Trim();
+
+        otherRequirementHtml = Regex.Replace(otherRequirementHtml, "<br>+", Environment.NewLine);
+        otherRequirementHtml = Regex.Replace(otherRequirementHtml, $"{Environment.NewLine}+", Environment.NewLine);
+
+        return otherRequirementHtml;
     }
 
     public string? GetSalary(HtmlDocument htmlDoc)
@@ -208,7 +210,7 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
         if (salaryRegion == null)
             return null;
 
-        var salaryNode = salaryRegion.SelectNodes($"//span[contains(@class, '{Parameters1111.JobSalarySpanClass}')]")?[0].ChildNodes.Where(x=>x.Name == "#text");
+        var salaryNode = salaryRegion.SelectNodes($"//span[contains(@class, '{Parameters1111.JobSalarySpanClass}')]")?[0].ChildNodes.Where(x => x.Name == "#text");
 
         if (salaryNode == null)
             return null;
@@ -223,17 +225,17 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
         if (workContent == null)
             return null;
 
-        var contentNodes = workContent.SelectNodes($".//div");
+        var contentNode = workContent.SelectNodes($".//div[contains(@class, '{Parameters1111.JobWorkContentChildDivClass}')]")?[0];
 
-        if (contentNodes == null)
+        if (contentNode == null)
             return null;
 
-        var result = new List<string>();
-        foreach (var contentNode in contentNodes)
-        {
-            result.Add(contentNode.InnerText);
-        }
+        var html = contentNode.InnerHtml.Trim();
 
-        return string.Join(Environment.NewLine, result);
+        html = html.Replace("<p>", "").Replace("</p>", Environment.NewLine);
+
+        html = Regex.Replace(html, $"{Environment.NewLine}+", Environment.NewLine);
+
+        return html;
     }
 }

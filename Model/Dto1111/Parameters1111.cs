@@ -66,9 +66,13 @@ public static class Parameters1111
     public const string CompanyNameDivName = "title";
     public const string CompanyCardContentDivClassName = "corp_body";
     public const string JobWorkContentDivClass = "job_description";
+    public const string JobWorkContentChildDivClass = "description_info";
+    public const string JobTitleH1ClassName = "title";
     public const string JobPlaceIconDivClass = "icon_location";
     public const string JobPlaceSpanClass = "job_info_content";
     public const string JobOtherRequirementDivClass = "job_skill";
+    public const string JobOtherRequirementConditionDivClass = "conditions";
+    public const string JobOtherRequirementContentDivClass = "ui_items_group";
     public const string JobSalaryRegionDivClass = "job_salary_region";
     public const string JobSalarySpanClass = "color_Secondary_1";
     public const string JobLastUpdateTimeSmallClass = "job_item_date";

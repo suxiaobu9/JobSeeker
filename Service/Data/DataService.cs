@@ -4,6 +4,7 @@ using Model.Dto;
 using Model.Dto104;
 using Service.Cache;
 using Service.Db;
+using Service.Delay;
 using Service.Http;
 using Service.Parameter;
 
@@ -15,18 +16,21 @@ public class DataService : IDataService
     private readonly IHttpService httpService;
     private readonly ICacheService cacheService;
     private readonly IParameterService parameterService;
+    private readonly ITaskDelayService taskDelayService;
     private readonly IDbService dbService;
 
     public DataService(ILogger<DataService> logger,
         IHttpService httpService,
         ICacheService cacheService,
         IParameterService parameterService,
+        ITaskDelayService taskDelayService,
         IDbService dbService)
     {
         this.logger = logger;
         this.httpService = httpService;
         this.cacheService = cacheService;
         this.parameterService = parameterService;
+        this.taskDelayService = taskDelayService;
         this.dbService = dbService;
     }
 
@@ -74,6 +78,8 @@ public class DataService : IDataService
             if (!await cacheService.CompanyExist(Parameters104.RedisKeyForCompanyUpdated, dto.CompanyId))
             {
                 logger.LogInformation($"{nameof(DataService)} GetJobDataAndUpsert company not exist, renew message.");
+
+                await taskDelayService.Delay(TimeSpan.FromSeconds(10));
 
                 return ReturnStatus.Retry;
             }
