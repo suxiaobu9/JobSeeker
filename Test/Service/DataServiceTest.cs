@@ -1,16 +1,11 @@
 ﻿using Model;
 using Model.Dto;
-using Model.Dto104;
 using Service.Cache;
 using Service.Data;
 using Service.Db;
+using Service.Delay;
 using Service.Http;
 using Service.Parameter;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test.Service;
 
@@ -20,6 +15,7 @@ public class DataServiceTest
     private readonly IHttpService httpService = A.Fake<IHttpService>();
     private readonly ICacheService cacheService = A.Fake<ICacheService>();
     private readonly IParameterService parameterService = A.Fake<IParameterService>();
+    private readonly ITaskDelayService taskDelayService = A.Fake<ITaskDelayService>();
     private readonly IDbService dbService = A.Fake<IDbService>();
 
     [Test]
@@ -28,7 +24,7 @@ public class DataServiceTest
         CompanyDto? companyDto = null;
         A.CallTo(() => httpService.GetCompanyInfo<CompanyDto>(A<GetCompanyInfoDto>.Ignored)).Returns(companyDto);
 
-        var service = new DataService(logger, httpService, cacheService, parameterService, dbService);
+        var service = new DataService(logger, httpService, cacheService, parameterService, taskDelayService, dbService);
 
         var result = await service.GetCompanyDataAndUpsert(new GetCompanyInfoDto());
 
@@ -41,7 +37,7 @@ public class DataServiceTest
         CompanyDto? companyDto = new();
         A.CallTo(() => httpService.GetCompanyInfo<CompanyDto>(A<GetCompanyInfoDto>.Ignored)).Returns(companyDto);
 
-        var service = new DataService(logger, httpService, cacheService, parameterService, dbService);
+        var service = new DataService(logger, httpService, cacheService, parameterService, taskDelayService, dbService);
 
         var result = await service.GetCompanyDataAndUpsert(new GetCompanyInfoDto());
 
@@ -53,7 +49,7 @@ public class DataServiceTest
     {
         A.CallTo(() => cacheService.CompanyExist(A<string>.Ignored, A<string>.Ignored)).Returns(false);
 
-        var service = new DataService(logger, httpService, cacheService, parameterService, dbService);
+        var service = new DataService(logger, httpService, cacheService, parameterService, taskDelayService, dbService);
 
         var result = await service.GetJobDataAndUpsert(new GetJobInfoDto());
 
@@ -68,7 +64,7 @@ public class DataServiceTest
         A.CallTo(() => cacheService.CompanyExist(A<string>.Ignored, A<string>.Ignored)).Returns(true);
         A.CallTo(() => httpService.GetJobInfo<JobDto>(A<GetJobInfoDto>.Ignored)).Returns(jobDto);
 
-        var service = new DataService(logger, httpService, cacheService, parameterService, dbService);
+        var service = new DataService(logger, httpService, cacheService, parameterService, taskDelayService, dbService);
 
         var result = await service.GetJobDataAndUpsert(new GetJobInfoDto());
 
@@ -87,7 +83,7 @@ public class DataServiceTest
         A.CallTo(() => cacheService.CompanyExist(A<string>.Ignored, A<string>.Ignored)).Returns(true);
         A.CallTo(() => httpService.GetJobInfo<JobDto>(A<GetJobInfoDto>.Ignored)).Returns(jobDto);
 
-        var service = new DataService(logger, httpService, cacheService, parameterService, dbService);
+        var service = new DataService(logger, httpService, cacheService, parameterService, taskDelayService, dbService);
 
         var result = await service.GetJobDataAndUpsert(new GetJobInfoDto());
 
@@ -106,7 +102,7 @@ public class DataServiceTest
         A.CallTo(() => cacheService.CompanyExist(A<string>.Ignored, A<string>.Ignored)).Returns(true);
         A.CallTo(() => httpService.GetJobInfo<JobDto>(A<GetJobInfoDto>.Ignored)).Returns(jobDto);
 
-        var service = new DataService(logger, httpService, cacheService, parameterService, dbService);
+        var service = new DataService(logger, httpService, cacheService, parameterService, taskDelayService, dbService);
 
         var result = await service.GetJobDataAndUpsert(new GetJobInfoDto());
 

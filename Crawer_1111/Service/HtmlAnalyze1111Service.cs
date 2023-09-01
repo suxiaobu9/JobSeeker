@@ -36,7 +36,7 @@ public class HtmlAnalyze1111Service : IHtmlAnalyzeService
             return null;
 
         cardContent = cardContent.Trim();
-        cardContent = Regex.Replace(cardContent, @"\s+", Environment.NewLine);
+        cardContent = Regex.Replace(cardContent, @"\s{2,}", Environment.NewLine);
         cardContent = cardContent.Replace("<br>", Environment.NewLine);
         cardContent = cardContent.Replace("<div>", "").Replace("</div>", Environment.NewLine);
 
