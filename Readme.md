@@ -47,8 +47,8 @@ docker compose -f docker-compose.yaml up -d
     docker push arisuokay/job-seeker-crawer-yourator:v2.4
     docker push arisuokay/job-seeker-crawer-yourator:latest
 
-    docker build -f ./Crawer_1111/Dockerfile -t arisuokay/job-seeker-crawer-1111:v2.3 -t arisuokay/job-seeker-crawer-1111:latest .
-    docker push arisuokay/job-seeker-crawer-1111:v2.3
+    docker build -f ./Crawer_1111/Dockerfile -t arisuokay/job-seeker-crawer-1111:v2.4 -t arisuokay/job-seeker-crawer-1111:latest .
+    docker push arisuokay/job-seeker-crawer-1111:v2.4
     docker push arisuokay/job-seeker-crawer-1111:latest
 
     docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.14 -t arisuokay/job-seeker-web:latest .
