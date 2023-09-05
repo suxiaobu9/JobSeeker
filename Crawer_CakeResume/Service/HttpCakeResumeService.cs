@@ -288,7 +288,7 @@ public class HttpCakeResumeService : BaseHttpService, IHttpService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(HttpCakeResumeService)} GetJobList get exception.{{content}}", content);
+            logger.LogError(ex, $"{nameof(HttpCakeResumeService)} GetJobList get exception.{{url}} {{content}}", url, content);
             return null;
         }
         finally

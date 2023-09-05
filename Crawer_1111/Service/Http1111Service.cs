@@ -4,6 +4,7 @@ using Model.Dto1111;
 using Service.HtmlAnalyze;
 using Service.Http;
 using Service.Parameter;
+using System.Net.Mime;
 using System.Text.Json;
 
 namespace Crawer_1111.Service;
@@ -234,7 +235,7 @@ public class Http1111Service : BaseHttpService, IHttpService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(Http1111Service)} GetJobList fail.{{url}}", url);
+            logger.LogError(ex, $"{nameof(Http1111Service)} GetJobList fail.{{url}} {{content}}", url, content);
             throw;
         }
 
