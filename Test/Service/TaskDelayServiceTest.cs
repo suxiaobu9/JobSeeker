@@ -13,29 +13,56 @@ public class TaskDelayServiceTest
     private readonly ITaskDelayService taskDelayService = new TaskDelayService();
 
     [Test]
-    public void GetWaitTime_6_18_AM5取_等待1小時()
+    public void GetWaitTime_5AM開始且時間區間是6AM與6PM_等待1小時()
     {
         var datetime = new DateTime(2023, 1, 1, 5, 0, 0);
         var expect = new TimeSpan(1, 0, 0);
-        var result = taskDelayService.GetWaitTime_6_18(datetime);
+        var result = taskDelayService.GetWaitTime(datetime, 6, 18);
         Assert.That(result, Is.EqualTo(expect));
     }
 
     [Test]
-    public void GetWaitTime_6_18_AM7取_等待11小時()
+    public void GetWaitTime_7AM開始且時間區間是6AM與6PM_等待11小時()
     {
         var datetime = new DateTime(2023, 1, 1, 7, 0, 0);
         var expect = new TimeSpan(11, 0, 0);
-        var result = taskDelayService.GetWaitTime_6_18(datetime);
+        var result = taskDelayService.GetWaitTime(datetime, 6, 18);
         Assert.That(result, Is.EqualTo(expect));
     }
 
     [Test]
-    public void GetWaitTime_6_18_PM19點取_等待11小時_測試跨日()
+    public void GetWaitTime_7PM開始且時間區間是6AM與6PM_等待11小時()
     {
         var datetime = new DateTime(2023, 1, 1, 19, 0, 0);
         var expect = new TimeSpan(11, 0, 0);
-        var result = taskDelayService.GetWaitTime_6_18(datetime);
+        var result = taskDelayService.GetWaitTime(datetime, 6, 18);
+        Assert.That(result, Is.EqualTo(expect));
+    }
+
+    [Test]
+    public void GetWaitTime_5AM開始且時間區間是12PM與6PM_等待7小時()
+    {
+        var datetime = new DateTime(2023, 1, 1, 5, 0, 0);
+        var expect = new TimeSpan(7, 0, 0);
+        var result = taskDelayService.GetWaitTime(datetime, 12, 18);
+        Assert.That(result, Is.EqualTo(expect));
+    }
+
+    [Test]
+    public void GetWaitTime_7AM開始且時間區間是12PM與6PM_等待5小時()
+    {
+        var datetime = new DateTime(2023, 1, 1, 7, 0, 0);
+        var expect = new TimeSpan(5, 0, 0);
+        var result = taskDelayService.GetWaitTime(datetime, 12, 18);
+        Assert.That(result, Is.EqualTo(expect));
+    }
+
+    [Test]
+    public void GetWaitTime_7PM開始且時間區間是12PM與6PM_等待17小時()
+    {
+        var datetime = new DateTime(2023, 1, 1, 19, 0, 0);
+        var expect = new TimeSpan(17, 0, 0);
+        var result = taskDelayService.GetWaitTime(datetime, 12, 18);
         Assert.That(result, Is.EqualTo(expect));
     }
 }

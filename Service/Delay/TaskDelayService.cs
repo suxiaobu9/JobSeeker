@@ -10,25 +10,29 @@ public class TaskDelayService : ITaskDelayService
     public Task WorkerWaiting()
     {
         var now = DateTime.UtcNow.AddHours(8);
-        return Delay(GetWaitTime_6_18(now));
+        return Delay(GetWaitTime(now, 12, 18));
     }
 
     /// <summary>
-    /// 取得等待時間，等到 6 點或 18 點
+    /// 取得等待時間
     /// </summary>
     /// <returns></returns>
-    public TimeSpan GetWaitTime_6_18(DateTime dateTime)
+    public TimeSpan GetWaitTime(DateTime dateTime, params int[] hours)
     {
-        var timeTo6 = new TimeSpan(6, 0, 0) - dateTime.TimeOfDay;
-        var timeTo18 = new TimeSpan(18, 0, 0) - dateTime.TimeOfDay;
+        if (hours.Length == 0)
+            throw new ArgumentNullException($"{nameof(hours)}");
+
+        var timeAry = hours.Select(x => new TimeSpan(x, 0, 0)).ToArray();
+
+        var timeDiff = timeAry
+            .Select(x => x - dateTime.TimeOfDay)
+            .Where(x => x > TimeSpan.Zero)
+            .ToArray();
+
+        if (timeDiff.Any())
+            return timeDiff.Min();
 
         // 處理跨日的情況
-        if (timeTo6 < TimeSpan.Zero && timeTo18 < TimeSpan.Zero)
-            return timeTo18 + TimeSpan.FromHours(12);
-
-        if (timeTo6 < TimeSpan.Zero)
-            return timeTo18;
-
-        return timeTo6;
+        return timeAry.Min() + TimeSpan.FromDays(1) - dateTime.TimeOfDay;
     }
 }

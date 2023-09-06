@@ -35,20 +35,20 @@ docker compose -f docker-compose.yaml up -d
 - build docker image
 
   ```ps1
-    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.29 -t arisuokay/job-seeker-crawer-104:latest .
-    docker push arisuokay/job-seeker-crawer-104:v2.29
+    docker build -f ./Crawer_104/Dockerfile -t arisuokay/job-seeker-crawer-104:v2.30 -t arisuokay/job-seeker-crawer-104:latest .
+    docker push arisuokay/job-seeker-crawer-104:v2.30
     docker push arisuokay/job-seeker-crawer-104:latest
 
-    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.26 -t arisuokay/job-seeker-crawer-cakeresume:latest .
-    docker push arisuokay/job-seeker-crawer-cakeresume:v2.26
+    docker build -f ./Crawer_CakeResume/Dockerfile -t arisuokay/job-seeker-crawer-cakeresume:v2.27 -t arisuokay/job-seeker-crawer-cakeresume:latest .
+    docker push arisuokay/job-seeker-crawer-cakeresume:v2.27
     docker push arisuokay/job-seeker-crawer-cakeresume:latest
 
-    docker build -f ./Crawer_Yourator/Dockerfile -t arisuokay/job-seeker-crawer-yourator:v2.4 -t arisuokay/job-seeker-crawer-yourator:latest .
-    docker push arisuokay/job-seeker-crawer-yourator:v2.4
+    docker build -f ./Crawer_Yourator/Dockerfile -t arisuokay/job-seeker-crawer-yourator:v2.5 -t arisuokay/job-seeker-crawer-yourator:latest .
+    docker push arisuokay/job-seeker-crawer-yourator:v2.5
     docker push arisuokay/job-seeker-crawer-yourator:latest
 
-    docker build -f ./Crawer_1111/Dockerfile -t arisuokay/job-seeker-crawer-1111:v2.7 -t arisuokay/job-seeker-crawer-1111:latest .
-    docker push arisuokay/job-seeker-crawer-1111:v2.7
+    docker build -f ./Crawer_1111/Dockerfile -t arisuokay/job-seeker-crawer-1111:v2.8 -t arisuokay/job-seeker-crawer-1111:latest .
+    docker push arisuokay/job-seeker-crawer-1111:v2.8
     docker push arisuokay/job-seeker-crawer-1111:latest
 
     docker build -f ./Web/Dockerfile -t arisuokay/job-seeker-web:v1.14 -t arisuokay/job-seeker-web:latest .
