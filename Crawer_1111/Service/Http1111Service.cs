@@ -165,77 +165,62 @@ public class Http1111Service : BaseHttpService, IHttpService
     /// <exception cref="NotImplementedException"></exception>
     public async Task<T?> GetJobList<T>(string url) where T : JobListDto<SimpleJobInfoDto>
     {
-        var content = "";
+        var html = "";
         try
         {
-            content = await GetDataFromHttpRequest(url);
+            html = await GetDataFromHttpRequest(url);
 
-            if (string.IsNullOrWhiteSpace(content))
+            if (string.IsNullOrWhiteSpace(html))
             {
                 logger.LogWarning($"{nameof(Http1111Service)} Job list content get null.{{url}}", url);
                 return null;
             }
 
-            var data = JsonSerializer.Deserialize<JobList1111Model>(content);
-
-            if (data == null || !data.HtmlTotal.Any())
-            {
-                logger.LogWarning($"{nameof(Http1111Service)} Job list data Deserialize get null.{{url}} {{content}}", url, content);
-                return null;
-            }
-
-            if (data.Pi == null || data.Pc == null || data.Pi > data.Pc)
-                return null;
-
             var jobList = new List<SimpleJobInfoDto>();
 
-            foreach (var html in data.HtmlTotal)
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(html);
+
+            var jobListHtmlCollection = htmlAnalyzeService.GetJobListCardContentNode(htmlDoc);
+
+            if (jobListHtmlCollection == null)
+                return null;
+
+            foreach (var jobListHtml in jobListHtmlCollection)
             {
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(html);
+                var jobNode = htmlAnalyzeService.GetJobListJobNode(jobListHtml);
+                var companyNode = htmlAnalyzeService.GetJobListCompanyNode(jobListHtml);
 
-                var jobListHtmlCollection = htmlAnalyzeService.GetJobListCardContentNode(htmlDoc);
-
-                if (jobListHtmlCollection == null)
+                if (jobNode is null || companyNode is null)
                     continue;
 
-                foreach (var jobListHtml in jobListHtmlCollection)
+                var jobHrefSplit = jobNode.GetAttributeValue("href", "").Split("/").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+                var companyHrefSplit = companyNode.GetAttributeValue("href", "").Split("/").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+
+                if (jobHrefSplit?.Length == null || companyHrefSplit?.Length == null || jobHrefSplit.Length < 2 || companyHrefSplit.Length < 2)
+                    continue;
+
+                var jobId = jobHrefSplit.LastOrDefault();
+                var companyId = companyHrefSplit.LastOrDefault();
+
+                if (string.IsNullOrWhiteSpace(jobId) || string.IsNullOrWhiteSpace(companyId))
+                    continue;
+
+                jobList.Add(new SimpleJobInfoDto
                 {
-                    var jobNode = htmlAnalyzeService.GetJobListJobNode(jobListHtml);
-                    var companyNode = htmlAnalyzeService.GetJobListCompanyNode(jobListHtml);
-
-                    if (jobNode is null || companyNode is null)
-                        continue;
-
-                    var jobHrefSplit = jobNode.GetAttributeValue("href", "").Split("/").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-                    var companyHrefSplit = companyNode.GetAttributeValue("href", "").Split("/").Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-
-                    if (jobHrefSplit?.Length == null || companyHrefSplit?.Length == null || jobHrefSplit.Length < 2 || companyHrefSplit.Length < 2)
-                        continue;
-
-                    var jobId = jobHrefSplit.LastOrDefault();
-                    var companyId = companyHrefSplit.LastOrDefault();
-
-                    if (string.IsNullOrWhiteSpace(jobId) || string.IsNullOrWhiteSpace(companyId))
-                        continue;
-
-                    jobList.Add(new SimpleJobInfoDto
-                    {
-                        JobId = jobId,
-                        CompanyId = companyId
-                    });
-                }
+                    JobId = jobId,
+                    CompanyId = companyId
+                });
             }
 
             return new JobListWithPageDto
             {
-                TotalPage = data.Pc.Value,
                 JobList = jobList,
             } as T;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"{nameof(Http1111Service)} GetJobList fail.{{url}} {{content}}", url, content);
+            logger.LogError(ex, $"{nameof(Http1111Service)} GetJobList fail.{{url}} {{content}}", url, html);
             throw;
         }
 
